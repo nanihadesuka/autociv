@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<objects>
+
+	<script directory="gui/common/" />
+	<script directory="gui/autociv_settings/" />
+
+	<object hotkey="cancel">
+		<action on="Press">	close() </action>
+	</object>
+
+	<!-- Add a translucent black background -->
+	<object
+			name="dialogBackground"
+			type="button"
+			sprite="color: 0 0 0 0">
+		<action on="MouseLeftPress"> close() </action>
+	</object>
+
+	<object
+			name="dialog"
+			type="image"
+			sprite="color: 40 40 40 255"
+			size="50% 0% 50% 100%">
+
+		<action on="Tick"> onTick() </action>
+		<object
+				name="scrollBox"
+				size="0% 0% 100%-15 100%">
+			<object name="scrollBoxDisplace">
+				<repeat
+						count="350"
+						var="n">
+					<object
+							name="setting[n]"
+							size="0% 0% 100% 0%"
+							hidden="true">
+
+						<object
+								name="setting_key_text[n]"
+								type="text"
+								textcolor="200 200 200 0"
+								sprite="color: 40 40 40 255"
+								text_valign="top"
+								buffer_zone="8"
+								size="0% 0% 50% 100%"
+								font="sans-bold-13" />
+						<object
+								name="setting_value[n]"
+								type="image"
+								sprite="color: 40 40 40 255"
+								size="50% 0% 100% 100%"
+								hidden="true">
+							<object
+									name="setting_value_text[n]"
+									size="0% 0% 100%-25-0-6-25-0-6-6 100%"
+									type="button"
+									sprite="color: 40 40 40 255">
+								<repeat count="4">
+									<object
+											size="0% 0%+4 0% 100%-4"
+											type="text"
+											textcolor="40 40 40 0"
+											sprite="color: 40 40 40 0"
+											buffer_zone="0"
+											font="sans-bold-14"
+											text_align="center"
+											text_valign="center"
+											hidden="true"
+											ghost="true" />
+								</repeat>
+							</object>
+							<object
+									name="setting_value_reset[n]"
+									size="100%-25-0-6-25-0-6 0% 100%-1-6-25-0-6 100%"
+									type="button"
+									sprite="color: 25 25 25 0"
+									textcolor="60 60 60 0"
+									text_valign="center"
+									text_align="center"
+									buffer_zone="0"
+									hidden="true"
+									font="sans-bold-16">
+								R
+							</object>
+							<object
+									name="setting_value_clear[n]"
+									size="100%-25-0-6 0% 100%-0-6 100%"
+									type="button"
+									sprite="color: 25 25 25 0"
+									textcolor="60 60 60 0"
+									text_valign="center"
+									text_align="center"
+									buffer_zone="0"
+									font="sans-bold-16">
+								C
+							</object>
+						</object>
+					</object>
+				</repeat>
+			</object>
+		</object>
+		<object
+				name="scrollBarTrack"
+				type="image"
+				size="100%-15 0% 100% 100%"
+				sprite="color: 40 40 40 255">
+			<object
+					name="scrollBarThumb"
+					type="image"
+					size="0% 50% 100% 60%"
+					sprite="color: 40 40 40 255" />
+		</object>
+
+		<object
+				name="restartMessage"
+				type="button"
+				size="0%+40 100%-100 0%+250 100%-30"
+				hidden="true"
+				text_align="left"
+				text_valign="center"
+				sprite="color: 0 0 0 0"
+				textcolor="255 0 0 0"
+				z="100"
+				buffer_zone="20"
+				font="sans-bold-16"
+				>
+			You need to restart the game for these changes to take effect.
+		</object>
+
+	</object>
+
+</objects>

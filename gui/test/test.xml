@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<objects>
+
+	<script directory="gui/common/" />
+	<script directory="gui/test/" />
+
+	<!-- Add a translucent black background -->
+	<object
+			name="dialogBackground"
+			type="button"
+			sprite="color: 0 0 0"
+			hotkey="cancel">
+		<action on="Press">
+			close();
+			warn("1")
+		</action>
+	</object>
+
+	<object
+			name="dialog"
+			type="image"
+			sprite="color: 40 40 40"
+			size="50% 0% 20% 100%"
+			hotkey="cancel">
+
+		<action on="Press"> warn("2")</action>
+
+		<action on="Tick"> onTick() </action>
+
+		<object
+				name="sdfdsf"
+				type="image"
+				sprite="color: 60 60 60"
+				size="50% 0% 20% 100%"
+				hotkey="cancel">
+
+			<action on="Press">
+				warn("3")</action>
+
+		</object>
+
+	</object>
+
+</objects>

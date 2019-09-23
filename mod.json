@@ -1,0 +1,10 @@
+{
+	"name": "autociv",
+	"version": "0.10.0",
+	"label": "Chat civ picker, map browser, hotkey editor, building placement hotkeys, building selection hotkeys, autotrain, local mute, chat link opener, FXAA, etc",
+	"description": "Author: nani. All compatible with vanilla.",
+	"dependencies": [
+		"0ad>=0.0.23",
+		"0ad<=0.0.24"
+	]
+}

@@ -1,0 +1,16 @@
+{
+	"random": ["random", "rando"],
+	"athen" : ["athenians", "athen","greece","greeks"],
+	"brit"  : ["britons", "brits", "britania","germania"],
+	"cart"  : ["carthaginians", "carta", "carthage"],
+	"spart" : ["spartans", "sparta", "esparta"],
+	"gaul"  : ["gauls", "galos","gauleses"],
+	"iber"  : ["iberians", "ibers","iberic"],
+	"maur"  : ["mauryans", "maury", "india", "mauritian","indians"],
+	"kush"  : ["kushites", "kushi"],
+	"mace"  : ["macedonians", "maced"],
+	"pers"  : ["persians", "persa"],
+	"ptol"  : ["ptolemies", "ptol", "ptolo", "ptololo", "ptolomeos", "ptoleme"],
+	"rome"  : ["romans", "rome"],
+	"sele"  : ["seleucids", "seleuc", "seles"]
+}

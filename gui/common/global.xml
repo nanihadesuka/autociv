@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+
+<!DOCTYPE objects SYSTEM "../gui.dtd">
+
+<objects>
+
+	<!--
+	==========================================
+	 - GLOBAL OBJECTS -
+	==========================================
+	-->
+
+	<object>
+
+		<!--
+		==========================================
+		- GAMESTATE NOTIFICATIONS
+		==========================================
+		-->
+		<object name="gameStateNotifications"
+			type="text"
+			ghost="true"
+			z="199"
+			size="100%-110 40 100%-110 40"
+			font="mono-stroke-10"
+			textcolor="255 219 77"
+			text_align="center"
+			text_valign="top"
+			sprite="color: 0 0 0 100"
+			>
+		</object>
+
+		<!--
+		==========================================
+		- FPS & REAL TIME & GAME TIME COUNTER
+		==========================================
+		-->
+		<object name="dataCounter"
+			type="text"
+			ghost="true"
+			hidden="false"
+			z="199"
+			size="100%-90 40 100%-5 40"
+			font="mono-10"
+			textcolor="white"
+			text_align="right"
+			text_valign="top"
+			sprite="color: 0 0 0 100"
+			>
+			<action on="Tick">
+				updateCounters();
+			</action>
+		</object>
+
+		<object name="fpsCounter"
+			type="text"
+			ghost="true"
+			hidden="true"
+			hotkey="fps.toggle"
+		>
+			<action on="Press">
+				Engine.ConfigDB_CreateValue("user", "overlay.fps", ""+(Engine.ConfigDB_GetValue("user", "overlay.fps")!== "true"));
+			</action>
+		</object>
+
+		<!--
+		==========================================
+		- TIME COUNTER
+		==========================================
+		-->
+
+		<object name="timeCounter"
+			type="text"
+			ghost="true"
+			hidden="true"
+			hotkey="realtime.toggle"
+		>
+			<action on="Press">
+				Engine.ConfigDB_CreateValue("user", "overlay.realtime", ""+(Engine.ConfigDB_GetValue("user", "overlay.realtime") !== "true"));
+			</action>
+		</object>
+
+		<!--
+		==========================================
+		- WATERMARK - USED WHEN TAKING OFFICIAL SCREENSHOTS
+		==========================================
+		-->
+
+		<object name="glbWaterMark"
+			hidden="true"
+			hotkey="screenshot.watermark"
+			z="200"
+		>
+			<action on="Press">
+				this.hidden = !this.hidden;
+			</action>
+
+			<object name="glbWaterMarkProductLogo"
+				type="image"
+				size="0 100%-88 190 100%"
+				sprite="watermarkProduct"
+			/>
+
+			<object name="glbWaterMarkCompanyLogo"
+				type="image"
+				size="100%-207 100%-28 100% 100%"
+				sprite="watermarkCompany"
+			/>
+		</object>
+
+		<!--
+		==========================================
+		- TICK ANIMATION ROUTINES - IF NOT USED, THEY DO NOTHING
+		==========================================
+		-->
+
+		<action on="Tick">
+			resizeBar.onTick();
+			animateObject.onTick();
+		</action>
+
+		<!--
+		==========================================
+		- RESIZE BAR - USED FOR VISUALIZING OBJECT RESIZE BAR
+		==========================================
+		-->
+
+		<object name="glResizeBar"
+			type="image"
+			sprite="color: 160 160 160 255"
+			hidden="true"
+			size="0 0 0 0"
+			z="800"
+		/>
+
+		<!--
+		==========================================
+		- MAP BROWSER BUTTON - USED IN GAMESETUP TO OPEN THE MAP BROWSER PAGE
+		==========================================
+		-->
+
+		<object name="glMapBrowser"
+			type="button"
+			sprite="color: 90 90 90"
+			hidden="true"
+			size="100%-45-60 0%+320-60 100%-45-0 0%+320+0"
+			z="799"
+			textcolor="200 200 200"
+			text_align="center"
+			text_valign="center"
+		>
+			<translatableAttribute id="caption">Map Browser</translatableAttribute>
+		</object>
+
+	</object>
+
+</objects>
