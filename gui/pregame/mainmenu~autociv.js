@@ -1,11 +1,15 @@
 function autociv_initCheck()
 {
-    let changes = false;
+    let state = {
+        "needsRestart": false,
+        "reasons": new Set()
+    };
+
     let configSaveToMemoryAndToDisk = (key, value) =>
     {
         Engine.ConfigDB_CreateValue("user", key, value);
         Engine.ConfigDB_WriteValueToFile("user", key, value, "config/user.cfg");
-        changes = true;
+        state.needsRestart = true;
     }
 
     /**
@@ -21,6 +25,7 @@ function autociv_initCheck()
             [mods[iFGod], mods[iAutociv]] = [mods[iAutociv], mods[iFGod]];
             Engine.SetMods(mods);
             configSaveToMemoryAndToDisk("mod.enabledmods", mods.join(" "));
+            state.reasons.add("Fixed wrong mod order. FGod needs to be loaded before AutoCiv.");
         }
     }
 
@@ -31,28 +36,44 @@ function autociv_initCheck()
     let resetToDefault_key = `mods.autociv.resetToDefault`;
     let resetToDefault_value = Engine.ConfigDB_GetValue("user", resetToDefault_key);
     let hotkeys = Engine.ReadJSONFile("autociv_data/default_config.json");
-    for (let key in hotkeys)
-        if (resetToDefault_value != "false" || Engine.ConfigDB_GetValue("user", key) == "")
-            configSaveToMemoryAndToDisk(key, hotkeys[key]);
 
+    // Reset all autociv settings to default. Custom added won't be affected.
     if (resetToDefault_value != "false")
+    {
+        for (let key in hotkeys)
+            configSaveToMemoryAndToDisk(key, hotkeys[key]);
         configSaveToMemoryAndToDisk(resetToDefault_key, "false");
+        state.reasons.add("Reseted to default AutoCiv settings.");
+    }
+    // Look for invalid settings entries
+    else for (let key in hotkeys)
+        if (Engine.ConfigDB_GetValue("user", key) == "")
+        {
+            configSaveToMemoryAndToDisk(key, hotkeys[key]);
+            state.reasons.add("Fixed AutoCiv invalid settings.");
+        }
 
-    return changes;
+    return state;
 };
 
 init = (function (originalFunction)
 {
     return function (...args)
     {
-        // Returns true if needs restart
-        if (autociv_initCheck())
+        let state = autociv_initCheck();
+        if (state.needsRestart)
         {
+            let message = [
+                "0 A.D needs to restart.\n",
+                "Reasons:\n",
+                ...Array.from(state.reasons).map(v => ` · ${v}`)
+            ].join("\n");
+
             messageBox(
                 500,
                 300,
-                `Autociv has detected mod settings changes !!\n0 A.D needs to be restarted for changes to take effect.`,
-                "Autociv mod notice",
+                message,
+                "AutoCiv mod notice",
                 ["Cancel", "Restart"],
                 [() => { }, () => Engine.RestartEngine()]
             );
