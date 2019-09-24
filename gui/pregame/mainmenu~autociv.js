@@ -1,4 +1,4 @@
-(function ()
+function autociv_initCheck()
 {
     let changes = false;
     let configSaveToMemoryAndToDisk = (key, value) =>
@@ -38,12 +38,41 @@
     if (resetToDefault_value != "false")
         configSaveToMemoryAndToDisk(resetToDefault_key, "false");
 
-    /**
-     * Restart game so changes get into effect.
-     */
-    if (changes)
-        Engine.RestartEngine();
-})();
+    return changes;
+};
+
+init = (function (originalFunction)
+{
+    return function (...args)
+    {
+        // Returns true if needs restart
+        if (autociv_initCheck())
+        {
+            messageBox(
+                500,
+                300,
+                `Autociv has detected mod settings changes !!\n0 A.D needs to be restarted for changes to take effect.`,
+                "Autociv mod notice",
+                ["Cancel", "Restart"],
+                [() => { }, () => Engine.RestartEngine()]
+            );
+
+            let hasFgodAutoStartup = Engine.ConfigDB_GetValue("user", "gui.startintolobby") === "true";
+            if (hasFgodAutoStartup)
+                Engine.ConfigDB_CreateValue("user", "gui.startintolobby", "false")
+
+            let result = originalFunction(...args);
+            if (hasFgodAutoStartup)
+                Engine.ConfigDB_CreateValue("user", "gui.startintolobby", "true")
+
+            return result;
+        }
+
+        return originalFunction(...args);
+    }
+})(init);
+
+
 
 var g_AutocivHotkeyActions = {
     "autociv.open.autociv_settings": function (ev)

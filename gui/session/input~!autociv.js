@@ -36,14 +36,14 @@ function showBuildingPlacementTerrainSnap(mousePosX, mousePosY)
 	// Includes an update of the snap entity candidates
 	updateBuildingPlacementPreview();
 
-	return false;
+	return;
 }
 
 /**
  * Select a building from the construction panel given the current unit(s) selected.
  * @param return - true if buildings exist and is selected to place.
  */
-function hotkeyPlaceBuildingType(genericName)
+function autociv_placeBuildingByGenericName(genericName)
 {
 	let translatedGenericName = translate(genericName);
 	let playerState = GetSimState().players[Engine.GetPlayerID()];
@@ -70,28 +70,41 @@ function hotkeyPlaceBuildingType(genericName)
 	return true;
 }
 
-function hotkeyCycleEntities(genericName)
+function autociv_selectEntityWithGenericName(genericName, selectAll, accumulateSelection)
 {
-	let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesByGenericName", genericName);
-	if (entities.length === undefined || !entities.length)
-		return false;
+	let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithGenericName", genericName);
+	return autociv_selectFromList(entities, selectAll, accumulateSelection);
+}
 
+function autociv_selectEntityWithClasses(classesList, selectAll, accumulateSelection)
+{
+	let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithClasses", classesList);
+	return autociv_selectFromList(entities, selectAll, accumulateSelection);
+}
+
+function autociv_selectFromList(entities, selectAll, accumulateSelection)
+{
+	if (selectAll === undefined)
+		selectAll = Engine.HotkeyIsPressed("selection.offscreen");
+
+	if (accumulateSelection === undefined)
+		accumulateSelection = Engine.HotkeyIsPressed("selection.add");
+
+	if (entities.length === undefined || !entities.length)
+		return;
 
 	// CASE 1: wants to select all entities of the same type.
-
-	if (Engine.HotkeyIsPressed("selection.offscreen"))
+	if (selectAll)
 	{
 		// CASE 1 + 3: doesn't want to keep current selection.
-		if (!Engine.HotkeyIsPressed("selection.add"))
+		if (!accumulateSelection)
 			g_Selection.reset();
 
 		g_Selection.addList(entities);
 		return true;
 	}
 
-
-	// CASE 2: cycle between entities of the same type once at a time.
-
+	// CASE 2: cycle between entities of the same type one at a time.
 	let entityIsCurrentlySelected = (entity) => g_Selection.selected[entity] !== undefined;
 
 	// Find the index in entities of the first entity inside current selection.
@@ -107,7 +120,7 @@ function hotkeyCycleEntities(genericName)
 		if (!entityIsCurrentlySelected(entity))
 		{
 			// CASE 2 + 3: doesn't want to keep current selection.
-			if (!Engine.HotkeyIsPressed("selection.add"))
+			if (!accumulateSelection)
 				g_Selection.reset();
 
 			g_Selection.addList([entity]);
@@ -115,30 +128,36 @@ function hotkeyCycleEntities(genericName)
 		}
 	}
 
-	return false;
+	return;
 }
 
-var g_autociv_Hotkeys = {
+var g_autociv_hotkeys = {
 	"autociv.session.building.autotrain.enable": function (ev)
 	{
 		if (ev.type == "hotkeydown")
+		{
 			Engine.GuiInterfaceCall("autociv_SetAutotrain", {
 				"active": true,
 				"entities": g_Selection.toList()
 			});
-
+			return true;
+		}
 	},
 	"autociv.session.building.autotrain.disable": function (ev)
 	{
 		if (ev.type == "hotkeydown")
+		{
 			Engine.GuiInterfaceCall("autociv_SetAutotrain", {
 				"active": false,
 				"entities": g_Selection.toList()
 			});
+			return true;
+		}
 	},
 	"autociv.open.autociv_settings": function (ev)
 	{
 		autocivCL.Engine.PushGuiPage("page_autociv_settings.xml");
+		return true;
 	}
 }
 
@@ -149,18 +168,19 @@ var g_autociv_SpecialHotkeys = {
 	"autociv.session.building.place.": function (ev, hotkeyPrefix)
 	{
 		let buildingGenericName = ev.hotkey.split(hotkeyPrefix)[1].replace(/_/g, " ");
-		if (!hotkeyPlaceBuildingType(buildingGenericName))
-			return;
-
-		g_autociv_SpecialHotkeyCalled = true;
+		return autociv_placeBuildingByGenericName(buildingGenericName);
 	},
-	// Hotkeys for unit or buildings selection, cycle
+	// Hotkeys for unit or buildings selection by generic name
 	"autociv.session.entity.select.": function (ev, hotkeyPrefix)
 	{
 		let entityGenericName = ev.hotkey.split(hotkeyPrefix)[1].replace(/_/g, " ");
-		if (!hotkeyCycleEntities(entityGenericName))
-			return;
-		g_autociv_SpecialHotkeyCalled = true;
+		return autociv_selectEntityWithGenericName(entityGenericName);
+	},
+	// Hotkeys for unit or buildings selection by classes
+	"autociv.session.entity.by.class.select.": function (ev, hotkeyPrefix)
+	{
+		let entityClassesList = ev.hotkey.split(hotkeyPrefix)[1].split("&").map(v => v.replace(/_/g, " "));
+		return autociv_selectEntityWithClasses(entityClassesList, true);
 	}
 };
 
@@ -170,16 +190,13 @@ handleInputAfterGui = (function (originalFunction)
 	{
 		// Special case hotkeys
 		if (!g_autociv_SpecialHotkeyCalled && ev.type == "hotkeydown")
-		{
 			for (let hotkeyPrefix in g_autociv_SpecialHotkeys)
 				if (ev.hotkey && ev.hotkey.startsWith(hotkeyPrefix))
-					if (g_autociv_SpecialHotkeys[hotkeyPrefix](ev, hotkeyPrefix))
-						break;
-		}
+					return !!g_autociv_SpecialHotkeys[hotkeyPrefix](ev, hotkeyPrefix);
 
 		// Hotkey with normal behaviour
-		if (ev.hotkey && g_autociv_Hotkeys[ev.hotkey])
-			g_autociv_Hotkeys[ev.hotkey](ev);
+		if (ev.hotkey && g_autociv_hotkeys[ev.hotkey])
+			return !!g_autociv_hotkeys[ev.hotkey](ev);
 
 		return originalFunction(ev);
 	}

@@ -59,7 +59,12 @@ openChat = (function (originalFunction)
 	return function (...args)
 	{
 		let result = originalFunction(...args);
-		setTimeout(() => Engine.GetGUIObjectByName("chatInput").caption = "", 1);
+		setTimeout(() =>
+		{
+			let chatInput = Engine.GetGUIObjectByName("chatInput");
+			if (chatInput.caption === "t")
+				chatInput.caption = "";
+		}, 1);
 		return result;
 	}
 })(openChat)

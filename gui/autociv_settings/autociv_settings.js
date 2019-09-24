@@ -571,14 +571,7 @@ let userConfig = {
 				"data": data
 			}, setComboCallback)
 		}
-		setting_value_text.onMouseLeftRelease = () =>
-		{
-			scrollBarThumb.view.displacementVel = 0;
-			autocivCL.Engine.PushGuiPage("autociv_settings/page_key_assign_dialog.xml", {
-				"absoluteSize": setting_value_text.getComputedSize(),
-				"data": data
-			}, setComboCallback)
-		}
+		setting_value_text.onMouseLeftRelease = setting_value_text.onPress;
 		setting_value_text.onMouseLeave = () => animateObject(setting_value_text, {
 			"color": setting_value_bg_color
 		});
@@ -587,9 +580,7 @@ let userConfig = {
 		});
 		verticalScroller.hookOnMouseWheelEventsFor(setting_value_text);
 		animateObject(setting_value_text, {
-			"start": {
-				"color": "40",
-			},
+			"start": { "color": "40" },
 			"color": setting_value_bg_color,
 		});
 
@@ -624,7 +615,9 @@ let userConfig = {
 
 				saveHotkeyCombo(i, value);
 			};
-			setting_value_reset.onMouseLeftPress = () => animateObject(setting_value_reset, { "color": "120" });
+			setting_value_reset.onMouseLeftPress = () => animateObject(setting_value_reset, {
+				"color": "120"
+			});
 			animateObject(setting_value_reset, {
 				"start": {
 					"color": "40 40 40 0",
