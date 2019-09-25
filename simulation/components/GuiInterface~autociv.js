@@ -45,32 +45,32 @@ GuiInterface.prototype.autociv_FindEntitiesWithClasses = function (player, class
 };
 GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (player, classesExpression)
 {
+    const genExpression = classesList =>
+    {
+        return classesExpression.replace(/([\w ]+)/g, match =>
+            classesList.indexOf(match.replace(/_/g, " ")) == -1 ? "0" : "1")
+    }
+
+    // Test classExmpression is valid expression for all cases with dummy data (empty [])
+    if (!/^[01&!|()]+$/.test(genExpression([])))
+    {
+        warn("INVALID HOTKEY EXPRESSION: " + classesExpression + "  Only operators allowed are: & ! | ( )");
+        return [];
+    }
+
     let rangeMan = Engine.QueryInterface(SYSTEM_ENTITY, IID_RangeManager);
 
-    return rangeMan.GetEntitiesByPlayer(player).filter(function (e)
+    return rangeMan.GetEntitiesByPlayer(player).filter(e =>
     {
         let cmpIdentity = Engine.QueryInterface(e, IID_Identity);
         let cmpUnitAI = Engine.QueryInterface(e, IID_UnitAI);
         let cmpFoundation = Engine.QueryInterface(e, IID_Foundation);
         let cmpMirage = Engine.QueryInterface(e, IID_Mirage);
-        let result = cmpIdentity &&
+        return cmpIdentity &&
             !cmpFoundation &&
             !cmpMirage &&
-            (cmpUnitAI ? !cmpUnitAI.IsGarrisoned() : true);
-
-        if (!result)
-            return false;
-
-        let classesList = cmpIdentity.GetClassesList();
-        let expression = classesExpression.replace(/([\w ]+)/g, match =>
-            classesList.indexOf(match.replace(/_/g, " ")) == -1 ? "0" : "1");
-
-        let validExpression = /^[01&!|()]+$/.test(expression);
-        if (validExpression)
-            return !!Function("return " + expression)();
-
-        warn("INVALID HOTKEY EXPRESSION: " + classesExpression + "  Only operators allowed are: & ! | ( )");
-        return false;
+            (cmpUnitAI ? !cmpUnitAI.IsGarrisoned() : true) &&
+            !!Function("return " + genExpression(cmpIdentity.GetClassesList()))();
     });
 };
 
