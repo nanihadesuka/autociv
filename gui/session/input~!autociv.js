@@ -76,9 +76,9 @@ function autociv_selectEntityWithGenericName(genericName, selectAll, accumulateS
 	return autociv_selectFromList(entities, selectAll, accumulateSelection);
 }
 
-function autociv_selectEntityWithClasses(classesList, selectAll, accumulateSelection)
+function autociv_selectEntityWithClassesExpression(classesExpression, selectAll, accumulateSelection)
 {
-	let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithClasses", classesList);
+	let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithClassesExpression", classesExpression);
 	return autociv_selectFromList(entities, selectAll, accumulateSelection);
 }
 
@@ -179,8 +179,8 @@ var g_autociv_SpecialHotkeys = {
 	// Hotkeys for unit or buildings selection by classes
 	"autociv.session.entity.by.class.select.": function (ev, hotkeyPrefix)
 	{
-		let entityClassesList = ev.hotkey.split(hotkeyPrefix)[1].split("&").map(v => v.replace(/_/g, " "));
-		return autociv_selectEntityWithClasses(entityClassesList, true);
+		let enitytClassesExpression = ev.hotkey.split(hotkeyPrefix)[1];
+		return autociv_selectEntityWithClassesExpression(enitytClassesExpression, true);
 	}
 };
 

@@ -1,10 +1,10 @@
 function autociv_initCheck()
 {
+    let hotkeys = Engine.ReadJSONFile("autociv_data/default_config.json");
     let state = {
         "needsRestart": false,
         "reasons": new Set()
     };
-
     let configSaveToMemoryAndToDisk = (key, value) =>
     {
         Engine.ConfigDB_CreateValue("user", key, value);
@@ -12,9 +12,7 @@ function autociv_initCheck()
         state.needsRestart = true;
     }
 
-    /**
-     * Reorder mods so FGod is always before AutoCiv
-     */
+    // Reorder mods so FGod is always before AutoCiv
     {
         let mods = Engine.ConfigDB_GetValue("user", "mod.enabledmods").trim().split(/\s+/g);
         let iFGod = mods.findIndex(v => v.toLowerCase().startsWith("fgod"));
@@ -25,33 +23,37 @@ function autociv_initCheck()
             [mods[iFGod], mods[iAutociv]] = [mods[iAutociv], mods[iFGod]];
             Engine.SetMods(mods);
             configSaveToMemoryAndToDisk("mod.enabledmods", mods.join(" "));
-            state.reasons.add("Fixed wrong mod order. FGod needs to be loaded before AutoCiv.");
+            state.reasons.add("Dected wrong mod order. Fixed. FGod needs to be loaded before AutoCiv.");
         }
     }
 
-    /**
-     * Game will be reloaded if some config value has an inavlid value
-     * (will reset that value) or if resetToDefault value isn't "false".
-     */
     let resetToDefault_key = `mods.autociv.resetToDefault`;
     let resetToDefault_value = Engine.ConfigDB_GetValue("user", resetToDefault_key);
-    let hotkeys = Engine.ReadJSONFile("autociv_data/default_config.json");
-
-    // Reset all autociv settings to default. Custom added won't be affected.
-    if (resetToDefault_value != "false")
+    // Reset all autociv settings to default. Custom autociv setting added won't be affected.
+    if (resetToDefault_value === "true")
     {
         for (let key in hotkeys)
             configSaveToMemoryAndToDisk(key, hotkeys[key]);
         configSaveToMemoryAndToDisk(resetToDefault_key, "false");
-        state.reasons.add("Reseted to default AutoCiv settings.");
+        state.reasons.add("AutoCiv settings reseted by user.");
     }
-    // Look for invalid settings entries
+    // When the mod is first executed will have this entry empty.
+    else if (resetToDefault_value === "")
+    {
+        for (let key in hotkeys)
+            configSaveToMemoryAndToDisk(key, hotkeys[key]);
+        configSaveToMemoryAndToDisk(resetToDefault_key, "false");
+        state.reasons.add("First time load. AutoCiv settings added.");
+    }
+    // Look for settings entries not defined
     else for (let key in hotkeys)
+    {
         if (Engine.ConfigDB_GetValue("user", key) == "")
         {
             configSaveToMemoryAndToDisk(key, hotkeys[key]);
-            state.reasons.add("Fixed AutoCiv invalid settings.");
+            state.reasons.add("New AutoCiv settings added.");
         }
+    }
 
     return state;
 };
