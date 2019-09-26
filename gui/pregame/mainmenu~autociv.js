@@ -84,17 +84,15 @@ init = (function (originalFunction)
             if (hasFgodAutoStartup)
                 Engine.ConfigDB_CreateValue("user", "gui.startintolobby", "false")
 
-            let result = originalFunction(...args);
+            let result = originalFunction.apply(this, args);
             if (hasFgodAutoStartup)
                 Engine.ConfigDB_CreateValue("user", "gui.startintolobby", "true")
 
             return result;
         }
-
-        return originalFunction(...args);
+        originalFunction.apply(this, args);
     }
 })(init);
-
 
 
 var g_AutocivHotkeyActions = {

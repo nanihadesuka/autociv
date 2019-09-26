@@ -1,10 +1,11 @@
 {
 	"name": "autociv",
 	"version": "0.11.3",
-	"label": "Chat civ picker, map browser, hotkey editor, building placement hotkeys, building selection hotkeys, autotrain, local mute, chat link opener, FXAA, etc",
-	"description": "Author: nani. All compatible with vanilla.",
+	"label": "Autociv mod 0 A.D. enhancer. Author: nani",
+	"description": "Features: chat civ picker, map browser, hotkey editor, building placement hotkeys, building selection hotkeys, autotrain, local mute, chat link opener, FXAA, etc. Compatible with vanilla.",
 	"dependencies": [
 		"0ad>=0.0.23",
 		"0ad<=0.0.24"
-	]
+	],
+	"url": "https://wildfiregames.com/forum/index.php?/topic/24649-autociv-mod-0ad-game-enhancer/"
 }

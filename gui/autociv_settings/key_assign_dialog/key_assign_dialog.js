@@ -204,6 +204,8 @@ function comboBreaker(newEntry)
 
 function handleInputBeforeGui(ev)
 {
+    warn(JSON.stringify(ev, null, 2))
+
     if (ev !== undefined &&
         ev.keysym !== undefined &&
         ev.keysym.sym in g_SDL_keycode_value_to_0ad_key)

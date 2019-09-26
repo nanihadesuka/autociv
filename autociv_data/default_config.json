@@ -89,7 +89,7 @@
 	"hotkey.autociv.session.entity.select.Greek_Theater": "unused",
 	"hotkey.autociv.session.entity.by.class.select.Support&Worker|(Support&Elephant)": "Alt+A",
 	"hotkey.autociv.session.entity.by.class.select.(Soldier|Siege|Dog)&!Ship": "Alt+S",
-	"hotkey.autociv.session.entity.by.class.select.Cavarly": "unused",
+	"hotkey.autociv.session.entity.by.class.select.Cavalry": "Alt+E",
 	"hotkey.autociv.session.entity.by.class.select.Ranged": "unused",
 	"hotkey.autociv.session.entity.by.class.select.Infantry": "unused",
 	"hotkey.autociv.session.entity.by.class.select.Siege": "unused",

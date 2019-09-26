@@ -45,19 +45,31 @@ GuiInterface.prototype.autociv_FindEntitiesWithClasses = function (player, class
 };
 GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (player, classesExpression)
 {
+    // /([^&!|()]+)/g  regex matches anything that is not a boolean operator
     const genExpression = classesList =>
-        classesExpression.replace(/([\w ]+)/g, match =>
+        classesExpression.replace(/([^&!|()]+)/g, match =>
             classesList.indexOf(match.replace(/_/g, " ")) == -1 ? "0" : "1")
 
-    // Test classesExpression is a valid expression ([] dummy data)
-    if (!/^[01&!|()]+$/.test(genExpression([])))
+    // Test classesExpression is a valid expression ([] as dummy data)
+    const testExpression = genExpression([]);
+    // /^[01&!|()]+$/ regex matches only 0 1 and boolean operators
+    if (!/^[01&!|()]+$/.test(testExpression))
     {
-        warn("INVALID HOTKEY EXPRESSION: " + classesExpression + "  Only operators allowed are: & ! | ( )");
+        // Known pitfall:
+        // & and && ( | and || ) are equivalent for 1 bit operations.
+        // Use & and | or && and || but do not mix both in the same expression.
+        warn("INVALID HOTKEY CLASS EXPRESSION: " + classesExpression + "  Only operators allowed are: & ! | ( )");
+        return [];
+    }
+    // Test expression is well defined (doesn't throw errors)
+    try { !!Function("return " + testExpression)() }
+    catch (err)
+    {
+        warn("INVALID HOTKEY CLASS EXPRESSION: " + classesExpression + " Expression wrongly defined")
         return [];
     }
 
     let rangeMan = Engine.QueryInterface(SYSTEM_ENTITY, IID_RangeManager);
-
     return rangeMan.GetEntitiesByPlayer(player).filter(e =>
     {
         let cmpIdentity = Engine.QueryInterface(e, IID_Identity);
