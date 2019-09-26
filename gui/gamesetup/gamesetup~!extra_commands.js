@@ -101,12 +101,16 @@ g_NetworkCommands['/help'] = () =>
 	const g_ChatCommandColor = "200 200 255";
 	let text = translate("Chat commands:");
 	for (let command in g_NetworkCommands)
-		// Translation: Chat command help format
+	{
+		let noSlashCommand = command.slice(1);
 		text += "\n" + sprintf(translate("%(command)s - %(description)s"), {
-			"command": coloredText(command.slice(1), g_ChatCommandColor),
-			"description": g_NetworkCommands[command].description || ""
+			"command": coloredText(noSlashCommand, g_ChatCommandColor),
+			"description": g_NetworkCommands[command] && g_NetworkCommands[command].description ?
+				g_NetworkCommands[command].description :
+				autociv_SharedCommands[noSlashCommand] && autociv_SharedCommands[noSlashCommand].description ?
+					autociv_SharedCommands[noSlashCommand].description : ""
 		});
-
+	}
 	selfMessage(text);
 }
 
@@ -122,8 +126,6 @@ function botToggleAction(botName)
 }
 
 g_NetworkCommands['/autociv'] = () => { if (g_IsController) botToggleAction('autociv'); };
-g_NetworkCommands['/nub'] = () => { if (g_IsController) botToggleAction('nub'); };
-g_NetworkCommands['/noproblemo'] = () => { if (g_IsController) botToggleAction('noproblemo'); };
 
 g_NetworkCommands['/ready'] = () => { if (!g_IsController) toggleReady(); toggleReady(); };
 g_NetworkCommands['/start'] = () => { if (g_IsController) launchGame(); };
@@ -174,31 +176,12 @@ function mapBrowserCallback(data)
 g_MiscControls["glMapBrowser"] = {
 	"tooltip": () =>
 	{
-		return sprintf(
-			translate("%(hotkey_openMapBrowser)s : Open map browser."),
-			{ "hotkey_openMapBrowser": colorizeHotkey("%(hotkey)s", "autociv.gamesetup.openMapBrowser") })
+		let hotkey = colorizeHotkey("%(hotkey)s", "autociv.gamesetup.openMapBrowser");
+		return sprintf(translate("%(hotkey)s : Open map browser."), { "hotkey": hotkey });
 	},
-	"onMouseLeftRelease": () => function ()
-	{
-		openMapBrowser();
-	},
-	"onMouseLeftPress": () => function ()
-	{
-		animateObject("glMapBrowser", {
-			"color": "160 160 160",
-		});
-	},
-	"onMouseEnter": () => function ()
-	{
-		animateObject("glMapBrowser", {
-			"color": "120 120 120",
-		});
-	},
-	"onMouseLeave": () => function ()
-	{
-		animateObject("glMapBrowser", {
-			"color": "90 90 90"
-		});
-	},
+	"onMouseLeftRelease": () => openMapBrowser,
+	"onMouseLeftPress": () => () => animateObject("glMapBrowser", { "color": "160 160 160", }),
+	"onMouseEnter": () => () => animateObject("glMapBrowser", { "color": "120 120 120", }),
+	"onMouseLeave": () => () => animateObject("glMapBrowser", { "color": "90 90 90" }),
 	"hidden": () => false
 };

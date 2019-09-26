@@ -136,8 +136,6 @@ function autociv_InitBots()
 	botManager.get("playerReminder").load(true);
 	botManager.get("mute").load(true);
 	botManager.get("vote").load(false);
-	botManager.get("nub").load(false);
-	botManager.get("noproblemo").load(false);
 	botManager.get("autociv").load(true);
 	botManager.get("link").load(true);
 	botManager.setMessageInterface("gamesetup");

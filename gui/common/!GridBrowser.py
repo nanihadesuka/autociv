@@ -51,22 +51,22 @@ class GridBrowser:
 
         # Update childs' content(generate page)
         if self.list.length == 0:
-            nubOfBoxesToShow = 0
+            numOfBoxesToShow = 0
         elif self.getCurrentPage() == self.getNumOfPages() - 1:
-            nubOfBoxesToShow = (self.list.length -
+            numOfBoxesToShow = (self.list.length -
                                 1) % self.getMaxNumBoxesInPage() + 1
         else:
-            nubOfBoxesToShow = self.getMaxNumBoxesInPage()
+            numOfBoxesToShow = self.getMaxNumBoxesInPage()
 
         startIndex = self.getCurrentPage() * self.getMaxNumBoxesInPage()
-        subList = self.list.slice(startIndex, startIndex + nubOfBoxesToShow)
-        subListChildren = self.children.slice(0, nubOfBoxesToShow)
-        for i in range(nubOfBoxesToShow):
+        subList = self.list.slice(startIndex, startIndex + numOfBoxesToShow)
+        subListChildren = self.children.slice(0, numOfBoxesToShow)
+        for i in range(numOfBoxesToShow):
             self.children[i].hidden = False
             self.childFunction(subList[i], i, subList, startIndex + i, self.list,
                                self.helperList, self.children[i], subListChildren, self.children)
 
-        for i in range(nubOfBoxesToShow, self.numBoxesCreated):
+        for i in range(numOfBoxesToShow, self.numBoxesCreated):
             self.children[i].hidden = True
 
     def getCurrentPage(self):

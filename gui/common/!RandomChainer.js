@@ -60,7 +60,7 @@ var RandomChain = /** @class */ (function () {
         var triesMax = 50;
         var genText = function () {
             if (tries++ > triesMax)
-                return "tears drop from faucet";
+                return "beep boop";
             var words = [];
             var firstWord = _this.randomKey();
             if (_this.isMark(firstWord))

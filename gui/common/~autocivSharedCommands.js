@@ -77,30 +77,6 @@ let autociv_SharedCommands = {
 			return false;
 		}
 	},
-	"randomPhrase": {
-		"description": "Random phrases Vol. 1.",
-		"handler": () =>
-		{
-			botManager.get("randomPhrase").sendRandomMessage();
-			return false;
-		}
-	},
-	"genPhrase": {
-		"description": "Generate nonsense phrases.",
-		"handler": () =>
-		{
-			botManager.get("genPhrase").sendRandomMessage();
-			return false;
-		}
-	},
-	"didYouKnow": {
-		"description": "Random did-you-knows.com phrases Vol. 1.",
-		"handler": () =>
-		{
-			botManager.get("didYouKnow").sendRandomMessage();
-			return false;
-		}
-	},
 	"vote": {
 		"description": "Voting poll. Use /vote option1:option2:option3:option4",
 		"handler": (votingChoices) =>

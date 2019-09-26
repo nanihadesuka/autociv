@@ -70,7 +70,7 @@ class RandomChain {
         let genText = (): string => {
 
             if (tries++ > triesMax)
-                return "tears drop from faucet"
+                return "beep boop"
 
             let words = [];
             let firstWord = this.randomKey();

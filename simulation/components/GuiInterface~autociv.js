@@ -46,10 +46,8 @@ GuiInterface.prototype.autociv_FindEntitiesWithClasses = function (player, class
 GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (player, classesExpression)
 {
     const genExpression = classesList =>
-    {
-        return classesExpression.replace(/([\w ]+)/g, match =>
+        classesExpression.replace(/([\w ]+)/g, match =>
             classesList.indexOf(match.replace(/_/g, " ")) == -1 ? "0" : "1")
-    }
 
     // Test classExmpression is valid expression for all cases with dummy data (empty [])
     if (!/^[01&!|()]+$/.test(genExpression([])))
