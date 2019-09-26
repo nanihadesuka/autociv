@@ -49,7 +49,7 @@ GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (pla
         classesExpression.replace(/([\w ]+)/g, match =>
             classesList.indexOf(match.replace(/_/g, " ")) == -1 ? "0" : "1")
 
-    // Test classExmpression is valid expression for all cases with dummy data (empty [])
+    // Test classesExpression is a valid expression ([] dummy data)
     if (!/^[01&!|()]+$/.test(genExpression([])))
     {
         warn("INVALID HOTKEY EXPRESSION: " + classesExpression + "  Only operators allowed are: & ! | ( )");

@@ -78,9 +78,19 @@ function autociv_selectEntityWithGenericName(genericName, selectAll, accumulateS
 
 function autociv_selectEntityWithClassesExpression(classesExpression, selectAll, accumulateSelection)
 {
+	let p = autociv_selectEntityWithClassesExpression;
+	if (Engine.GetMicroseconds() - p.lastCall < p.rateLimit &&
+		p.lastParameter === classesExpression)
+		return;
+	p.lastCall = Engine.GetMicroseconds();
+	p.lastParameter = classesExpression;
+
 	let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithClassesExpression", classesExpression);
 	return autociv_selectFromList(entities, selectAll, accumulateSelection);
 }
+autociv_selectEntityWithClassesExpression.rateLimit = 1000 * 1000;
+autociv_selectEntityWithClassesExpression.lastCall = Engine.GetMicroseconds();
+autociv_selectEntityWithClassesExpression.lastParameter = "";
 
 function autociv_selectFromList(entities, selectAll, accumulateSelection)
 {
@@ -140,8 +150,8 @@ var g_autociv_hotkeys = {
 				"active": true,
 				"entities": g_Selection.toList()
 			});
-			return true;
 		}
+		return true;
 	},
 	"autociv.session.building.autotrain.disable": function (ev)
 	{
@@ -151,8 +161,8 @@ var g_autociv_hotkeys = {
 				"active": false,
 				"entities": g_Selection.toList()
 			});
-			return true;
 		}
+		return true;
 	},
 	"autociv.open.autociv_settings": function (ev)
 	{
@@ -168,19 +178,22 @@ var g_autociv_SpecialHotkeys = {
 	"autociv.session.building.place.": function (ev, hotkeyPrefix)
 	{
 		let buildingGenericName = ev.hotkey.split(hotkeyPrefix)[1].replace(/_/g, " ");
-		return autociv_placeBuildingByGenericName(buildingGenericName);
+		autociv_placeBuildingByGenericName(buildingGenericName);
+		return true;
 	},
 	// Hotkeys for unit or buildings selection by generic name
 	"autociv.session.entity.select.": function (ev, hotkeyPrefix)
 	{
 		let entityGenericName = ev.hotkey.split(hotkeyPrefix)[1].replace(/_/g, " ");
-		return autociv_selectEntityWithGenericName(entityGenericName);
+		autociv_selectEntityWithGenericName(entityGenericName);
+		return true;
 	},
 	// Hotkeys for unit or buildings selection by classes
 	"autociv.session.entity.by.class.select.": function (ev, hotkeyPrefix)
 	{
 		let enitytClassesExpression = ev.hotkey.split(hotkeyPrefix)[1];
-		return autociv_selectEntityWithClassesExpression(enitytClassesExpression, true);
+		autociv_selectEntityWithClassesExpression(enitytClassesExpression, true);
+		return true;
 	}
 };
 
