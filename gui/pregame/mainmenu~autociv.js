@@ -27,20 +27,8 @@ function autociv_initCheck()
         }
     }
 
-    let settingsResetAll = Engine.ConfigDB_GetValue("user", "autociv.settings.reset.all");
-
-    // When the mod is executed for the first time it will have this entry empty.
-    if (settingsResetAll === "")
-    {
-        for (let key in settings)
-            if (Engine.ConfigDB_GetValue("user", key) === "")
-                configSaveToMemoryAndToDisk(key, settings[key]);
-        state.reasons.add("First time load. AutoCiv settings added.");
-        return state;
-    }
-
     // Reset all autociv settings to default. Custom autociv settings added won't be affected.
-    if (settingsResetAll === "true")
+    if (Engine.ConfigDB_GetValue("user", "autociv.settings.reset.all") === "true")
     {
         for (let key in settings)
             configSaveToMemoryAndToDisk(key, settings[key]);
