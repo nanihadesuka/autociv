@@ -29,13 +29,7 @@ vec3 radial_chromatic_aberration(vec2 v_tex)
 	return color;
 }
 
-vec3 radial_chromatic_aberration_norm()
-{
-	return radial_chromatic_aberration(v_tex);
-}
-
 void main(void)
 {
-	gl_FragColor.rgb = texture2D(renderedTex,v_tex).rgb;
-	gl_FragColor.rgb = radial_chromatic_aberration_norm();
+	gl_FragColor.rgb = radial_chromatic_aberration(v_tex);
 }

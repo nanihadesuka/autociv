@@ -158,7 +158,12 @@ init = (function (originalFunction)
 	{
 		autociv_InitBots();
 		originalFunction(args);
-		updateSettingsPanelPosition(-1)
+		// Fix hack for hack fix
+		updateSettingsPanelPosition(-1);
+
+		// FGod command not working
+		if ('/showip' in g_NetworkCommands)
+			delete g_NetworkCommands['/showip'];
 	}
 })(init);
 

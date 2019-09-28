@@ -167,8 +167,9 @@ AnimateGUIObject.prototype.Tick = function (time)
 		(time - this.values.start) / this.values.duration;
 	let x = this.values.curve(uniformTime);
 
-	for (let attribute in this.attributes)
-		this.attributes[attribute].calc(x);
+	if (!this.noAttributesUpdate)
+		for (let attribute in this.attributes)
+			this.attributes[attribute].calc(x);
 
 	if (this.settings.onTick)
 		this.settings.onTick(this.guiObject, this);
@@ -233,7 +234,17 @@ AnimateGUIObject.prototype.removePropertyIntersections = function (newAnimation,
  */
 AnimateGUIObject.prototype.complete = function ()
 {
-	this.value.end = Date.now();
+	this.values.end = Date.now();
+}
+
+/**
+ * Jump to the end of the animation without updating attributes.
+ * onStart/onTick/onComplete behaviour doesn't change.
+ */
+AnimateGUIObject.prototype.finish = function ()
+{
+	this.noAttributesUpdate = true;
+	this.values.end = Date.now();
 }
 
 

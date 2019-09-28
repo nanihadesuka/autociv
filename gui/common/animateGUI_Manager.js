@@ -171,6 +171,24 @@ AnimateGUIManager.prototype.complete = function (guiObject, completeQueue = fals
 	}
 }
 
+AnimateGUIManager.prototype.finish = function (guiObject, completeQueue = false)
+{
+	if (!this.running.has(guiObject.name))
+		return;
+
+	for (let animation of this.running.get(guiObject.name))
+		animation.finish();
+
+	if (!completeQueue || !this.queue.has(guiObject.name))
+		return;
+
+	for (let animation of this.queue.get(guiObject.name))
+	{
+		animation.values.delay = 0;
+		animation.values.duration = 0;
+	}
+}
+
 AnimateGUIManager.prototype.end = function (guiObject, endQueue = false)
 {
 	this.running.delete(guiObject.name);
@@ -226,6 +244,20 @@ animateObject.gui = new AnimateGUIManager();
 animateObject.complete = function (guiObject, completeQueue = false)
 {
 	animateObject.gui.complete(
+		animateObject.parseGUIObject(guiObject),
+		completeQueue
+	);
+}
+
+/**
+ * Ends animation as if had reached end time but without
+ * updating attributes.
+ * onStart/onTick/onComplete called as usual.
+ * Optional argument to complete all remaining queues.
+ */
+animateObject.finish = function (guiObject, completeQueue = false)
+{
+	animateObject.gui.finish(
 		animateObject.parseGUIObject(guiObject),
 		completeQueue
 	);

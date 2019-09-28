@@ -1,0 +1,15 @@
+/.git
+/.vscode
+
+# No blood mod
+/art/actors/props/units/blood_01.xml
+
+# Optional ignore
+#*.py
+#*.ts
+#*.bat
+#/tsconfig.json
+#/.pyromodignore
+#/autociv_data/EngineMethods.txt
+#/autociv_data/SDL_keycode_constant_to_0ad_key.json
+#/autociv_data/SDL_keycode_value_to_constant.json

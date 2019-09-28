@@ -1,49 +1,48 @@
 let g_containerBackground = {
-	"out": {
-		"color": { "a": 0.0 },
-		"queue": true
-	},
-	"in": {
-		"color": { "a": 0.4 },
-	},
 	"fadeIn": function ()
 	{
-		let settings = Object.assign({ "start": this.out }, this.in)
-		animateObject("dialogBackground", settings);
+		animateObject("dialogBackground", {
+			"start": { "color": { "a": 0 } },
+			"color": { "a": 0.4 },
+			"duration": 500
+		});
 	},
 	"fadeOut": function ()
 	{
-		let settings = Object.assign({ "start": this.in }, this.out)
-		animateObject("dialogBackground", settings);
+		animateObject("dialogBackground", {
+			"color": { "a": 0.0 }
+		});
 	}
 };
 
 let g_container = {
-	"out": {
-		"size": "50%-300 0%+50 50%+300 100%-50",
-		"color": "40",
-		"onStart": () =>
-		{
-			Engine.GetGUIObjectByName("scrollBoxDisplace").hidden = true;
-			Engine.GetGUIObjectByName("scrollBarTrack").hidden = true;
-			GUIReact.emit("restartMessage", "onClose");
-		},
-		"onComplete": () => autocivCL.Engine.PopGUIPage({}),
-		"queue": true,
-	},
-	"in": {
-		"size": "50%-420 0%+20 50%+420 100%-20",
-		"color": "40"
-	},
 	"fadeIn": function ()
 	{
-		let settings = Object.assign({ "start": this.out }, this.in)
-		animateObject("dialog", settings);
+		animateObject("dialog", {
+			"start": {
+				"size": "50%-300 0%+50 50%+300 100%-50",
+				"color": "40",
+			},
+			"size": "50%-420 0%+20 50%+420 100%-20",
+			"duration": 500
+		});
 	},
 	"fadeOut": function ()
 	{
-		let settings = Object.assign({ "start": this.in }, this.out, { "color": "40 40 40 0" })
-		animateObject("dialog", settings);
+		animateObject.finish("dialog");
+		animateObject("dialog", {
+			"start": {},
+			"onStart": () =>
+			{
+				Engine.GetGUIObjectByName("scrollBoxDisplace").hidden = true;
+				Engine.GetGUIObjectByName("scrollBarTrack").hidden = true;
+				GUIReact.emit("restartMessage", "onClose");
+			},
+			"onComplete": () => autocivCL.Engine.PopGUIPage({}),
+			"size": "50%-300 0%+50 50%+300 100%-50",
+			"color": "40 40 40 0",
+			"queue": true
+		});
 	}
 };
 
@@ -515,7 +514,12 @@ let userConfig = {
 		GUIReact.emit("scrollBarThumb", "onUpdate");
 		verticalScroller.hookOnMouseWheelEventsFor(setting);
 		GUIObjectSet(setting, {
-			"size": { "top": yPos(i, 0), "bottom": yPos(i, 1) }
+			"size": {
+				"top": yPos(i, 0),
+				"bottom": yPos(i, 1),
+				"left": 10,
+				"right": -10
+			}
 		});
 
 		scrollBox.updateChild(setting);
@@ -533,11 +537,11 @@ let userConfig = {
 		animateObject(setting_key_text, {
 			"start": {
 				"color": "40",
-				"size": { "left": 10, "right": data.folder ? 402 : 0 },
+				"size": { "rright": data.folder ? 100 : 50 },
 				"textcolor": { "a": 0 },
 			},
 			"textcolor": { "a": 1.0 },
-			"size": { "left": 10 + 20 * Math.max(0, data.list.length - 2) },
+			"size": { "left": 20 * Math.max(0, data.list.length - 2) },
 			"color": setting_key_text_bg_color,
 		});
 
@@ -556,8 +560,7 @@ let userConfig = {
 			"start": {
 				"color": "40",
 			},
-			"color": setting_value_bg_color,
-			"size": { "left": 0, "right": -10, },
+			"color": setting_value_bg_color
 		});
 
 		// #####################################################################
@@ -581,7 +584,7 @@ let userConfig = {
 		verticalScroller.hookOnMouseWheelEventsFor(setting_value_text);
 		animateObject(setting_value_text, {
 			"start": { "color": "40" },
-			"color": setting_value_bg_color,
+			"color": setting_value_bg_color
 		});
 
 		// #####################################################################
