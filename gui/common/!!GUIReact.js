@@ -18,7 +18,7 @@ var GUIReact = {
         {
             if (typeof object[key] != "function")
                 return;
-            if (key.match(/^on[A-Z].*/) === null)
+            if (key.match(/^on[A-Z]/) === null)
                 return;
 
             if (engineActionsHook && this.engineActions.has(key))

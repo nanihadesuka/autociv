@@ -9,9 +9,12 @@ let g_containerBackground = {
 	},
 	"fadeOut": function ()
 	{
+		if (this.done)
+			return;
 		animateObject("dialogBackground", {
 			"color": { "a": 0.0 }
 		});
+		this.done = true;
 	}
 };
 
@@ -29,6 +32,8 @@ let g_container = {
 	},
 	"fadeOut": function ()
 	{
+		if (this.done)
+			return;
 		animateObject.finish("dialog");
 		animateObject("dialog", {
 			"start": {},
@@ -40,9 +45,9 @@ let g_container = {
 			},
 			"onComplete": () => autocivCL.Engine.PopGUIPage({}),
 			"size": "50%-300 0%+50 50%+300 100%-50",
-			"color": "40 40 40 0",
-			"queue": true
+			"color": "40 40 40 0"
 		});
+		this.done = true;
 	}
 };
 
@@ -138,7 +143,6 @@ var scrollBox = {
 		scrolleeSize.top = -scrollBarThumb.view.displacement;
 		scrolleeSize.bottom = -scrollBarThumb.view.displacement;
 		scrollBoxDisplace.size = scrolleeSize;
-
 		this.updateAbsBBox();
 	},
 	"updateChild": function (child)
@@ -157,7 +161,6 @@ var scrollBox = {
 			child.hidden = false;
 		else if (!visible && !child.hidden)
 			child.hidden = true;
-
 	},
 	"ifFirstVisible": function (i)
 	{
@@ -222,19 +225,18 @@ var scrollBox = {
 		scrollBarThumb.view.displacementVel *= 0.92
 		scrollBarThumb.view.displacementVel = Math.abs(scrollBarThumb.view.displacementVel) < 1 ? 0 : scrollBarThumb.view.displacementVel;
 
-		if (scrollBarThumb.view.displacement + yScrollVisibleHeight > scrollBarThumb.view.displacementMax && scrollBarThumb.view.displacementVel > 0)
+		if (!scrollBarThumb.view.displacementVel)
+			return;
+
+		if (scrollBarThumb.view.displacementVel > 0 && scrollBarThumb.view.displacement + yScrollVisibleHeight > scrollBarThumb.view.displacementMax)
 			scrollBarThumb.view.displacement = scrollBarThumb.view.displacementMax - yScrollVisibleHeight + Math.exp(Math.log(Math.abs(scrollBarThumb.view.displacementVel)));
-		if (scrollBarThumb.view.displacement < 0 && scrollBarThumb.view.displacementVel < 0)
+		if (scrollBarThumb.view.displacementVel < 0 && scrollBarThumb.view.displacement < 0)
 			scrollBarThumb.view.displacement = 0 - Math.exp(Math.log(Math.abs(scrollBarThumb.view.displacementVel)));
 		else
 			scrollBarThumb.view.displacement += scrollBarThumb.view.displacementVel;
 
-		if (scrollBarThumb.view.displacementVel)
-		{
-			this.onUpdate();
-			GUIReact.emit("scrollBarThumb", "onUpdate");
-		}
-
+		this.onUpdate();
+		GUIReact.emit("scrollBarThumb", "onUpdate");
 	},
 	"init": function ()
 	{

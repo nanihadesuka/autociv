@@ -103,12 +103,11 @@ g_NetworkCommands['/help'] = () =>
 	for (let command in g_NetworkCommands)
 	{
 		let noSlashCommand = command.slice(1);
+		const nc = g_NetworkCommands[command];
+		const asc = autociv_SharedCommands[noSlashCommand]
 		text += "\n" + sprintf(translate("%(command)s - %(description)s"), {
 			"command": coloredText(noSlashCommand, g_ChatCommandColor),
-			"description": g_NetworkCommands[command] && g_NetworkCommands[command].description ?
-				g_NetworkCommands[command].description :
-				autociv_SharedCommands[noSlashCommand] && autociv_SharedCommands[noSlashCommand].description ?
-					autociv_SharedCommands[noSlashCommand].description : ""
+			"description": nc.description || asc && asc.description || ""
 		});
 	}
 	selfMessage(text);

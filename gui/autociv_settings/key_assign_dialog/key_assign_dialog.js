@@ -21,13 +21,8 @@ function init(attr)
     });
 
     animateObject("setting_value_border", { "color": "60 60 60 255", });
-
     animateObject("setting_value_text", { "color": "20 20 20 255" });
-
-    animateObject("options", {
-        "size": { "bottom": 30 },
-        "color": "60 60 60 255",
-    });
+    animateObject("options", { "size": { "bottom": 30 }, "color": "60 60 60 255" });
 
     let options_save = Engine.GetGUIObjectByName("options_save");
     Object.assign(options_save, {
@@ -98,9 +93,7 @@ function calcKeyWidth(text)
  * Out: [0,1,4,5,9,11]
  */
 function accumulateArray(list)
-{
-    return list.reduce((acum, value, i) => [...acum, value + acum[i]], [0])
-}
+{ return list.reduce((acum, value, i) => [...acum, value + acum[i]], [0]); }
 
 function getComboFromText(text)
 {
@@ -177,7 +170,7 @@ function comboGeneratorTrans(data)
 
 function onTick() { }
 
-function keyPriotiry(key)
+function keyPriority(key)
 {
     switch (key)
     {
@@ -191,14 +184,12 @@ function keyPriotiry(key)
 
 function comboBreaker(newEntry)
 {
-    if (g_currentCombo.length > 4 ||
-        g_currentCombo.some(entry => entry == newEntry))
+    if (g_currentCombo.length > 4 || g_currentCombo.includes(newEntry))
         return;
 
     g_noChanges = false;
     g_currentCombo.push(newEntry);
-    g_currentCombo.sort((a, b) => keyPriotiry(a) > keyPriotiry(b));
-
+    g_currentCombo.sort(keyPriority);
     comboGeneratorTrans({ "value": g_currentCombo.join("+") });
 };
 

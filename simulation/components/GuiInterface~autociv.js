@@ -50,7 +50,7 @@ GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (pla
         classesExpression.replace(/([^&!|()]+)/g, match =>
             classesList.indexOf(match.replace(/_/g, " ")) == -1 ? "0" : "1")
 
-    // Test classesExpression is a valid expression ([] as dummy data)
+    // Test if classesExpression is a valid expression ([] as dummy data)
     const testExpression = genExpression([]);
     // /^[01&!|()]+$/ regex matches only 0 1 and boolean operators
     if (!/^[01&!|()]+$/.test(testExpression))
