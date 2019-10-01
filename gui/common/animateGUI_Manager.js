@@ -46,154 +46,44 @@
 
 function AnimateGUIManager()
 {
-	// key = objectName , value = [animation1,animation2,animation3,...]
-	// If a value is [] its entry should be deleted
-	this.running = new Map();
-	this.queue = new Map();
+	// key = objectName , value = AnimateGUIObjectManager instance
+	this.objects = new Map();
 };
 
 AnimateGUIManager.prototype.addAnimation = function (guiObject, settings)
 {
-	let newAnimation = new AnimateGUIObject(guiObject, settings);
+	if (!this.objects.has(guiObject.name))
+		this.objects.set(guiObject.name, new AnimateGUIObjectManager(guiObject));
 
-	// If no animation running.
-	if (!this.running.has(guiObject.name))
-	{
-		this.running.set(guiObject.name, [newAnimation]);
-		this.queue.delete(guiObject.name);
-	}
-	// If animation(s) running and new animation doesn't queue.
-	else if (!newAnimation.values.queue)
-	{
-		/**
-		 * Delete parts of the other animations that conflict with
-		 * the new one and delete queue animations.
-		 */
-		let animations = this.running.get(guiObject.name).filter(animation =>
-			animation.removeIntersections(newAnimation).isAlive()
-		);
-		animations.push(newAnimation);
-		this.running.set(guiObject.name, animations);
-		this.queue.delete(guiObject.name);
-	}
-	// If animaton(s) running and new animation does queue.
-	else
-	{
-		if (this.queue.has(guiObject.name))
-			this.queue.get(guiObject.name).push(newAnimation);
-		else
-			this.queue.set(guiObject.name, [newAnimation]);
-	}
-	return newAnimation;
+	this.objects.get(guiObject.name).add(settings);
 };
-
-
-/**
- * Checks if there are animations waiting for processing in this same tick.
- * Not to confuse with queue.
- */
-AnimateGUIManager.prototype.pendingAnimations = function (objectName)
-{
-	if (this.running.has(objectName) && !this.running.get(objectName).length)
-		this.running.delete(objectName);
-
-	// If there are animations running
-	if (this.running.has(objectName))
-		return false;
-
-	// If there are no animations running and no animations pending
-	if (!this.queue.has(objectName))
-	{
-		this.running.delete(objectName);
-		return false;
-	}
-
-	let nextAnimation = this.queue.get(objectName).shift();
-
-	// If queue empty, delete queue.
-	if (!nextAnimation)
-	{
-		this.queue.delete(objectName);
-		return false;
-	}
-
-	// If there are no animations running but has animations pending
-	this.running.set(objectName, [nextAnimation]);
-
-	return true;
-}
 
 AnimateGUIManager.prototype.onTick = function ()
 {
-	let finishedAnimation = animation =>
-	{
-		let running = animation.run(time);
-		if (!running && animation.values.loop)
-		{
-			animateObject.gui.addAnimation(
-				animation.guiObject,
-				animation.settings
-			).values.loop = animation.values.loop;
-		}
-		return running;
-	};
-
-	/**
-	 * Repeat loop in case there are multiple animations
-	 * queued that have delay:0 and duration:0
-	 * (AnimateGUIManager.prototype.complete case)
-	 */
-	let time = Date.now();
-	for (let name of this.running.keys())
-		do
-		{
-			let runningAnimation = this.running.get(name).filter(finishedAnimation);
-			this.running.set(name, runningAnimation);
-		}
-		while (this.pendingAnimations(name))
+	for (let [name, object] of this.objects)
+		if (!object.onTick())
+			this.objects.delete(name);
 };
 
 AnimateGUIManager.prototype.complete = function (guiObject, completeQueue = false)
 {
-	if (!this.running.has(guiObject.name))
+	if (!this.objects.has(guiObject.name))
 		return;
-
-	for (let animation of this.running.get(guiObject.name))
-		animation.complete();
-
-	if (!completeQueue || !this.queue.has(guiObject.name))
-		return;
-
-	for (let animation of this.queue.get(guiObject.name))
-	{
-		animation.values.delay = 0;
-		animation.values.duration = 0;
-	}
+	this.objects.get(guiObject.name).complete(completeQueue)
 }
 
 AnimateGUIManager.prototype.finish = function (guiObject, completeQueue = false)
 {
-	if (!this.running.has(guiObject.name))
+	if (!this.objects.has(guiObject.name))
 		return;
-
-	for (let animation of this.running.get(guiObject.name))
-		animation.finish();
-
-	if (!completeQueue || !this.queue.has(guiObject.name))
-		return;
-
-	for (let animation of this.queue.get(guiObject.name))
-	{
-		animation.values.delay = 0;
-		animation.values.duration = 0;
-	}
+	this.objects.get(guiObject.name).finish(completeQueue)
 }
 
 AnimateGUIManager.prototype.end = function (guiObject, endQueue = false)
 {
-	this.running.delete(guiObject.name);
-	if (endQueue)
-		this.queue.delete(guiObject.name);
+	if (!this.objects.has(guiObject.name))
+		return;
+	this.objects.get(guiObject.name).end(endQueue)
 }
 
 /**
