@@ -435,7 +435,8 @@ botManager.addBot("link", {
 	"findAndAdd": function (text) { this.searchTextAndAddUrl(text); },
 	"parseURLs": function (text)
 	{
-		return text.match(/\bhttps?:\/\/\S+/gi);
+		// https://stackoverflow.com/a/48769624
+		return text.match(/(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+/gi);
 	},
 	"searchTextAndAddUrl": function (text)
 	{

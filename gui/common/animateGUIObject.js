@@ -255,23 +255,21 @@ function GUIObjectSet(GUIObject, settings)
 	const guiObject = typeof GUIObject == "string" ?
 		Engine.GetGUIObjectByName(GUIObject) :
 		GUIObject;
-	let startTypes = {};
 
+	let types = {};
 
 	if (settings !== undefined)
 		for (let type in identity)
 			if (settings[type])
-				startTypes[type] = typeof settings[type] == "object" ?
+				types[type] = typeof settings[type] == "object" ?
 					identity[type].fromObject(settings[type]) :
 					identity[type].fromString(settings[type]);
 
-	// warn(JSON.stringify(startTypes, null, 2))
-
-	for (let type in startTypes)
+	for (let type in types)
 	{
 		let object = identity[type].get(guiObject);
-		for (let parameter in startTypes[type])
-			object[parameter] = startTypes[type][parameter]
+		for (let parameter in types[type])
+			object[parameter] = types[type][parameter]
 		identity[type].set(guiObject, object);
 	}
 }
