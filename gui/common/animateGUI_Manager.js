@@ -67,23 +67,20 @@ AnimateGUIManager.prototype.onTick = function ()
 
 AnimateGUIManager.prototype.complete = function (guiObject, completeQueue = false)
 {
-	if (!this.objects.has(guiObject.name))
-		return;
-	this.objects.get(guiObject.name).complete(completeQueue)
+	if (this.objects.has(guiObject.name))
+		this.objects.get(guiObject.name).complete(completeQueue)
 }
 
 AnimateGUIManager.prototype.finish = function (guiObject, completeQueue = false)
 {
-	if (!this.objects.has(guiObject.name))
-		return;
-	this.objects.get(guiObject.name).finish(completeQueue)
+	if (this.objects.has(guiObject.name))
+		this.objects.get(guiObject.name).finish(completeQueue)
 }
 
 AnimateGUIManager.prototype.end = function (guiObject, endQueue = false)
 {
-	if (!this.objects.has(guiObject.name))
-		return;
-	this.objects.get(guiObject.name).end(endQueue)
+	if (this.objects.has(guiObject.name))
+		this.objects.get(guiObject.name).end(endQueue)
 }
 
 /**
@@ -102,81 +99,66 @@ AnimateGUIManager.prototype.end = function (guiObject, endQueue = false)
  */
 let animateObject = function (guiObject, settings)
 {
-	animateObject.gui.addAnimation(
-		animateObject.parseGUIObject(guiObject),
-		settings
-	);
+	animateObject.gui.addAnimation(animateObject.parseGUIObject(guiObject), settings);
 }
 
-animateObject.parseGUIObject = function (guiObject)
-{
-	return typeof guiObject == "string" ?
-		Engine.GetGUIObjectByName(guiObject) :
-		guiObject;
-}
-
-/**
- * Tick routine always called on all pages with
- * global.xml included (all?).
- */
-animateObject.onTick = function ()
-{
-	animateObject.gui.onTick();
-}
-
-animateObject.gui = new AnimateGUIManager();
-
-/**
- * Ends animation as if had reached end time.
- * onStart/onTick/onComplete called as usual.
- * Optional argument to complete all remaining queues.
- */
-animateObject.complete = function (guiObject, completeQueue = false)
-{
-	animateObject.gui.complete(
-		animateObject.parseGUIObject(guiObject),
-		completeQueue
-	);
-}
-
-/**
- * Ends animation as if had reached end time but without
- * updating attributes.
- * onStart/onTick/onComplete called as usual.
- * Optional argument to complete all remaining queues.
- */
-animateObject.finish = function (guiObject, completeQueue = false)
-{
-	animateObject.gui.finish(
-		animateObject.parseGUIObject(guiObject),
-		completeQueue
-	);
-}
-
-/**
- * Ends animation at given time of command.
- * onStart/onTick/onComplete not called.
- * Optional argument to end all remaining queues.
- */
-animateObject.end = function (guiObject, endQueue = false)
-{
-	animateObject.gui.end(
-		animateObject.parseGUIObject(guiObject),
-		endQueue
-	);
-}
-
-/**
- * Makes a chained animation
- * @param {Object} guiObject
- * @param {Object[]} chainSettingsList
- * @param {Object} sharedSettings
- */
-animateObject.chain = function (guiObject, chainSettingsList, sharedSettings = {})
-{
-	for (let settings of chainSettingsList)
-		animateObject(
-			guiObject,
-			Object.assign({}, sharedSettings, settings)
-		);
-}
+Object.assign(animateObject, {
+	"gui": new AnimateGUIManager(),
+	"add": function (guiObject, settings)
+	{
+		this.gui.addAnimation(this.parseGUIObject(guiObject), settings);
+	},
+	"parseGUIObject": function (guiObject)
+	{
+		return typeof guiObject == "string" ?
+			Engine.GetGUIObjectByName(guiObject) :
+			guiObject;
+	},
+	/**
+	 * Tick routine always called on all pages with
+	 * global.xml included (all?).
+	 */
+	"onTick": function ()
+	{
+		this.gui.onTick();
+	},
+	/**
+	 * Ends animation as if had reached end time.
+	 * onStart/onTick/onComplete called as usual.
+	 * Optional argument to complete all remaining queues.
+	 */
+	"complete": function (guiObject, completeQueue = true)
+	{
+		this.gui.complete(this.parseGUIObject(guiObject), completeQueue);
+	},
+	/**
+	 * Ends animation as if had reached end time but without
+	 * updating attributes.
+	 * onStart/onTick/onComplete called as usual.
+	 * Optional argument to complete all remaining queues.
+	 */
+	"finish": function (guiObject, completeQueue = true)
+	{
+		this.gui.finish(this.parseGUIObject(guiObject), completeQueue);
+	},
+	/**
+	 * Ends animation at given time of command.
+	 * onStart/onTick/onComplete not called.
+	 * Optional argument to end all remaining queues.
+	 */
+	"end": function (guiObject, endQueue = true)
+	{
+		this.gui.end(this.parseGUIObject(guiObject), endQueue);
+	},
+	/**
+	 * Makes a chained animation
+	 * @param {Object} guiObject
+	 * @param {Object[]} chainSettingsList
+	 * @param {Object} sharedSettings
+	 */
+	"chain": function (guiObject, chainSettingsList = [], sharedSettings = {})
+	{
+		for (let settings of chainSettingsList)
+			animateObject(guiObject, Object.assign({}, sharedSettings, settings));
+	}
+});

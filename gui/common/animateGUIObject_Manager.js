@@ -18,7 +18,7 @@ AnimateGUIObjectManager.prototype.add = function (settings)
 	if (!this.running.length)
 	{
 		this.running.push(newAnimation);
-		this.queue = [];
+		// this.queue = [];
 	}
 	// If animation(s) running and new animation doesn't queue.
 	else if (!newAnimation.values.queue)
@@ -27,8 +27,8 @@ AnimateGUIObjectManager.prototype.add = function (settings)
 		 * Delete parts of the other animations that conflict with
 		 * the new one and delete queue animations.
 		 */
-		this.running = this.running.filter(animation =>
-			animation.removeIntersections(newAnimation).isAlive());
+		let alive = animation => animation.removeIntersections(newAnimation).isAlive();
+		this.running = this.running.filter(alive);
 		this.running.push(newAnimation);
 		this.queue = [];
 	}
@@ -53,21 +53,15 @@ AnimateGUIObjectManager.prototype.pendingAnimations = function ()
 	if (!this.queue.length)
 		return false;
 
-	let nextAnimation = this.queue.shift();
-
-	// If queue empty, delete queue.
-	if (!nextAnimation)
-		return false;
-
 	// If there are no animations running but has animations pending
-	this.running = [nextAnimation];
+	this.running = [this.queue.shift()];
 
 	return true;
 }
 
 AnimateGUIObjectManager.prototype.onTick = function ()
 {
-	let time = Date.now();
+	const time = Date.now();
 	let finishedAnimation = animation =>
 	{
 		let running = animation.run(time);
@@ -87,43 +81,33 @@ AnimateGUIObjectManager.prototype.onTick = function ()
 	return this.isAlive();
 };
 
-AnimateGUIObjectManager.prototype.complete = function (completeQueue = false)
+AnimateGUIObjectManager.prototype.complete = function (completeQueue)
 {
-	if (!this.running.length)
-		return;
-
 	for (let animation of this.running)
 		animation.complete();
 
-	if (!completeQueue || !this.queue.length)
-		return;
-
-	for (let animation of this.queue)
-	{
-		animation.values.delay = 0;
-		animation.values.duration = 0;
-	}
+	if (completeQueue)
+		for (let animation of this.queue)
+		{
+			animation.values.delay = 0;
+			animation.values.duration = 0;
+		}
 }
 
-AnimateGUIObjectManager.prototype.finish = function (completeQueue = false)
+AnimateGUIObjectManager.prototype.finish = function (completeQueue)
 {
-	if (!this.running.length)
-		return;
-
 	for (let animation of this.running)
 		animation.finish();
 
-	if (!completeQueue || !this.queue.length)
-		return;
-
-	for (let animation of this.queue)
-	{
-		animation.values.delay = 0;
-		animation.values.duration = 0;
-	}
+	if (completeQueue)
+		for (let animation of this.queue)
+		{
+			animation.values.delay = 0;
+			animation.values.duration = 0;
+		}
 }
 
-AnimateGUIObjectManager.prototype.end = function (endQueue = false)
+AnimateGUIObjectManager.prototype.end = function (endQueue)
 {
 	this.running = [];
 	if (endQueue)

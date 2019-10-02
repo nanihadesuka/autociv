@@ -5,17 +5,17 @@ AnimateGUIObject.prototype.identity.size = {
 	"fromString": function (text)
 	{
 		let size = {};
-		let block = text.split(" ").filter(t => t != "").map(t => t.split("%"));
+		let blocks = text.match(/[\d%\.\+\-]+/g);
 		for (let i = 0; i < 4; ++i)
 		{
-			if (block[i].length == 2)
+			let block = blocks[i].split("%");
+			if (block.length == 2)
 			{
-				size[this.types[i + 4]] = +block[i][0];
-				if (block[i][1] != "")
-					size[this.types[i]] = +block[i][1];
+				size[this.types[i + 4]] = +block[0];
+				size[this.types[i]] = +block[1];
 			}
 			else
-				size[this.types[i]] = +block[i][0];
+				size[this.types[i]] = +block[0];
 		};
 		return size;
 	},
