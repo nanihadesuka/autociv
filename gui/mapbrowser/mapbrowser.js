@@ -138,12 +138,12 @@ var g_MapSelected = {
         if (isSameMap)
             return;
 
-        animateObject.chain("previewSelectedOverlay",
+        kinetic("previewSelectedOverlay").chain(
             g_AnimationSettings.previewSelectedOverlay.chain,
             g_AnimationSettings.previewSelectedOverlay.shared
         );
 
-        animateObject.chain("descriptionSelected",
+        kinetic("descriptionSelected").chain(
             g_AnimationSettings.descriptionSelected.chain,
             g_AnimationSettings.descriptionSelected.shared
         );
@@ -364,7 +364,7 @@ function childFunction(map, pageIndex, pageList, listIndex, list, selectedChild,
         false :
         g_MapSelected.map.file.name == map.file.name;
 
-    animateObject(mapButton, selectedChild[pageIndex] ?
+    kinetic(mapButton).add(selectedChild[pageIndex] ?
         g_AnimationSettings.childButton.selected :
         g_AnimationSettings.childButton.unselected
     );
@@ -380,20 +380,18 @@ function childFunction(map, pageIndex, pageList, listIndex, list, selectedChild,
         {
             if (i == pageIndex || selectedChild[i] == 0)
                 continue;
-            animateObject(
-                getObject("mapButton", i),
-                g_AnimationSettings.childButton.unselected
-            );
+            kinetic(getObject("mapButton", i)).
+                add(g_AnimationSettings.childButton.unselected);
             selectedChild[i] = false;
         }
         selectedChild[pageIndex] = true;
-        animateObject(mapButton, g_AnimationSettings.childButton.selected);
-        animateObject(mapPreview, g_AnimationSettings.childPreview.press);
+        kinetic(mapButton).add(g_AnimationSettings.childButton.selected);
+        kinetic(mapPreview).add(g_AnimationSettings.childPreview.press);
 
     };
     childObject.onMouseLeftRelease = () =>
     {
-        animateObject(mapPreview, g_AnimationSettings.childPreview.release);
+        kinetic(mapPreview).add(g_AnimationSettings.childPreview.release);
     };
     childObject.onMouseLeftDoubleClick = () =>
     {
@@ -402,11 +400,11 @@ function childFunction(map, pageIndex, pageList, listIndex, list, selectedChild,
     };
     childObject.onMouseEnter = () =>
     {
-        animateObject(mapBox, g_AnimationSettings.childMap.enter);
+        kinetic(mapBox).add(g_AnimationSettings.childMap.enter);
     };
     childObject.onMouseLeave = () =>
     {
-        animateObject(mapBox, g_AnimationSettings.childMap.leave);
+        kinetic(mapBox).add(g_AnimationSettings.childMap.leave);
     };
     childObject.onMouseWheelUp = () =>
     {
@@ -539,10 +537,8 @@ MapsSearchBoxInput.prototype.onTick = function ()
         return;
 
     if ((this.lastCaption && !caption) || (!this.lastCaption && caption))
-        animateObject(
-            this.mapsSearchBoxNotice,
-            { "textcolor": { "a": !caption ? "1" : "0" } }
-        );
+        kinetic(this.mapsSearchBoxNotice).
+            add({ "textcolor": { "a": !caption ? "1" : "0" } });
 
     if (!caption)
     {
@@ -587,7 +583,7 @@ function mapBrowserReturn(sendSelected)
             "type": g_MapSelected.map.type,
             "filter": g_MapSelected.filter
         }
-    } : {},true);
+    } : {}, true);
 }
 
 function onTick()

@@ -116,7 +116,7 @@
 
 		<action on="Tick">
 			resizeBar.onTick();
-			animateObject.onTick();
+			kinetic.onTick();
 		</action>
 
 		<!--

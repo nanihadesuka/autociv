@@ -10,9 +10,25 @@ AnimateGUIObjectManager.prototype.isAlive = function ()
 	return this.running.length || this.queue.length;
 };
 
-AnimateGUIObjectManager.prototype.add = function (settings)
+/**
+ * @param {Object} settings
+ * @param {Number} [settings.duration]
+ * @param {Number} [settings.delay]
+ * @param {String | Function} [settings.curve]
+ * @param {Function} [settings.onStart]
+ * @param {Function} [settings.onTick]
+ * @param {Function} [settings.onComplete]
+ * @param {Boolean} [settings.queue]
+ * @param {{r,g,b,a} | String} [settings.color]
+ * @param {{r,g,b,a} | String} [settings.textcolor]
+ * @param {{left,top,right,bottom,rleft,rtop,rright,rbottom} | String} settings.size
+ * @param {Number} [loop] Number of loops to do
+ */
+AnimateGUIObjectManager.prototype.add = function (settings, loop = undefined)
 {
 	let newAnimation = new AnimateGUIObject(this.guiObject, settings);
+	if (loop !== undefined)
+		this.values.loop = loop;
 
 	// If no animation running.
 	if (!this.running.length)
@@ -36,7 +52,7 @@ AnimateGUIObjectManager.prototype.add = function (settings)
 	else
 		this.queue.push(newAnimation)
 
-	return newAnimation;
+	return this;
 }
 
 /**
@@ -59,6 +75,10 @@ AnimateGUIObjectManager.prototype.pendingAnimations = function ()
 	return true;
 }
 
+/**
+ * Tick routine always called on all pages with
+ * global.xml included (all?).
+ */
 AnimateGUIObjectManager.prototype.onTick = function ()
 {
 	const time = Date.now();
@@ -66,7 +86,7 @@ AnimateGUIObjectManager.prototype.onTick = function ()
 	{
 		let running = animation.run(time);
 		if (!running && animation.values.loop)
-			this.add(animation.settings).values.loop = animation.values.loop;
+			this.add(animation.settings, animation.values.loop);
 		return running;
 	};
 
@@ -78,9 +98,14 @@ AnimateGUIObjectManager.prototype.onTick = function ()
 	do { this.running = this.running.filter(finishedAnimation); }
 	while (this.pendingAnimations())
 
-	return this.isAlive();
+	return this;
 };
 
+/**
+ * Ends animation as if had reached end time.
+ * onStart/onTick/onComplete called as usual.
+ * Optional argument to complete all remaining queues.
+ */
 AnimateGUIObjectManager.prototype.complete = function (completeQueue)
 {
 	for (let animation of this.running)
@@ -92,8 +117,16 @@ AnimateGUIObjectManager.prototype.complete = function (completeQueue)
 			animation.values.delay = 0;
 			animation.values.duration = 0;
 		}
+
+	return this;
 }
 
+/**
+ * Ends animation as if had reached end time but without
+ * updating attributes.
+ * onStart/onTick/onComplete called as usual.
+ * Optional argument to complete all remaining queues.
+ */
 AnimateGUIObjectManager.prototype.finish = function (completeQueue)
 {
 	for (let animation of this.running)
@@ -105,11 +138,33 @@ AnimateGUIObjectManager.prototype.finish = function (completeQueue)
 			animation.values.delay = 0;
 			animation.values.duration = 0;
 		}
+
+	return this;
 }
 
+/**
+ * Ends animation at given time of command.
+ * onStart/onTick/onComplete not called.
+ * Optional argument to end all remaining queues.
+ */
 AnimateGUIObjectManager.prototype.end = function (endQueue)
 {
 	this.running = [];
 	if (endQueue)
 		this.queue = [];
+
+	return this;
+}
+
+/**
+ * Chain animations
+ * @param {Object} guiObject
+ * @param {Object[]} chainSettingsList
+ * @param {Object} sharedSettings
+ */
+AnimateGUIObjectManager.prototype.chain = function (chainSettingsList, sharedSettings)
+{
+	for (let settings of chainSettingsList)
+		this.add(Object.assign({}, sharedSettings, settings));
+	return this;
 }

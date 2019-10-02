@@ -179,8 +179,8 @@ g_MiscControls["glMapBrowser"] = {
 		return sprintf(translate("%(hotkey)s : Open map browser."), { "hotkey": hotkey });
 	},
 	"onMouseLeftRelease": () => openMapBrowser,
-	"onMouseLeftPress": () => () => animateObject("glMapBrowser", { "color": "160 160 160", }),
-	"onMouseEnter": () => () => animateObject("glMapBrowser", { "color": "120 120 120", }),
-	"onMouseLeave": () => () => animateObject("glMapBrowser", { "color": "90 90 90" }),
+	"onMouseLeftPress": () => () => kinetic("glMapBrowser").add({ "color": "160 160 160", }),
+	"onMouseEnter": () => () => kinetic("glMapBrowser").add({ "color": "120 120 120", }),
+	"onMouseLeave": () => () => kinetic("glMapBrowser").add({ "color": "90 90 90" }),
 	"hidden": () => false
 };

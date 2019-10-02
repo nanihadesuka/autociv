@@ -1,7 +1,7 @@
 let g_containerBackground = {
 	"fadeIn": function ()
 	{
-		animateObject("dialogBackground", {
+		kinetic("dialogBackground").add({
 			"start": { "color": { "a": 0 } },
 			"color": { "a": 0.4 },
 			"duration": 500
@@ -11,7 +11,7 @@ let g_containerBackground = {
 	{
 		if (this.done)
 			return;
-		animateObject("dialogBackground", {
+		kinetic("dialogBackground").add({
 			"color": { "a": 0.0 }
 		});
 		this.done = true;
@@ -21,7 +21,7 @@ let g_containerBackground = {
 let g_container = {
 	"fadeIn": function ()
 	{
-		animateObject("dialog", {
+		kinetic("dialog").add({
 			"start": {
 				"size": "50%-300 0%+50 50%+300 100%-50",
 				"color": "40",
@@ -34,8 +34,7 @@ let g_container = {
 	{
 		if (this.done)
 			return;
-		animateObject.finish("dialog");
-		animateObject("dialog", {
+		kinetic("dialog").finish().add({
 			"start": {},
 			"onStart": () =>
 			{
@@ -92,21 +91,21 @@ let scrollBarThumb = {
 		this.whenPressed.displacement = this.view.displacement;
 		this.controling = true;
 
-		animateObject("scrollBarThumb", { "color": "100" });
+		kinetic("scrollBarThumb").add({ "color": "100" });
 	},
 	"onMouseEnter": function ()
 	{
-		animateObject("scrollBarThumb", { "color": "80", });
+		kinetic("scrollBarThumb").add({ "color": "80", });
 	},
 	"onMouseLeave": function ()
 	{
 		if (!this.controling)
-			animateObject("scrollBarThumb", { "color": "70", });
+			kinetic("scrollBarThumb").add({ "color": "70", });
 	},
 	"onMouseLeftRelease": function ()
 	{
 		this.controling = false;
-		animateObject("scrollBarThumb", { "color": "70" });
+		kinetic("scrollBarThumb").add({ "color": "70" });
 	},
 	"onUpdate": function ()
 	{
@@ -240,14 +239,14 @@ var scrollBox = {
 	},
 	"init": function ()
 	{
-		animateObject("scrollBarTrack", {
+		kinetic("scrollBarTrack").add({
 			"start": { "color": "40" },
 			"color": "50",
 			"duration": 1500,
 			"delay": 400,
 		});
 
-		animateObject("scrollBarThumb", {
+		kinetic("scrollBarThumb").add({
 			"start": { "color": "40" },
 			"color": "70",
 			"duration": 500,
@@ -317,7 +316,7 @@ function comboGenerator(i)
 		let hidden = combo[i] == undefined;
 		child.hidden = hidden;
 		if (hidden)
-			animateObject(child, {
+			kinetic(child).add({
 				"onComplete": (object) =>
 				{
 					object.hidden = true;
@@ -327,7 +326,7 @@ function comboGenerator(i)
 				"textcolor": "150 150 150 0",
 			});
 		else
-			animateObject(child, {
+			kinetic(child).add({
 				"size": {
 					"left": 4 + comboLenAcum[i],
 					"right": 4 + comboLenAcum[i + 1] - 4
@@ -531,12 +530,14 @@ let userConfig = {
 		let setting_key_text_bg_color = data.folder ? "10" : "30";
 		let setting_key_text = Engine.GetGUIObjectByName(`setting_key_text[${i}]`);
 		verticalScroller.hookOnMouseWheelEventsFor(setting_key_text);
-		setting_key_text.onMouseLeave = () => animateObject(setting_key_text,
-			{ "color": setting_key_text_bg_color });
-		setting_key_text.onMouseEnter = () => animateObject(setting_key_text,
-			{ "color": "70" });
+		setting_key_text.onMouseLeave = () => kinetic(setting_key_text).add({
+			"color": setting_key_text_bg_color
+		});
+		setting_key_text.onMouseEnter = () => kinetic(setting_key_text).add({
+			"color": "70"
+		});
 		setting_key_text.caption = (data.folder ? "▼  " : '[color="45 45 45 255"]●[/color]  ') + data.key;
-		animateObject(setting_key_text, {
+		kinetic(setting_key_text).add({
 			"start": {
 				"color": "40",
 				"size": { "rright": data.folder ? 100 : 50 },
@@ -558,7 +559,7 @@ let userConfig = {
 		let setting_value = Engine.GetGUIObjectByName(`setting_value[${i}]`);
 		verticalScroller.hookOnMouseWheelEventsFor(setting_value);
 		setting_value.hidden = false;
-		animateObject(setting_value, {
+		kinetic(setting_value).add({
 			"start": {
 				"color": "40",
 			},
@@ -577,14 +578,14 @@ let userConfig = {
 			}, setComboCallback)
 		}
 		setting_value_text.onMouseLeftRelease = setting_value_text.onPress;
-		setting_value_text.onMouseLeave = () => animateObject(setting_value_text, {
+		setting_value_text.onMouseLeave = () => kinetic(setting_value_text).add({
 			"color": setting_value_bg_color
 		});
-		setting_value_text.onMouseEnter = () => animateObject(setting_value_text, {
+		setting_value_text.onMouseEnter = () => kinetic(setting_value_text).add({
 			"color": "70"
 		});
 		verticalScroller.hookOnMouseWheelEventsFor(setting_value_text);
-		animateObject(setting_value_text, {
+		kinetic(setting_value_text).add({
 			"start": { "color": "40" },
 			"color": setting_value_bg_color
 		});
@@ -602,16 +603,16 @@ let userConfig = {
 			let setting_value_reset = Engine.GetGUIObjectByName(`setting_value_reset[${i}]`);
 			setting_value_reset.tooltip = "Reset to default value";
 			verticalScroller.hookOnMouseWheelEventsFor(setting_value_reset);
-			setting_value_reset.onMouseLeave = () => animateObject(setting_value_reset, {
+			setting_value_reset.onMouseLeave = () => kinetic(setting_value_reset).add({
 				"color": value_reset_bg_color,
 				"textcolor": "60"
 			});
-			setting_value_reset.onMouseEnter = () => animateObject(setting_value_reset, {
+			setting_value_reset.onMouseEnter = () => kinetic(setting_value_reset).add({
 				"textcolor": "0 255 0"
 			});
 			setting_value_reset.onMouseLeftRelease = () =>
 			{
-				animateObject(setting_value_reset, { "color": "100" });
+				kinetic(setting_value_reset).add({ "color": "100" });
 				let value = this.hasDefaultValue(data.list);
 				if (value === undefined)
 					value = this.hasAutocivDefaultValue(data.list);
@@ -620,10 +621,10 @@ let userConfig = {
 
 				saveHotkeyCombo(i, value);
 			};
-			setting_value_reset.onMouseLeftPress = () => animateObject(setting_value_reset, {
+			setting_value_reset.onMouseLeftPress = () => kinetic(setting_value_reset).add({
 				"color": "120"
 			});
-			animateObject(setting_value_reset, {
+			kinetic(setting_value_reset).add({
 				"start": {
 					"color": "40 40 40 0",
 					"textcolor": { "a": 0 },
@@ -640,22 +641,22 @@ let userConfig = {
 		let setting_value_clear = Engine.GetGUIObjectByName(`setting_value_clear[${i}]`);
 		setting_value_clear.tooltip = "Clear value (set to unused)";
 		verticalScroller.hookOnMouseWheelEventsFor(setting_value_clear);
-		setting_value_clear.onMouseLeave = () => animateObject(setting_value_clear, {
+		setting_value_clear.onMouseLeave = () => kinetic(setting_value_clear).add({
 			"color": value_clear_bg_color,
 			"textcolor": "60"
 		});
-		setting_value_clear.onMouseEnter = () => animateObject(setting_value_clear, {
+		setting_value_clear.onMouseEnter = () => kinetic(setting_value_clear).add({
 			"textcolor": "255 0 0"
 		});
 		setting_value_clear.onMouseLeftRelease = () =>
 		{
-			animateObject(setting_value_clear, { "color": "100" });
+			kinetic(setting_value_clear).add({ "color": "100" });
 			saveHotkeyCombo(i, "unused");
 		}
-		setting_value_clear.onMouseLeftPress = () => animateObject(setting_value_clear, {
+		setting_value_clear.onMouseLeftPress = () => kinetic(setting_value_clear).add({
 			"color": "120"
 		});
-		animateObject(setting_value_clear, {
+		kinetic(setting_value_clear).add({
 			"start": {
 				"color": "40 40 40 0",
 				"textcolor": { "a": 0 },
@@ -699,7 +700,7 @@ let restartMessage = {
 	"assignedGUIObjectName": "restartMessage",
 	"onOpen": function ()
 	{
-		animateObject("restartMessage", {
+		kinetic("restartMessage").add({
 			"onStart": object =>
 			{
 				object.hidden = false;
@@ -711,7 +712,7 @@ let restartMessage = {
 	},
 	"onClose": function ()
 	{
-		animateObject("restartMessage", {
+		kinetic("restartMessage").add({
 			"onComplete": object =>
 			{
 				object.hidden = true;

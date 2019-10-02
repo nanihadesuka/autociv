@@ -5,7 +5,7 @@ function AnimateGUIObject(guiObject, settings)
 
 	this.values = {};
 	for (let value in AnimateGUIObject.defaults)
-		this.values[value] = clone(settings[value] === undefined ?
+		this.values[value] = clone(this.settings[value] === undefined ?
 			AnimateGUIObject.defaults[value] : this.settings[value]);
 
 	this.values.curve = typeof this.values.curve == "string" ?

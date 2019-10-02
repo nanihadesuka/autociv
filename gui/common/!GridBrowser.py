@@ -128,7 +128,7 @@ class GridBrowser:
         for i in range(self.numBoxesCreated):
             x = i % self.nColumns
             y = Math.floor(i / self.nColumns)
-            animateObject(self.children[i], {
+            kinetic(self.children[i]).add({
                 "size":	{
                     "left": self.child.width * x - xCenter,
                     "right": self.child.width * (x + 1) - xCenter,
