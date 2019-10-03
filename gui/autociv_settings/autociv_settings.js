@@ -35,7 +35,6 @@ let g_container = {
 		if (this.done)
 			return;
 		kinetic("dialog").finish().add({
-			"start": {},
 			"onStart": () =>
 			{
 				Engine.GetGUIObjectByName("scrollBoxDisplace").hidden = true;

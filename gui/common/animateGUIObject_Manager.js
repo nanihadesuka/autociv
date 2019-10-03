@@ -22,13 +22,10 @@ AnimateGUIObjectManager.prototype.isAlive = function ()
  * @param {{r,g,b,a} | String} [settings.color]
  * @param {{r,g,b,a} | String} [settings.textcolor]
  * @param {{left,top,right,bottom,rleft,rtop,rright,rbottom} | String} settings.size
- * @param {Number} [loop] Number of loops to do
  */
-AnimateGUIObjectManager.prototype.add = function (settings, loop = undefined)
+AnimateGUIObjectManager.prototype.add = function (settings)
 {
 	let newAnimation = new AnimateGUIObject(this.guiObject, settings);
-	if (loop !== undefined)
-		this.values.loop = loop;
 
 	// If no animation running.
 	if (!this.running.length)
@@ -82,17 +79,10 @@ AnimateGUIObjectManager.prototype.pendingAnimations = function ()
 AnimateGUIObjectManager.prototype.onTick = function ()
 {
 	const time = Date.now();
-	let finishedAnimation = animation =>
-	{
-		let running = animation.run(time);
-		if (!running && animation.values.loop)
-			this.add(animation.settings, animation.values.loop);
-		return running;
-	};
+	let finishedAnimation = animation => animation.run(time);
 
 	/**
-	 * Repeat loop in case there are multiple animations
-	 * queued that have delay:0 and duration:0
+	 * For queued that have delay:0 and duration:0
 	 * (AnimateGUIObjectManager.prototype.complete case)
 	 */
 	do { this.running = this.running.filter(finishedAnimation); }

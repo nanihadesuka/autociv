@@ -11,32 +11,24 @@ function AnimateGUIObject(guiObject, settings)
 	this.values.curve = typeof this.values.curve == "string" ?
 		AnimateGUIObject.curves[this.values.curve] : this.values.curve;
 
+
+	let parse = rawSettings =>
+	{
+		let q = {};
+		for (let type in rawSettings)
+			if (type in this.identity)
+				q[type] = typeof rawSettings[type] == "object" ?
+					this.identity[type].fromObject(rawSettings[type]) :
+					this.identity[type].fromString(rawSettings[type]);
+		return q;
+	}
+
 	/**
 	 * Stores the initial settings parsed data that is defined in this.indentity.
-	 * Make sure that each type data is a copy of the original, no references.
 	 * Input must be "String" or "object".
 	 */
-	this.startTypes = {};
-	if (this.settings.start !== undefined)
-		for (let type in this.identity)
-			if (this.settings.start[type])
-				this.startTypes[type] = typeof this.settings.start[type] == "object" ?
-					this.identity[type].fromObject(this.settings.start[type]) :
-					this.identity[type].fromString(this.settings.start[type]);
-
-
-
-	/**
-	 * Stores the settings parsed data tht is defined in this.indentity.
-	 * Make sure that each type data is a copy of the original, no references.
-	 * Input must be "String" or "object".
-	 */
-	this.types = {};
-	for (let type in this.identity)
-		if (this.settings[type])
-			this.types[type] = typeof this.settings[type] == "object" ?
-				this.identity[type].fromObject(this.settings[type]) :
-				this.identity[type].fromString(this.settings[type]);
+	this.startTypes = this.settings.start ? parse(this.settings.start) : {};
+	this.types = parse(this.settings);
 
 	/**
 	 * Stores this.types parsed actions.
@@ -58,8 +50,7 @@ AnimateGUIObject.defaults = {
 	"duration": 200,
 	"curve": "easeOutQuint",
 	"delay": 0,
-	"queue": false,
-	"loop": 0
+	"queue": false
 };
 
 AnimateGUIObject.curves = {
@@ -73,7 +64,7 @@ AnimateGUIObject.curves = {
 
 /**
  * Types specialized methods (size, color, textcolor, ...)
- * Defined each in animateGUIObject_*.js
+ * Each defined in its animateGUIObject_*.js
  */
 AnimateGUIObject.prototype.identity = {};
 
@@ -84,7 +75,6 @@ AnimateGUIObject.prototype.parseAction = function (type)
 	let original = this.identity[type].get(this.guiObject);
 	for (let parameter in this.types[type])
 	{
-		// Important, don't simplify. Values most not be references.
 		let start = original[parameter];
 		let end = this.types[type][parameter];
 		attribute.parameters[parameter] = x => start + x * (end - start);
@@ -94,7 +84,7 @@ AnimateGUIObject.prototype.parseAction = function (type)
 	{
 		let object = this.identity[type].get(this.guiObject);
 		for (let parameter in attribute.parameters)
-			object[parameter] = attribute.parameters[parameter](x)
+			object[parameter] = attribute.parameters[parameter](x);
 		this.identity[type].set(this.guiObject, object);
 	}
 
@@ -111,10 +101,7 @@ AnimateGUIObject.prototype.run = function (time)
 	{
 		// Animation ends
 		if (!this.stagesChain.length)
-		{
-			this.values.loop = Math.max(0, this.values.loop - 1);
 			return false;
-		}
 		this.stage = this.stagesChain.shift();
 	}
 	return true;
@@ -163,8 +150,9 @@ AnimateGUIObject.prototype.Start = function (time)
 AnimateGUIObject.prototype.Tick = function (time)
 {
 	let running = time < this.values.end;
-	let uniformTime = !running ? 1 :
-		(time - this.values.start) / this.values.duration;
+	let uniformTime = running ?
+		(time - this.values.start) / this.values.duration :
+		1;
 	let x = this.values.curve(uniformTime);
 
 	if (!this.noAttributesUpdate)
