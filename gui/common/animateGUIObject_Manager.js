@@ -110,5 +110,6 @@ AnimateGUIObjectManager.prototype.chain = function (chainSettingsList, sharedSet
 {
 	for (let settings of chainSettingsList)
 		this.add(Object.assign({}, sharedSettings, settings));
+
 	return this;
 }

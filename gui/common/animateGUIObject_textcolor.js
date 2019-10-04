@@ -7,8 +7,7 @@ AnimateGUIObject.prototype.identity.textcolor = {
 	"get": guiObject =>
 	{
 		let color = guiObject.textcolor;
-		if (color.a === undefined)
-			color.a = 1;
+		color.a = color.a === undefined ? 1 : color.a;
 		return color;
 	},
 	"fromString": AnimateGUIObject.prototype.identity.color.fromString,

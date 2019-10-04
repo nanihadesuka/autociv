@@ -11,7 +11,6 @@ function AnimateGUIObject(guiObject, settings)
 	this.values.curve = typeof this.values.curve == "string" ?
 		AnimateGUIObject.curves[this.values.curve] : this.values.curve;
 
-
 	let parse = rawSettings =>
 	{
 		let q = {};
@@ -23,17 +22,11 @@ function AnimateGUIObject(guiObject, settings)
 		return q;
 	}
 
-	/**
-	 * Stores the initial settings parsed data that is defined in this.indentity.
-	 * Input must be "String" or "object".
-	 */
+	// Stores the initial parsed settings defined in this.indentity.
 	this.startTypes = this.settings.start ? parse(this.settings.start) : {};
 	this.types = parse(this.settings);
 
-	/**
-	 * Stores this.types parsed actions.
-	 * Filled in stage this.Start.
-	 */
+	// Stores this.types parsed actions. Filled in stageStart.
 	this.attributes = {};
 
 	this.stagesChain = [
@@ -43,6 +36,7 @@ function AnimateGUIObject(guiObject, settings)
 		this.stageTick,
 		this.stageComplete
 	];
+
 	this.stage = this.stagesChain[0];
 }
 
@@ -90,17 +84,12 @@ AnimateGUIObject.prototype.parseAction = function (type)
 
 	this.attributes[type] = attribute;
 	return this;
-}
+};
 
 AnimateGUIObject.prototype.run = function (time)
 {
-	// Loop if there are stages or a change of stage
-	while (true)
-	{
-		if (!this.stage || !this.stage(time))
-			break;
+	while (this.stage && this.stage(time))
 		this.stage = this.stagesChain.shift();
-	};
 	return this;
 };
 
@@ -123,7 +112,6 @@ AnimateGUIObject.prototype.stageDelay = function (time)
 
 AnimateGUIObject.prototype.stageStart = function (time)
 {
-
 	// Set starting type settings if any.
 	for (let type in this.startTypes)
 	{
@@ -133,12 +121,11 @@ AnimateGUIObject.prototype.stageStart = function (time)
 		this.identity[type].set(this.guiObject, object);
 	}
 
-
 	if (this.settings.onStart)
 		this.settings.onStart(this.guiObject, this);
 
 	/**
-	 * Parse action is called here given that the user might want
+	 * Parse action is called here given the user might want
 	 * to modify the object's initial values while the delay
 	 * animation is running.
 	 */
@@ -175,17 +162,15 @@ AnimateGUIObject.prototype.stageComplete = function (time)
 };
 
 /**
- * Checks if the animation has any type that still
- * modifies the guiObject.
+ * Checks if the animation has any type that still modifies the guiObject.
  */
 AnimateGUIObject.prototype.isAlive = function ()
 {
 	return !!Object.keys(this.types).length;
-}
+};
 
 /**
- * Removes types/attributes from the old animation that the
- * new animation has
+ * Removes types/attributes that the old animation has with the new animation.
  */
 AnimateGUIObject.prototype.removeIntersections = function (newAnimation)
 {
@@ -228,7 +213,7 @@ AnimateGUIObject.prototype.complete = function (noAttributesUpdate = false)
 	this.noAttributesUpdate = noAttributesUpdate;
 	this.values.end = Date.now();
 	return this;
-}
+};
 
 function GUIObjectSet(GUIObject, settings)
 {
