@@ -10,6 +10,7 @@
  *
  * 	Example of settings:
  *  {
+ * 	  "start"     : { "color": ... , "textcolor": ... , "size": ... }
  *	  "color"     : "255 255 255 12",
  *	  "color"     : { "r": 255, "g": 255, "b": 255, "a": 12 },
  *	  "textcolor" : "140 140 140 28",
@@ -60,7 +61,6 @@ AnimateGUIManager.prototype.onTick = function ()
 };
 
 
-
 function kinetic(guiObject)
 {
 	let name = typeof guiObject == "string" ? Engine.GetGUIObjectByName(guiObject) : guiObject;
@@ -68,4 +68,6 @@ function kinetic(guiObject)
 }
 
 kinetic.instance = new AnimateGUIManager();
+
+// onTick routine always called on all pages with global.xml included (all?)
 kinetic.onTick = function () { kinetic.instance.onTick(); }
