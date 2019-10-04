@@ -2,10 +2,7 @@ addChatMessage = (function (originalFunction)
 {
 	return function (msg)
 	{
-		if (botManager.react(msg))
-			return true;
-
-		originalFunction(msg);
+		return botManager.react(msg) || originalFunction.apply(this, arguments);
 	}
 
 })(addChatMessage)
@@ -23,19 +20,19 @@ function autociv_InitBots()
 
 init = (function (originalFunction)
 {
-	return function (...args)
+	return function ()
 	{
 		autociv_InitBots();
-		originalFunction(...args);
+		originalFunction.apply(this,arguments);
 	}
 })(init)
 
 onTick = (function (originalFunction)
 {
-	return function (...args)
+	return function ()
 	{
 		g_autociv_SpecialHotkeyCalled = false;
-		return originalFunction(...args);
+		return originalFunction.apply(this,arguments);
 	}
 })(onTick);
 
@@ -46,7 +43,7 @@ sendLobbyPlayerlistUpdate = (function (originalFunction)
 {
 	return function ()
 	{
-		originalFunction();
+		originalFunction.apply(this,arguments)
 
 		if (!g_IsController)
 			return;

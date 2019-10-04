@@ -15,8 +15,8 @@ function autociv_initCheck()
     // Reorder mods so FGod is always before AutoCiv
     {
         let mods = Engine.ConfigDB_GetValue("user", "mod.enabledmods").trim().split(/\s+/g);
-        let iFGod = mods.findIndex(v => v.toLowerCase().startsWith("fgod"));
-        let iAutociv = mods.findIndex(v => v.toLowerCase().startsWith("autociv"));
+        let iFGod = mods.findIndex(name => /^FGod.*/i.test(name));
+        let iAutociv = mods.findIndex(name => /^AutoCiv.*/i.test(name));
 
         if (iFGod != -1 && iAutociv != -1 && iFGod > iAutociv)
         {
@@ -61,8 +61,7 @@ init = (function (originalFunction)
             ].join("\n");
 
             messageBox(
-                500,
-                300,
+                500, 300,
                 message,
                 "AutoCiv mod notice",
                 ["Cancel", "Restart"],

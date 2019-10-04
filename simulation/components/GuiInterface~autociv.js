@@ -84,6 +84,8 @@ GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (pla
     });
 };
 
+// Adding a new key to the exposedFunctions object doesn't work,
+// must patch the original function
 let autociv_exposedFunctions = {
     "autociv_SetAutotrain": 1,
     "autociv_FindEntitiesWithGenericName": 1,
@@ -91,16 +93,12 @@ let autociv_exposedFunctions = {
     "autociv_FindEntitiesWithClassesExpression": 1
 };
 
-// Adding a new key to the exposedFunctions object doesn't work,
-// must patch the original function
-
 GuiInterface.prototype.ScriptCall = (function (originalFunction)
 {
     return function (player, name, args)
     {
-        if (autociv_exposedFunctions[name])
-            return this[name](player, args);
-
-        return originalFunction.apply(this, arguments);
+        return autociv_exposedFunctions[name] ?
+            this[name](player, args) :
+            originalFunction.apply(this, arguments);
     }
 })(GuiInterface.prototype.ScriptCall);

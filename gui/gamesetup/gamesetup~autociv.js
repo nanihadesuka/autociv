@@ -2,10 +2,7 @@ addChatMessage = (function (originalFunction)
 {
 	return function (msg)
 	{
-		if (botManager.react(msg))
-			return true;
-
-		originalFunction(msg);
+		return botManager.react(msg) || originalFunction.apply(this, arguments);
 	}
 })(addChatMessage);
 
@@ -13,18 +10,16 @@ addChatMessage = (function (originalFunction)
 if ("getFilteredMods" in global)
 	var getFilteredMods = function ()
 	{
-		const modName = "fgod"; // mod to ignore
-		return Engine.GetEngineInfo().mods.filter(mod =>
-			!mod[0].toLowerCase().startsWith(modName.toLowerCase()));
+		let mod = ([name, version]) => !/^FGod.*/i.test(name);
+		return Engine.GetEngineInfo().mods.filter(mod);
 	};
 
 getFilteredMods = (function (originalFunction)
 {
 	return function ()
 	{
-		const modName = "autociv"; // mod to ignore
-		return originalFunction().filter(mod =>
-			!mod[0].toLowerCase().startsWith(modName.toLowerCase()));
+		let mod = ([name, version]) => !/^AutoCiv.*/i.test(name);
+		return originalFunctiona.apply(this, arguments).filter(mod);
 	}
 })(getFilteredMods);
 
@@ -40,6 +35,9 @@ getFilteredMods = (function (originalFunction)
 // 		}
 // 	})(getFilteredMods);
 // });
+
+var g_autociv_stanza = new ConfigJSON("stanza", false);
+g_autociv_stanza.removeAllValues();
 
 sendRegisterGameStanzaImmediate = function ()
 {
@@ -67,8 +65,10 @@ sendRegisterGameStanzaImmediate = function ()
 		"players": clients.list,
 		"stunIP": g_StunEndpoint ? g_StunEndpoint.ip : "",
 		"stunPort": g_StunEndpoint ? g_StunEndpoint.port : "",
-		"mods": JSON.stringify(getFilteredMods())
+		"mods": JSON.stringify(getFilteredMods()) // <----- THIS CHANGES
 	};
+
+	g_autociv_stanza.setValue("gamesetup",stanza);
 
 	// Only send the stanza if the relevant settings actually changed
 	if (g_LastGameStanza && Object.keys(stanza).every(prop => g_LastGameStanza[prop] == stanza[prop]))
@@ -77,38 +77,6 @@ sendRegisterGameStanzaImmediate = function ()
 	g_LastGameStanza = stanza;
 	Engine.SendRegisterGame(stanza);
 };
-
-var g_autociv_stanza = new ConfigJSON("stanza", false);
-g_autociv_stanza.removeAllValues();
-
-sendRegisterGameStanzaImmediate = (function (originalFunction)
-{
-	return function ()
-	{
-		originalFunction();
-
-		if (!g_IsController)
-			return;
-
-		let clients = formatClientsForStanza();
-		g_autociv_stanza.setValue("gamesetup", {
-			"name": g_ServerName,
-			"port": g_ServerPort,
-			"hostUsername": Engine.LobbyGetNick(),
-			"mapName": g_GameAttributes.map,
-			"niceMapName": getMapDisplayName(g_GameAttributes.map),
-			"mapSize": g_GameAttributes.mapType == "random" ? g_GameAttributes.settings.Size : "Default",
-			"mapType": g_GameAttributes.mapType,
-			"victoryConditions": g_GameAttributes.settings.VictoryConditions.join(","),
-			"nbp": clients.connectedPlayers,
-			"maxnbp": g_GameAttributes.settings.PlayerData.length,
-			"players": clients.list,
-			"stunIP": g_StunEndpoint ? g_StunEndpoint.ip : "",
-			"stunPort": g_StunEndpoint ? g_StunEndpoint.port : "",
-			"mods": JSON.stringify(getFilteredMods())
-		});
-	}
-})(sendRegisterGameStanzaImmediate);
 
 var g_AutocivHotkeyActions = {
 	"autociv.gamesetup.openMapBrowser": function (ev)
@@ -162,15 +130,6 @@ init = (function (originalFunction)
 		updateSettingsPanelPosition(-1);
 
 		// FGod command not working
-		if ('/showip' in g_NetworkCommands)
-			delete g_NetworkCommands['/showip'];
+		delete g_NetworkCommands['/showip'];
 	}
 })(init);
-
-onTick = (function (originalFunction)
-{
-	return function ()
-	{
-		originalFunction();
-	}
-})(onTick);

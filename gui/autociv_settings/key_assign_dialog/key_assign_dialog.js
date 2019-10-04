@@ -24,7 +24,9 @@ function init(attr)
     kinetic("setting_value_text").add({ "color": "20 20 20 255" });
     kinetic("options").add({ "size": { "bottom": 30 }, "color": "60 60 60 255" });
 
+    // Save button
     let options_save = Engine.GetGUIObjectByName("options_save");
+    kinetic(options_save).add({ "color": { "g": 50 / 255 } });
     Object.assign(options_save, {
         "onMouseLeftPress": () => kinetic(options_save).add({ "color": { "g": 150 / 255 } }),
         "onMouseLeftRelease": () =>
@@ -42,9 +44,10 @@ function init(attr)
         "onMouseEnter": () => kinetic(options_save).add({ "color": { "g": 70 / 255 } }),
         "onMouseLeave": () => kinetic(options_save).add({ "color": { "g": 50 / 255 } })
     })
-    kinetic(options_save, { "color": { "g": 50 / 255 } });
 
+    // Clear button
     let options_clear = Engine.GetGUIObjectByName("options_clear");
+    kinetic(options_clear).add({ "color": { "b": 50 / 255 } });
     Object.assign(options_clear, {
         "onMouseLeftPress": () => kinetic(options_clear).add({ "color": { "b": 150 / 255 } }),
         "onMouseLeftRelease": () =>
@@ -57,9 +60,10 @@ function init(attr)
         "onMouseEnter": () => kinetic(options_clear).add({ "color": { "b": 70 / 255 } }),
         "onMouseLeave": () => kinetic(options_clear).add({ "color": { "b": 50 / 255 } })
     })
-    kinetic(options_clear).add({ "color": { "b": 50 / 255 } });
 
+    // Cancel button
     let options_cancel = Engine.GetGUIObjectByName("options_cancel");
+    kinetic(options_cancel).add({ "color": { "r": 50 / 255 } });
     Object.assign(options_cancel, {
         "onMouseLeftPress": () => kinetic(options_cancel).add({ "color": { "r": 150 / 255 } }),
         "onMouseLeftRelease": () =>
@@ -70,7 +74,6 @@ function init(attr)
         "onMouseEnter": () => kinetic(options_cancel).add({ "color": { "r": 70 / 255 } }),
         "onMouseLeave": () => kinetic(options_cancel).add({ "color": { "r": 50 / 255 } })
     })
-    kinetic(options_cancel).add({ "color": { "r": 50 / 255 } });
 
     comboGenerator(attr.data)
 }
@@ -88,19 +91,9 @@ function calcKeyWidth(text)
     }
 };
 
-/**
- * In : [1,3,1,4,2]
- * Out: [0,1,4,5,9,11]
- */
-function accumulateArray(list)
-{ return list.reduce((acum, value, i) => [...acum, value + acum[i]], [0]); }
-
-function getComboFromText(text)
-{
-    return text.
-        split("+").
-        filter(t => -1 == ["unused", ""].indexOf(t))
-}
+// In : [1,3,1,4,2]   Out: [0,1,4,5,9,11]
+let accumulateArray = list => list.reduce((acum, value, i) => [...acum, value + acum[i]], [0]);
+let getComboFromText = text => text.split("+").filter(t => !["unused", ""].includes(t));
 
 function comboGenerator(data)
 {

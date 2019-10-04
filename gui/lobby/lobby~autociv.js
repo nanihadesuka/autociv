@@ -77,14 +77,10 @@ addChatMessage = (function (originalFunction)
 {
 	return function (msg)
 	{
-		if (botManager.react(msg))
-			return true;
-
-		return g_Autociv_addChatMessageOptim.messagesFilter(originalFunction, msg);
+		return botManager.react(msg) || g_Autociv_addChatMessageOptim.messagesFilter(originalFunction, msg);
 	};
 
 })(addChatMessage)
-
 
 g_ChatCommands["pingall"] = {
 	"description": translate("Ping all 'Online' and 'Observer' players."),
@@ -149,7 +145,6 @@ var g_AutocivHotkeyActions = {
 	}
 };
 
-
 function handleInputBeforeGui(ev)
 {
 	resizeBar.onEvent(ev);
@@ -160,13 +155,12 @@ function handleInputBeforeGui(ev)
 	return false;
 }
 
-
 function mapBrowserCallback() { }
+
 function openMapBrowser()
 {
 	autocivCL.Engine.PushGuiPage("page_mapbrowser.xml", {}, mapBrowserCallback);
 }
-
 
 function autociv_InitBots()
 {
@@ -230,7 +224,6 @@ setLeaderboardVisibility = (function (originalFunction)
 	}
 })(setLeaderboardVisibility);
 
-
 setUserProfileVisibility = (function (originalFunction)
 {
 	return function (visible)
@@ -239,7 +232,6 @@ setUserProfileVisibility = (function (originalFunction)
 		originalFunction(visible);
 	}
 })(setUserProfileVisibility);
-
 
 function autociv_reconnect()
 {

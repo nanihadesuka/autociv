@@ -2,8 +2,7 @@ hasSameMods = (function (originalFunction)
 {
 	return function (modsA, modsB)
 	{
-		const modName = "fgod";
-		let mod = name => !name[0].toLowerCase().startsWith(modName.toLowerCase());
+		let mod = ([name, version]) => !/^FGod.*/i.test(name);
 		return originalFunction(modsA.filter(mod), modsB.filter(mod));
 	}
 })(hasSameMods);
@@ -12,8 +11,7 @@ hasSameMods = (function (originalFunction)
 {
 	return function (modsA, modsB)
 	{
-		const modName = "autociv";
-		let mod = name => !name[0].toLowerCase().startsWith(modName.toLowerCase());
+		let mod = ([name, version]) => !/^AutoCiv.*/i.test(name);
 		return originalFunction(modsA.filter(mod), modsB.filter(mod));
 	}
 })(hasSameMods);

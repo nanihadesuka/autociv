@@ -1,6 +1,6 @@
 // Set.prototype.isSuperset = function (set)
 // {
-//     for (var elem of set)
+//     for (let elem of set)
 //         if (!this.has(elem))
 //             return false;
 //     return true;
@@ -8,16 +8,16 @@
 
 // Set.prototype.union = function (set)
 // {
-//     var _union = new Set(this);
-//     for (var elem of set)
+//     let _union = new Set(this);
+//     for (let elem of set)
 //         _union.add(elem);
 //     return _union;
 // }
 
 // Set.prototype.intersection = function (set)
 // {
-//     var _intersection = new Set();
-//     for (var elem of set)
+//     let _intersection = new Set();
+//     for (let elem of set)
 //         if (this.has(elem))
 //             _intersection.add(elem);
 //     return _intersection;
@@ -25,8 +25,8 @@
 
 // Set.prototype.symmetricDifference = function (set)
 // {
-//     var _difference = new Set(this);
-//     for (var elem of set)
+//     let _difference = new Set(this);
+//     for (let elem of set)
 //     {
 //         if (_difference.has(elem))
 //             _difference.delete(elem);
@@ -42,8 +42,8 @@ if (!Set.prototype.difference)
 {
     Set.prototype.difference = function (set)
     {
-        var _difference = new Set(this);
-        for (var elem of set)
+        let _difference = new Set(this);
+        for (let elem of set)
             _difference.delete(elem);
         return _difference;
     }
@@ -73,7 +73,7 @@ if (!Object.entries)
 {
     Object.entries = function (obj)
     {
-        var ownProps = Object.keys(obj),
+        let ownProps = Object.keys(obj),
             i = ownProps.length,
             resArray = new Array(i); // preallocate the Array
         while (i--)
@@ -92,7 +92,8 @@ if (!String.prototype.padStart)
         if (this.length >= targetLength)
         {
             return String(this);
-        } else
+        }
+        else
         {
             targetLength = targetLength - this.length;
             if (targetLength > padString.length)

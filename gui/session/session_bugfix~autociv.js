@@ -56,9 +56,9 @@ function displayPanelEntities()
 // Hack fix to the "t"
 openChat = (function (originalFunction)
 {
-	return function (...args)
+	return function ()
 	{
-		let result = originalFunction(...args);
+		let result = originalFunction.apply(this, arguments);
 		setTimeout(() =>
 		{
 			let chatInput = Engine.GetGUIObjectByName("chatInput");
