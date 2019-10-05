@@ -457,6 +457,12 @@ botManager.addBot("link", {
 		if (!Number.isInteger(i) || i < 0 || i >= this.linkList.length)
 			return "No links or invalid index.";
 
+		let url = String(this.linkList[i]);
+
+		// If the URL doesn't  have a protocol prefix the game crashes :S
+		if (!/(https?|ftp):.*/i.test(url))
+			url = "http://" + url.trim();
+
 		Engine.OpenURL(String(this.linkList[i]));
 		return false;
 	},

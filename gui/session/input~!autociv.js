@@ -70,23 +70,6 @@ function autociv_placeBuildingByGenericName(genericName)
 	return true;
 }
 
-setTimeout(() =>
-{
-	removeFromProductionQueue = function (entity, id)
-	{
-		warn(JSON.stringify({
-			"entity": entity,
-			"id": id
-		}))
-		Engine.PostNetworkCommand({
-			"type": "stop-production",
-			"entity": entity,
-			"id": id
-		});
-	}
-}, 1);
-
-
 function autociv_clearSelectedProductionQueues()
 {
 	let playerState = GetSimState().players[Engine.GetPlayerID()];
