@@ -19,7 +19,7 @@ getFilteredMods = (function (originalFunction)
 	return function ()
 	{
 		let mod = ([name, version]) => !/^AutoCiv.*/i.test(name);
-		return originalFunctiona.apply(this, arguments).filter(mod);
+		return originalFunction.apply(this, arguments).filter(mod);
 	}
 })(getFilteredMods);
 
@@ -114,7 +114,7 @@ selectPanel = (function (originalFunction)
 {
 	return function (arg)
 	{
-		originalFunction(arg);
+		originalFunction.apply(this,arguments);
 		if (arg === undefined)
 			Engine.GetGUIObjectByName("chatInput").focus();
 	}
@@ -125,7 +125,7 @@ init = (function (originalFunction)
 	return function (args)
 	{
 		autociv_InitBots();
-		originalFunction(args);
+		originalFunction.apply(this,arguments);
 		// Fix hack for hack fix
 		updateSettingsPanelPosition(-1);
 

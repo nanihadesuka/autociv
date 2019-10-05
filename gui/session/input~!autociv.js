@@ -70,18 +70,40 @@ function autociv_placeBuildingByGenericName(genericName)
 	return true;
 }
 
-function autociv_clearSelectedProductionQueue()
+setTimeout(() =>
+{
+	removeFromProductionQueue = function (entity, id)
+	{
+		warn(JSON.stringify({
+			"entity": entity,
+			"id": id
+		}))
+		Engine.PostNetworkCommand({
+			"type": "stop-production",
+			"entity": entity,
+			"id": id
+		});
+	}
+}, 1);
+
+
+function autociv_clearSelectedProductionQueues()
 {
 	let playerState = GetSimState().players[Engine.GetPlayerID()];
 	if (!playerState || Engine.GetGUIObjectByName("unitQueuePanel").hidden)
 		return;
 
-	for (let i = 0; i < g_SelectionPanels.Queue.getMaxNumberOfItems(); ++i)
+	g_Selection.toList().flatMap(GetEntityState).filter(v => !!v).forEach(entity =>
 	{
-		let button = Engine.GetGUIObjectByName(`unitQueueButton[${i}]`);
-		if (button && !button.hidden && button.enabled && button.onPress)
-			button.onPress();
-	}
+		if (entity.production && entity.production.queue && entity.id !== undefined)
+			for (let queueItem of entity.production.queue)
+				if (queueItem.id !== undefined)
+					Engine.PostNetworkCommand({
+						"type": "stop-production",
+						"entity": entity.id,
+						"id": queueItem.id
+					});
+	});
 	return true;
 }
 
@@ -188,7 +210,7 @@ var g_autociv_hotkeys = {
 	{
 		if (ev.type == "hotkeydown")
 		{
-			autociv_clearSelectedProductionQueue();
+			autociv_clearSelectedProductionQueues();
 		}
 		return true;
 	}
