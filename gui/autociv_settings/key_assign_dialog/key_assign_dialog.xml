@@ -9,9 +9,7 @@
 	<object
 			name="dialogBackground"
 			type="button"
-			sprite="color: 0 0 0 0">
-		<action on="Tick"> onTick() </action>
-	</object>
+			sprite="color: 0 0 0 0" />
 
 	<object
 			name="dialog"

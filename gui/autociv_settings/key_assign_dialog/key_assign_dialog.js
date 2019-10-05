@@ -161,8 +161,6 @@ function comboGeneratorTrans(data)
     });
 }
 
-function onTick() { }
-
 function keyPriority(key)
 {
     switch (key)
@@ -171,18 +169,18 @@ function keyPriority(key)
         case "Alt": return 1;
         case "Shift": return 2;
         case "Space": return 3;
-        default: return 4;
+        default: return 10;
     }
 }
 
 function comboBreaker(newEntry)
 {
-    if (g_currentCombo.length > 4 || g_currentCombo.includes(newEntry))
+    if (g_currentCombo.length >= 4 || g_currentCombo.includes(newEntry))
         return;
 
     g_noChanges = false;
     g_currentCombo.push(newEntry);
-    g_currentCombo.sort(keyPriority);
+    g_currentCombo.sort((a, b) => keyPriority(a) > keyPriority(b));
     comboGeneratorTrans({ "value": g_currentCombo.join("+") });
 };
 

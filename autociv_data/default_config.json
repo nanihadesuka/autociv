@@ -95,5 +95,6 @@
 	"hotkey.autociv.session.entity.by.class.select.Infantry": "unused",
 	"hotkey.autociv.session.entity.by.class.select.Siege": "unused",
 	"hotkey.autociv.session.building.autotrain.enable": "Alt+Q",
-	"hotkey.autociv.session.building.autotrain.disable": "Alt+W"
+	"hotkey.autociv.session.building.autotrain.disable": "Alt+W",
+	"hotkey.autociv.session.production.queue.clear": "Alt+R"
 }

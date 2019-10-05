@@ -70,6 +70,21 @@ function autociv_placeBuildingByGenericName(genericName)
 	return true;
 }
 
+function autociv_clearSelectedProductionQueue()
+{
+	let playerState = GetSimState().players[Engine.GetPlayerID()];
+	if (!playerState || Engine.GetGUIObjectByName("unitQueuePanel").hidden)
+		return;
+
+	for (let i = 0; i < g_SelectionPanels.Queue.getMaxNumberOfItems(); ++i)
+	{
+		let button = Engine.GetGUIObjectByName(`unitQueueButton[${i}]`);
+		if (button && !button.hidden && button.enabled && button.onPress)
+			button.onPress();
+	}
+	return true;
+}
+
 function autociv_selectEntityWithGenericName(genericName, selectAll, accumulateSelection)
 {
 	let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithGenericName", genericName);
@@ -168,6 +183,14 @@ var g_autociv_hotkeys = {
 	{
 		autocivCL.Engine.PushGuiPage("page_autociv_settings.xml");
 		return true;
+	},
+	"autociv.session.production.queue.clear": function (ev)
+	{
+		if (ev.type == "hotkeydown")
+		{
+			autociv_clearSelectedProductionQueue();
+		}
+		return true;
 	}
 }
 
@@ -208,9 +231,9 @@ handleInputAfterGui = (function (originalFunction)
 					return !!g_autociv_SpecialHotkeys[hotkeyPrefix](ev, hotkeyPrefix);
 
 		// Hotkey with normal behaviour
-		if (ev.hotkey && g_autociv_hotkeys[ev.hotkey])
+		if (ev.hotkey && ev.hotkey in g_autociv_hotkeys)
 			return !!g_autociv_hotkeys[ev.hotkey](ev);
 
-		return originalFunction(ev);
+		return originalFunction.apply(this, arguments);
 	}
 })(handleInputAfterGui);
