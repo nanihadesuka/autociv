@@ -106,7 +106,7 @@ g_NetworkCommands['/help'] = () =>
 		const nc = g_NetworkCommands[command];
 		const asc = autociv_SharedCommands[noSlashCommand]
 		text += "\n" + sprintf(translate("%(command)s - %(description)s"), {
-			"command": coloredText(noSlashCommand, g_ChatCommandColor),
+			"command": "/" + coloredText(noSlashCommand, g_ChatCommandColor),
 			"description": nc.description || asc && asc.description || ""
 		});
 	}

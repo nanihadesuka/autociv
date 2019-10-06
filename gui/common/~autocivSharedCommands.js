@@ -1,14 +1,14 @@
-// text expected input format "name (rating) : message"
+// Input expected "name (rating) : message"
 function autociv_GetNameRatingText(text)
 {
 	let spliterIndex = text.indexOf(":");
 	if (spliterIndex == -1)
 		return false;
 
-	let fullName = splitRatingFromNick(text.slice(0, spliterIndex).trim());
+	let { nick, rating } = splitRatingFromNick(text.slice(0, spliterIndex).trim());
 	return {
-		"name": fullName.nick,
-		"rating": fullName.rating,
+		"name": nick,
+		"rating": rating,
 		"text": text.slice(spliterIndex + 1)
 	}
 };
@@ -19,10 +19,10 @@ let autociv_SharedCommands = {
 		"handler": (player) =>
 		{
 			if (player == "")
-				return selfMessage("You need to type a name to mute.")
-			let name = splitRatingFromNick(player).nick;
-			botManager.get("mute").instance.setValue(name, name);
-			selfMessage(`You have muted ${name}.`);
+				return selfMessage("You need to type a nick to mute.")
+			let nick = splitRatingFromNick(player).nick;
+			botManager.get("mute").instance.setValue(nick, nick);
+			selfMessage(`You have muted ${nick}.`);
 			return false;
 		}
 	},
@@ -31,10 +31,10 @@ let autociv_SharedCommands = {
 		"handler": (player) =>
 		{
 			if (player == "")
-				return selfMessage("You need to type a name to unmute.")
-			let name = splitRatingFromNick(player).nick;
-			botManager.get("mute").instance.removeValue(name);
-			selfMessage(`You have unmuted ${name}.`);
+				return selfMessage("You need to type a nick to unmute.")
+			let nick = splitRatingFromNick(player).nick;
+			botManager.get("mute").instance.removeValue(nick);
+			selfMessage(`You have unmuted ${nick}.`);
 			return false;
 		}
 	},
@@ -129,14 +129,14 @@ let autociv_SharedCommands = {
 		"handler": (player) =>
 		{
 			if (player == "")
-				return selfMessage("You need to type a name to remove player reminder.")
+				return selfMessage("You need to type a nick to remove player reminder.")
 
-			let name = splitRatingFromNick(player.trim()).nick;
-			if (!name)
+			let nick = splitRatingFromNick(player.trim()).nick;
+			if (!nick)
 				return;
 
-			botManager.get("playerReminder").instance.removeValue(name);
-			selfMessage(`Player ${name} has been removed from playerReminder list.`);
+			botManager.get("playerReminder").instance.removeValue(nick);
+			selfMessage(`Player ${nick} has been removed from playerReminder list.`);
 			return false;
 		}
 	},

@@ -6,7 +6,6 @@ function BotManager()
 
 BotManager.prototype.addBot = function (name, object)
 {
-
 	if (!("toggle" in object))
 		object.toggle = function () { this.active = !this.active; };
 
@@ -14,22 +13,18 @@ BotManager.prototype.addBot = function (name, object)
 		object.react = function () { };
 
 	if (!("load" in object))
-		object.load = function (active)
+		object.load = function () { };
+
+	object.load = ((originalFunction) =>
+	{
+		return function (active)
 		{
 			this.loaded = true;
 			this.active = active;
-		};
-	else
-		object.load = ((originalFunction) =>
-		{
-			return function (...args)
-			{
-				this.loaded = true;
-				this.active = args[0];
-				return originalFunction.apply(this, args);
-			}
+			return originalFunction.apply(this, arguments);
 		}
-		)(object.load);
+	}
+	)(object.load);
 
 	this.list.set(name, object);
 }
@@ -64,10 +59,10 @@ BotManager.prototype.pipe = function (msg)
 {
 	if (!msg)
 		return;
-	return BotManager.pipeWith[this.messageInterface].pipe(Object.assign({}, msg));
+	return this.pipeWith[this.messageInterface].pipe(Object.assign({}, msg));
 }
 
-BotManager.pipeWith = {
+BotManager.prototype.pipeWith = {
 	"lobby": {
 		"pipe": function (msg)
 		{
@@ -84,12 +79,12 @@ BotManager.pipeWith = {
 			"chat": msg =>
 			{
 				// If regular chat text message
-				return Object.assign({}, {
+				return {
 					"type": "chat",
 					"receiver": Engine.LobbyGetNick(),
 					"sender": msg.from,
 					"message": msg.text
-				});
+				};
 			},
 			"/special": msg =>
 			{
@@ -98,12 +93,12 @@ BotManager.pipeWith = {
 
 				// If joined
 				if (hasJoined !== null && hasJoined[1] !== undefined)
-					return Object.assign({}, {
+					return {
 						"type": "join",
 						"receiver": Engine.LobbyGetNick(),
 						"sender": hasJoined[1],
 						"message": msg.text
-					});
+					};
 			}
 		}
 	},
@@ -126,13 +121,13 @@ BotManager.pipeWith = {
 					g_PlayerAssignments[msg.guid] === undefined)
 					return;
 
-				return Object.assign({}, {
+				return {
 					"type": "chat",
 					"receiver": splitRatingFromNick(g_PlayerAssignments[Engine.GetPlayerGUID()].name).nick,
 					"sender": splitRatingFromNick(g_PlayerAssignments[msg.guid].name).nick,
 					"rating": splitRatingFromNick(g_PlayerAssignments[msg.guid].name).rating,
 					"message": msg.text
-				});
+				};
 			},
 			"connect": function (msg)
 			{
@@ -142,12 +137,12 @@ BotManager.pipeWith = {
 					g_PlayerAssignments[msg.guid] === undefined)
 					return;
 
-				return Object.assign({}, {
+				return {
 					"type": "join",
 					"receiver": splitRatingFromNick(g_PlayerAssignments[Engine.GetPlayerGUID()].name).nick,
 					"sender": splitRatingFromNick(g_PlayerAssignments[msg.guid].name).nick,
 					"guid": msg.guid
-				});
+				};
 			}
 		}
 	},
@@ -170,12 +165,12 @@ BotManager.pipeWith = {
 					g_PlayerAssignments[msg.guid] === undefined)
 					return;
 
-				return Object.assign({}, {
+				return {
 					"type": "chat",
 					"receiver": splitRatingFromNick(g_PlayerAssignments[Engine.GetPlayerGUID()].name).nick,
 					"sender": splitRatingFromNick(g_PlayerAssignments[msg.guid].name).nick,
 					"message": msg.text,
-				});
+				};
 			},
 			"rejoined": function (msg)
 			{
@@ -185,12 +180,12 @@ BotManager.pipeWith = {
 					g_PlayerAssignments[msg.guid] === undefined)
 					return;
 
-				return Object.assign({}, {
+				return {
 					"type": "join",
 					"receiver": splitRatingFromNick(g_PlayerAssignments[Engine.GetPlayerGUID()].name).nick,
 					"sender": splitRatingFromNick(g_PlayerAssignments[msg.guid].name).nick,
 					"guid": msg.guid
-				});
+				};
 			}
 		}
 	}
@@ -337,7 +332,7 @@ botManager.addBot("vote", {
 			return;
 
 		let index = this.list.indexOf(choice);
-		if (index == -1 || index >= this.voteChoices.length)
+		if (this.voteChoices[index] === undefined)
 			return;
 
 		let oldVote = this.playerVote[data.sender];
@@ -355,8 +350,8 @@ botManager.addBot("autociv", {
 	"searchForCivInText": function (text)
 	{
 		// Lazy load
-		if (!this.genfuzzySearch.loaded)
-			this.genfuzzySearch();
+		if (!this.generateFuzzySearcher.loaded)
+			this.generateFuzzySearcher();
 
 		// Returns returns the civ code if civ name is found, otherwise undefined
 		for (let id in this.fuzzySearch)
@@ -368,10 +363,13 @@ botManager.addBot("autociv", {
 		if (data.type != "chat")
 			return;
 
-		let firstWord = data.message.trim().split(" ")[0].toLowerCase();
+		let clean = text => text.trim().split(" ")[0].toLowerCase();
+		let firstWord = clean(data.message);
+		if (firstWord.length < 4) // Ignore if less than 4 char
+			return;
 
 		// Ignore if text is player name (to avoid similarity with civ names)
-		if (game.get.players.name().some(name => firstWord == name.trim().split(" ")[0].toLowerCase()))
+		if (game.get.players.name().some(name => firstWord == clean(name)))
 			return;
 
 		let fullName = data.sender + (!!data.rating ? ` (${data.rating})` : "");
@@ -388,13 +386,9 @@ botManager.addBot("autociv", {
 			return;
 		}
 
-		// Only try with words of at least 4 letters.
-		if (firstWord.length < 4)
-			return;
-
 		game.set.player.civ(fullName, this.searchForCivInText(firstWord));
 	},
-	"genfuzzySearch": function ()
+	"generateFuzzySearcher": function ()
 	{
 		/**
 		 * customNamesCivs: Mod independent (ignores civs not in current
@@ -412,7 +406,7 @@ botManager.addBot("autociv", {
 		let customNamesCivs = Engine.ReadJSONFile("autociv_data/civilizations.json");
 
 		// Clear and fill this.fuzzySearch
-		this.genfuzzySearch.loaded = true;
+		this.generateFuzzySearcher.loaded = true;
 		this.fuzzySearch = {}
 
 		for (let i = 0; i < g_PlayerCivList.code.length; ++i)
@@ -432,38 +426,32 @@ botManager.addBot("autociv", {
 botManager.addBot("link", {
 	"name": "Text link grabber bot",
 	"linkList": [],
-	"findAndAdd": function (text) { this.searchTextAndAddUrl(text); },
 	"parseURLs": function (text)
 	{
-		// https://stackoverflow.com/a/48769624
-		return text.match(/(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+/gi);
+		// https://www.regexpal.com/93652
+		return text.match(/^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/gmi);
 	},
-	"searchTextAndAddUrl": function (text)
+	"findAndAdd": function (text)
 	{
 		let urls = this.parseURLs(text);
 		if (urls != null)
 			this.linkList.unshift(...urls.reverse())
 	},
 	// Returns false if successful
-	"openLink": function (value)
+	"openLink": function (text)
 	{
-		let i = value;
-		if (typeof i == "object")
-			i = i[0];
-		if (typeof i == "string")
-			i = i.trim() == "" ? 0 : i.trim();
-
-		i = parseInt(i);
-		if (!Number.isInteger(i) || i < 0 || i >= this.linkList.length)
+		let i = parseInt(typeof text != "string" ? text : text.trim() != "" ? text : 0);
+		if (!Number.isInteger(i) || !this.linkList[i])
 			return "No links or invalid index.";
 
 		let url = String(this.linkList[i]);
 
-		// If the URL doesn't  have a protocol prefix the game crashes :S
+		// If the URL doesn't have a protocol prefix the game crashes :S
+		warn(url)
 		if (!/(https?|ftp):.*/i.test(url))
 			url = "http://" + url.trim();
 
-		Engine.OpenURL(String(this.linkList[i]));
+		Engine.OpenURL(url);
 		return false;
 	},
 	// Returns pretty info list of all links
@@ -471,13 +459,13 @@ botManager.addBot("link", {
 	{
 		let title = `Detected (${this.linkList.length}) links`;
 		let textList = this.linkList.map((link, index) => `${index} : ${link}`).reverse()
-		return [title, ...textList].join(" \n");
+		return [title].concat(textList).join("\n");
 	},
 	"react": function (data)
 	{
 		if (data.type != "chat")
 			return;
 
-		this.searchTextAndAddUrl(data.message);
+		this.findAndAdd(data.message);
 	}
 });
