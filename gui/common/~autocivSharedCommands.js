@@ -1,4 +1,4 @@
-// Input expected "name (rating) : message"
+// Input expected "name (rating) : message". (rating) optional
 function autociv_GetNameRatingText(text)
 {
 	let spliterIndex = text.indexOf(":");
@@ -6,6 +6,8 @@ function autociv_GetNameRatingText(text)
 		return false;
 
 	let { nick, rating } = splitRatingFromNick(text.slice(0, spliterIndex).trim());
+	if (!nick)
+		return false;
 	return {
 		"name": nick,
 		"rating": rating,

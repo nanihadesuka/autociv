@@ -83,11 +83,11 @@ var g_AutocivHotkeyActions = {
     "autociv.open.autociv_settings": function (ev)
     {
         autocivCL.Engine.PushGuiPage("page_autociv_settings.xml");
-    },
-    "autociv.open.test": function (ev)
-    {
-        autocivCL.Engine.PushGuiPage("page_test.xml");
     }
+    // ,"autociv.open.test": function (ev)
+    // {
+    //     autocivCL.Engine.PushGuiPage("page_test.xml");
+    // }
 };
 
 function handleInputBeforeGui(ev)
