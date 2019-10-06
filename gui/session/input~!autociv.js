@@ -76,7 +76,7 @@ function autociv_clearSelectedProductionQueues()
 	if (!playerState || Engine.GetGUIObjectByName("unitQueuePanel").hidden)
 		return;
 
-	g_Selection.toList().flatMap(GetEntityState).filter(v => !!v).forEach(entity =>
+	g_Selection.toList().map(GetEntityState).filter(v => !!v).forEach(entity =>
 	{
 		if (entity.production && entity.production.queue && entity.id !== undefined)
 			for (let queueItem of entity.production.queue)

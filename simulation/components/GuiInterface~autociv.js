@@ -28,7 +28,7 @@ GuiInterface.prototype.autociv_FindEntitiesWithGenericName = function (player, g
 GuiInterface.prototype.autociv_FindEntitiesWithClasses = function (player, classesList)
 {
     let rangeMan = Engine.QueryInterface(SYSTEM_ENTITY, IID_RangeManager);
-    let includes = list => classesList.every(v => list.indexOf(v) != -1);
+    let includesAll = list => classesList.every(v => list.includes(v));
 
     return rangeMan.GetEntitiesByPlayer(player).filter(function (e)
     {
@@ -40,7 +40,7 @@ GuiInterface.prototype.autociv_FindEntitiesWithClasses = function (player, class
             !cmpFoundation &&
             !cmpMirage &&
             (cmpUnitAI ? !cmpUnitAI.IsGarrisoned() : true) &&
-            includes(cmpIdentity.GetClassesList());
+            includesAll(cmpIdentity.GetClassesList());
     });
 };
 GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (player, classesExpression)

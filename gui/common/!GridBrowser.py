@@ -11,10 +11,6 @@
 
  For example look at mapbrowser.js / mapbrowser.xml implementation.
 '''
-
-# initializer, list is each childen data
-
-
 class GridBrowser:
     def __init__(self, containerName, pageCounterName, list, selectedIndex, childDimensions, childFunction):
         # GUI object container of the children
@@ -124,7 +120,6 @@ class GridBrowser:
         xCenter = self.child.width * self.nColumns / 2
         # yCenter = self.child.height * self.nRows / 2;
 
-        # Update child position, dimensions
         for i in range(self.numBoxesCreated):
             x = i % self.nColumns
             y = Math.floor(i / self.nColumns)
@@ -146,5 +141,4 @@ class GridBrowser:
         self.goToPage((self.getCurrentPage() + 1) % self.getNumOfPages())
 
     def previousPage(self):
-        self.goToPage(
-            (self.getCurrentPage() + self.getNumOfPages() - 1) % self.getNumOfPages())
+        self.goToPage((self.getCurrentPage() + self.getNumOfPages() - 1) % self.getNumOfPages())

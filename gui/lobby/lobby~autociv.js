@@ -1,5 +1,5 @@
-var g_Autociv_addChatMessageOptim = {
-	"addChatMessageNoUpdate": function (msg)
+var autociv_addChatMessage = {
+	"addChatMessageNoRedraw": function (msg)
 	{
 		if (msg.from)
 		{
@@ -39,27 +39,22 @@ var g_Autociv_addChatMessageOptim = {
 		if (g_Autociv_TickCount === this.updateAfterTick + 1)
 			Engine.GetGUIObjectByName("chatText").caption = g_ChatMessages.join("\n");
 	},
-	"messagesFilter": function (originalFunction, msg)
+	"rate": function (originalFunction, msg)
 	{
-		let len1 = g_ChatMessages.length;
-		if (g_Autociv_TickCount <= this.updateAfterTick)
-			this.addChatMessageNoUpdate(msg);
-		else
-			originalFunction(msg);
+		let oldLength = g_ChatMessages.length;
+		let noRedraw = g_Autociv_TickCount <= this.updateAfterTick;
+		if (noRedraw) this.addChatMessageNoRedraw(msg);
+		else originalFunction(msg);
 
-		// If no messages added, do nothing
-		if (len1 == g_ChatMessages.length)
+		if (oldLength == g_ChatMessages.length || !g_ChatMessages.length)
 			return;
 
-		if (!g_ChatMessages.length)
-			return;
-
-		let type = this.comments.is(g_ChatMessages[g_ChatMessages.length - 1]) ?
+		let lastText = g_ChatMessages[g_ChatMessages.length - 1];
+		let type = this.comments.is(lastText) ?
 			this.comments :
 			this.notifications;
 
-		++type.count;
-		if (type.count <= type.max)
+		if (++type.count <= type.max)
 			return;
 
 		g_ChatMessages = g_ChatMessages.filter(message =>
@@ -77,7 +72,7 @@ addChatMessage = (function (originalFunction)
 {
 	return function (msg)
 	{
-		return botManager.react(msg) || g_Autociv_addChatMessageOptim.messagesFilter(originalFunction, msg);
+		return botManager.react(msg) || autociv_addChatMessage.rate(originalFunction, msg);
 	};
 
 })(addChatMessage)
@@ -209,7 +204,7 @@ onTick = (function (originalFunction)
 	return function ()
 	{
 		++g_Autociv_TickCount;
-		g_Autociv_addChatMessageOptim.updateAfterTickRenderOnce();
+		autociv_addChatMessage.updateAfterTickRenderOnce();
 		originalFunction();
 	}
 })(onTick);
@@ -255,7 +250,6 @@ function autociv_reregister()
 			entry.stunPort == gamesetup.stunPort &&
 			entry.hostUsername == gamesetup.hostUsername;
 	});
-
 	let checkRegistration = (delay) =>
 	{
 		setTimeout(() =>

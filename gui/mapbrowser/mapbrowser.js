@@ -5,15 +5,15 @@
  * map type has an object with maps by filter.
  * {
  *   "random" : {
- *      "default": [maps, ...],
- *      "naval": [maps, ...],
- *      "new": [maps, ...],
- *      "trigger": [maps, ...],
- *      "all": [maps, ...],
+ *      "default": [new MapData, ...],
+ *      "naval": [new MapData, ...],
+ *      "new": [new MapData, ...],
+ *      "trigger": [new MapData, ...],
+ *      "all": [new MapData, ...],
  *      ...
  *   },
  *   "skirmisher": {
- *       "default" : [maps, ...],
+ *       "default" : [new MapData, ...],
  *       ....
  *   },
  *   "scenario": ....
@@ -438,7 +438,7 @@ function arrayToKeys(objectsArray, element)
 /**
  * Each map has all his data in this object
  */
-function MapObject(fileName, type)
+function MapData(fileName, type)
 {
     this.loaded = false;
     this.type = type;
@@ -453,15 +453,13 @@ function MapObject(fileName, type)
 /**
  * Load data from settings
  */
-MapObject.prototype.load = function ()
+MapData.prototype.load = function ()
 {
     this.data = this.type == "random" ?
         Engine.ReadJSONFile(this.file.path + this.file.name + this.file.extension) :
         Engine.LoadMapSettings(this.file.path + this.file.name);
 
-    let setting = (key, alternative) => this.data && this.data.settings && this.data.settings[key] ?
-        this.data.settings[key] :
-        alternative;
+    let setting = (key, alternative) => this.data && this.data.settings && this.data.settings[key] || alternative;
 
     let imagePath = "cropped:" + 400 / 512 + "," + 300 / 512 + ":session/icons/mappreview/";
 
@@ -472,7 +470,7 @@ MapObject.prototype.load = function ()
 };
 
 /**
- * Returns a list of MapObject objects of all maps of given type
+ * Returns a list of MapData objects of all maps of given type
  */
 function getMapsOfType(type)
 {
@@ -480,23 +478,18 @@ function getMapsOfType(type)
         return [];
     return listFiles(g_Maps.types[type].Path, g_Maps.types[type].Extension, false).
         filter(fileName => !fileName.startsWith("_")).
-        map(fileName => new MapObject(fileName, type));
+        map(fileName => new MapData(fileName, type));
 };
 
 /**
  * Returns a dictionary: each key is the filter with its corresponding map list
- * mapList is a list of MapObject objects
+ * mapList is a list of MapData objects
  */
 function getMapsByFilter(mapList)
 {
     let mapsFiltered = {};
     for (let filter in g_Maps.filters)
-    {
-        mapsFiltered[filter] = [];
-        for (let map of mapList)
-            if (g_Maps.filters[filter].filter(map.filter))
-                mapsFiltered[filter].push(map);
-    }
+        mapsFiltered[filter] = mapList.filter(map => g_Maps.filters[filter].filter(map.filter));
     return mapsFiltered;
 };
 
@@ -522,8 +515,8 @@ function MapsSearchBoxInput(inputObjectName, inputObjectNameNotice)
     this.refresh = 100;
     this.lastCaption = "";
     this.mapsSearchBox = Engine.GetGUIObjectByName(inputObjectName);
-    this.mapsSearchBoxNotice = Engine.GetGUIObjectByName(inputObjectNameNotice);
     this.mapsSearchBox.caption = "";
+    this.mapsSearchBoxNotice = Engine.GetGUIObjectByName(inputObjectNameNotice);
 }
 
 MapsSearchBoxInput.prototype.onTick = function ()
@@ -598,15 +591,9 @@ function onTick()
             break;
         case 1:
             g_MapsSearchBoxInput = new MapsSearchBoxInput("mapsSearchBox", "mapsSearchBoxNotice");
-            // g_MapZoom.zoom(-1)
             break;
         default:
             g_MapsSearchBoxInput.onTick();
-        // if (g_TickCount % 2)
-        //     g_MapZoom.zoom(-1)
-        // else
-        //     g_MapZoom.zoom(+1)
-        // break;
     }
 
     ++g_TickCount;

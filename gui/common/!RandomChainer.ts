@@ -1,9 +1,6 @@
-
 class RandomChain {
-
     chain: any = {};
     chainList: any[] = [];
-
     mark = new Set(["", ".", "?", "!", "’", "'", ",", ":"]);
     endProblem = new Set([
         "of", "my", "your", "its", "nor",
@@ -13,7 +10,6 @@ class RandomChain {
         "doesn't", "in", "or"]);
 
     constructor(list: string[]) {
-
         this.chain = {};
 
         for (let text of list) {

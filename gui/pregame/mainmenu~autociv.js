@@ -13,18 +13,16 @@ function autociv_initCheck()
     }
 
     // Reorder mods so FGod is always before AutoCiv
-    {
-        let mods = Engine.ConfigDB_GetValue("user", "mod.enabledmods").trim().split(/\s+/g);
-        let iFGod = mods.findIndex(name => /^FGod.*/i.test(name));
-        let iAutociv = mods.findIndex(name => /^AutoCiv.*/i.test(name));
+    let mods = Engine.ConfigDB_GetValue("user", "mod.enabledmods").trim().split(/\s+/g);
+    let iFGod = mods.findIndex(name => /^FGod.*/i.test(name));
+    let iAutociv = mods.findIndex(name => /^AutoCiv.*/i.test(name));
 
-        if (iFGod != -1 && iAutociv != -1 && iFGod > iAutociv)
-        {
-            [mods[iFGod], mods[iAutociv]] = [mods[iAutociv], mods[iFGod]];
-            Engine.SetMods(mods);
-            configSaveToMemoryAndToDisk("mod.enabledmods", mods.join(" "));
-            state.reasons.add("Detected wrong mod order. Fixed. FGod needs to be loaded before AutoCiv.");
-        }
+    if (iFGod != -1 && iAutociv != -1 && iFGod > iAutociv)
+    {
+        [mods[iFGod], mods[iAutociv]] = [mods[iAutociv], mods[iFGod]];
+        Engine.SetMods(mods);
+        configSaveToMemoryAndToDisk("mod.enabledmods", mods.join(" "));
+        state.reasons.add("Detected wrong mod order. Fixed. FGod needs to be loaded before AutoCiv.");
     }
 
     // Reset all autociv settings to default. Custom autociv settings added won't be affected.
@@ -81,7 +79,6 @@ init = (function (originalFunction)
     }
 })(init);
 
-
 var g_AutocivHotkeyActions = {
     "autociv.open.autociv_settings": function (ev)
     {
@@ -92,7 +89,6 @@ var g_AutocivHotkeyActions = {
         autocivCL.Engine.PushGuiPage("page_test.xml");
     }
 };
-
 
 function handleInputBeforeGui(ev)
 {

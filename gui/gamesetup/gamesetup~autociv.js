@@ -68,7 +68,7 @@ sendRegisterGameStanzaImmediate = function ()
 		"mods": JSON.stringify(getFilteredMods()) // <----- THIS CHANGES
 	};
 
-	g_autociv_stanza.setValue("gamesetup",stanza);
+	g_autociv_stanza.setValue("gamesetup", stanza);
 
 	// Only send the stanza if the relevant settings actually changed
 	if (g_LastGameStanza && Object.keys(stanza).every(prop => g_LastGameStanza[prop] == stanza[prop]))
@@ -114,7 +114,7 @@ selectPanel = (function (originalFunction)
 {
 	return function (arg)
 	{
-		originalFunction.apply(this,arguments);
+		originalFunction.apply(this, arguments);
 		if (arg === undefined)
 			Engine.GetGUIObjectByName("chatInput").focus();
 	}
@@ -125,7 +125,7 @@ init = (function (originalFunction)
 	return function (args)
 	{
 		autociv_InitBots();
-		originalFunction.apply(this,arguments);
+		originalFunction.apply(this, arguments);
 		// Fix hack for hack fix
 		updateSettingsPanelPosition(-1);
 
