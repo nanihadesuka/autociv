@@ -306,7 +306,7 @@ botManager.addBot("vote", {
 		this.voteChoices = votingChoicesText.split(":").slice(0, 7).map(String.trim);
 		this.printVoting();
 	},
-	"playerVote": {/* "playerName" : 1m ... */ },
+	"playerVote": {/* "playerName" : 1 ... */ },
 	"voteChoices": [/* "regi", "nomad", ... */],
 	"list": "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
 	"resetVoting": function ()
