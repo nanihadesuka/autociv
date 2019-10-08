@@ -27,12 +27,15 @@ init = (function (originalFunction)
 		autociv_InitBots();
 		originalFunction.apply(this, arguments);
 
-		g_autociv_validFormations = Engine.ListDirectoryFiles("simulation/templates/special/formations", "*.xml",false).
-		map(text =>
-		{
-			let match = text.match(/^.*\/(.+)\.xml$/);
-			return match && match[1];
-		}).filter(v => !!v);
+		g_autociv_validFormations = Engine.ListDirectoryFiles("simulation/templates/special/formations", "*.xml", false).
+			map(text =>
+			{
+				let match = text.match(/^.*\/(.+)\.xml$/);
+				return match && match[1];
+			}).filter(v => !!v);
+
+		autociv_bugFix_openChat();
+		autociv_bugFix_entity_unkown_reason();
 	}
 })(init)
 
@@ -42,7 +45,6 @@ onTick = (function (originalFunction)
 	{
 		g_autociv_SpecialHotkeyCalled = false;
 		let result = originalFunction.apply(this, arguments);
-		autociv_bugFix_openChat();
 		return result;
 	}
 })(onTick);
