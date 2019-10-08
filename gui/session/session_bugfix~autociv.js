@@ -53,18 +53,42 @@ function displayPanelEntities()
 }
 
 
-// Hack fix to the "t"
-openChat = (function (originalFunction)
+// Call on init
+function autociv_bugFix_openChat()
 {
-	return function ()
+	// Hack fix to the "t"
+	if (is24)
 	{
-		let result = originalFunction.apply(this, arguments);
-		setTimeout(() =>
+		g_Chat.openPage = (function (originalFunction)
 		{
-			let chatInput = Engine.GetGUIObjectByName("chatInput");
-			if (chatInput.caption === "t")
-				chatInput.caption = "";
-		}, 1);
-		return result;
+			return function ()
+			{
+				let result = originalFunction.apply(this, arguments);
+				setTimeout(() =>
+				{
+					let chatInput = Engine.GetGUIObjectByName("chatInput");
+					if (chatInput.caption === "t")
+						chatInput.caption = "";
+				}, 1);
+				return result;
+			}
+		})(g_Chat.openPage);
 	}
-})(openChat)
+	else
+	{
+		openChat = (function (originalFunction)
+		{
+			return function ()
+			{
+				let result = originalFunction.apply(this, arguments);
+				setTimeout(() =>
+				{
+					let chatInput = Engine.GetGUIObjectByName("chatInput");
+					if (chatInput.caption === "t")
+						chatInput.caption = "";
+				}, 1);
+				return result;
+			}
+		})(openChat);
+	}
+}

@@ -1,3 +1,4 @@
+const is24 = Engine.GetEngineInfo().engine_version !== "0.0.23";
 
 let autocivCL = {
     "engine_version": Engine.GetEngineInfo().engine_version,

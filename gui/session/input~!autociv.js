@@ -161,6 +161,22 @@ function autociv_selectFromList(entities, selectAll, accumulateSelection)
 	return;
 }
 
+
+function autociv_setFormation(formation, entities)
+{
+	if (!formation)
+		return warn("Invalid formation")
+
+	entities = entities || g_Selection.toList();
+	if (!entities.length)
+		return;
+	let formationPath = `special/formations/${formation}`;
+	if (!canMoveSelectionIntoFormation(formationPath))
+		return;
+	performFormation(entities, formationPath);
+	return true;
+}
+
 var g_autociv_hotkeys = {
 	"autociv.session.building.autotrain.enable": function (ev)
 	{
@@ -221,6 +237,13 @@ var g_autociv_SpecialHotkeys = {
 	{
 		let enitytClassesExpression = ev.hotkey.split(hotkeyPrefix)[1];
 		autociv_selectEntityWithClassesExpression(enitytClassesExpression, true);
+		return true;
+	},
+	// Hotkeys for formations
+	"autociv.session.formation.set.": function (ev, hotkeyPrefix)
+	{
+		let formation = ev.hotkey.split(hotkeyPrefix)[1];
+		autociv_setFormation(formation);
 		return true;
 	}
 };

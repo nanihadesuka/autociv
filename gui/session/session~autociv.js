@@ -23,7 +23,10 @@ init = (function (originalFunction)
 	return function ()
 	{
 		autociv_InitBots();
-		originalFunction.apply(this,arguments);
+		originalFunction.apply(this, arguments);
+
+
+
 	}
 })(init)
 
@@ -32,7 +35,9 @@ onTick = (function (originalFunction)
 	return function ()
 	{
 		g_autociv_SpecialHotkeyCalled = false;
-		return originalFunction.apply(this,arguments);
+		let result = originalFunction.apply(this, arguments);
+		autociv_bugFix_openChat();
+		return result;
 	}
 })(onTick);
 
@@ -43,7 +48,7 @@ sendLobbyPlayerlistUpdate = (function (originalFunction)
 {
 	return function ()
 	{
-		originalFunction.apply(this,arguments)
+		originalFunction.apply(this, arguments)
 
 		if (!g_IsController)
 			return;

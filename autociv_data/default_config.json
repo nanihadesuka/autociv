@@ -96,5 +96,20 @@
 	"hotkey.autociv.session.entity.by.class.select.Siege": "unused",
 	"hotkey.autociv.session.building.autotrain.enable": "Alt+Q",
 	"hotkey.autociv.session.building.autotrain.disable": "Alt+W",
-	"hotkey.autociv.session.production.queue.clear": "Alt+R"
+	"hotkey.autociv.session.production.queue.clear": "Alt+R",
+	"hotkey.autociv.session.formation.set.null": "Space+1",
+	"hotkey.autociv.session.formation.set.box": "Space+2",
+	"hotkey.autociv.session.formation.set.column_closed": "Space+3",
+	"hotkey.autociv.session.formation.set.line_closed": "Space+4",
+	"hotkey.autociv.session.formation.set.column_open": "Space+5",
+	"hotkey.autociv.session.formation.set.line_open": "Space+6",
+	"hotkey.autociv.session.formation.set.flank": "Space+7",
+	"hotkey.autociv.session.formation.set.skirmish": "Space+8",
+	"hotkey.autociv.session.formation.set.wedge": "Space+9",
+	"hotkey.autociv.session.formation.set.battle_line": "Space+0",
+	"hotkey.autociv.session.formation.set.syntagma": "Space+'",
+	"hotkey.autociv.session.formation.set.anti_cavalry": "unused",
+	"hotkey.autociv.session.formation.set.phalanx": "unused",
+	"hotkey.autociv.session.formation.set.scatter": "unused",
+	"hotkey.autociv.session.formation.set.testudo": "unused"
 }
