@@ -160,7 +160,10 @@ selectPanel = (function (originalFunction)
 	{
 		originalFunction.apply(this, arguments);
 		if (arg === undefined)
+		{
+			Engine.GetGUIObjectByName("chatInput").blur();
 			Engine.GetGUIObjectByName("chatInput").focus();
+		}
 	}
 })(selectPanel);
 

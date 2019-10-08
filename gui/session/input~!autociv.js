@@ -161,19 +161,17 @@ function autociv_selectFromList(entities, selectAll, accumulateSelection)
 	return;
 }
 
-
-function autociv_setFormation(formation, entities)
+function autociv_setFormation(formation)
 {
-	if (!formation)
-		return warn("Invalid formation")
-
-	entities = entities || g_Selection.toList();
-	if (!entities.length)
+	if (!formation || !g_autociv_validFormations.includes(formation))
 		return;
+
 	let formationPath = `special/formations/${formation}`;
 	if (!canMoveSelectionIntoFormation(formationPath))
 		return;
-	performFormation(entities, formationPath);
+
+	performFormation(g_Selection.toList(), formationPath);
+
 	return true;
 }
 

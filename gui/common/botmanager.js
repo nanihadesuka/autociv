@@ -375,9 +375,9 @@ botManager.addBot("autociv", {
 		let fullName = data.sender + (!!data.rating ? ` (${data.rating})` : "");
 
 		// Ignore if in "double click" ready state (exception: host)
-		if (game.get.player.selfName() !== fullName &&
-			game.get.player.status(fullName) == "locked")
-			return;
+		// if (game.get.player.selfName() !== fullName &&
+			// game.get.player.status(fullName) == "locked")
+			// return;
 
 		// Special case: spec makes a player observer.
 		if (firstWord == "spec")
