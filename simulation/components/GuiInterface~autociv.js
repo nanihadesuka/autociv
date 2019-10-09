@@ -1,3 +1,8 @@
+GuiInterface.prototype.autociv_CreateCorpses = function (player, create = true)
+{
+    this.autociv_hideCorpses = !create;
+};
+
 GuiInterface.prototype.autociv_SetAutotrain = function (player, data)
 {
     for (let ent of data.entities)
@@ -90,7 +95,8 @@ let autociv_exposedFunctions = {
     "autociv_SetAutotrain": 1,
     "autociv_FindEntitiesWithGenericName": 1,
     "autociv_FindEntitiesWithClasses": 1,
-    "autociv_FindEntitiesWithClassesExpression": 1
+    "autociv_FindEntitiesWithClassesExpression": 1,
+    "autociv_CreateCorpses": 1
 };
 
 GuiInterface.prototype.ScriptCall = (function (originalFunction)

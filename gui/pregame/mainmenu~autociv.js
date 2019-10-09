@@ -52,15 +52,11 @@ init = (function (originalFunction)
         let state = autociv_initCheck();
         if (state.needsRestart)
         {
-            let message = [
-                "0 A.D needs to restart.\n",
-                "Reasons:\n",
-                ...Array.from(state.reasons).map(v => ` · ${v}`)
-            ].join("\n");
+            let message = ["0 A.D needs to restart.\n", "Reasons:\n"].
+                concat(Array.from(state.reasons).map(v => ` · ${v}`)).
+                join("\n");
 
-            messageBox(
-                500, 300,
-                message,
+            messageBox(500, 300, message,
                 "AutoCiv mod notice",
                 ["Cancel", "Restart"],
                 [() => { }, () => Engine.RestartEngine()]

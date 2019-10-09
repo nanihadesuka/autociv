@@ -175,6 +175,11 @@ function autociv_setFormation(formation)
 	return true;
 }
 
+function autociv_CreateCorpses(create = true)
+{
+	Engine.GuiInterfaceCall("autociv_CreateCorpses", create);
+}
+
 var g_autociv_hotkeys = {
 	"autociv.session.building.autotrain.enable": function (ev)
 	{
