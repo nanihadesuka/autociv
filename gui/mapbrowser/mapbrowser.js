@@ -138,12 +138,12 @@ var g_MapSelected = {
         if (isSameMap)
             return;
 
-        kinetic("previewSelectedOverlay").chain(
+        animate("previewSelectedOverlay").chain(
             g_AnimationSettings.previewSelectedOverlay.chain,
             g_AnimationSettings.previewSelectedOverlay.shared
         );
 
-        kinetic("descriptionSelected").chain(
+        animate("descriptionSelected").chain(
             g_AnimationSettings.descriptionSelected.chain,
             g_AnimationSettings.descriptionSelected.shared
         );
@@ -364,7 +364,7 @@ function childFunction(map, pageIndex, pageList, listIndex, list, selectedChild,
         false :
         g_MapSelected.map.file.name == map.file.name;
 
-    kinetic(mapButton).add(selectedChild[pageIndex] ?
+    animate(mapButton).add(selectedChild[pageIndex] ?
         g_AnimationSettings.childButton.selected :
         g_AnimationSettings.childButton.unselected
     );
@@ -380,18 +380,18 @@ function childFunction(map, pageIndex, pageList, listIndex, list, selectedChild,
         {
             if (i == pageIndex || selectedChild[i] == 0)
                 continue;
-            kinetic(getObject("mapButton", i)).
+            animate(getObject("mapButton", i)).
                 add(g_AnimationSettings.childButton.unselected);
             selectedChild[i] = false;
         }
         selectedChild[pageIndex] = true;
-        kinetic(mapButton).add(g_AnimationSettings.childButton.selected);
-        kinetic(mapPreview).add(g_AnimationSettings.childPreview.press);
+        animate(mapButton).add(g_AnimationSettings.childButton.selected);
+        animate(mapPreview).add(g_AnimationSettings.childPreview.press);
 
     };
     childObject.onMouseLeftRelease = () =>
     {
-        kinetic(mapPreview).add(g_AnimationSettings.childPreview.release);
+        animate(mapPreview).add(g_AnimationSettings.childPreview.release);
     };
     childObject.onMouseLeftDoubleClick = () =>
     {
@@ -400,11 +400,11 @@ function childFunction(map, pageIndex, pageList, listIndex, list, selectedChild,
     };
     childObject.onMouseEnter = () =>
     {
-        kinetic(mapBox).add(g_AnimationSettings.childMap.enter);
+        animate(mapBox).add(g_AnimationSettings.childMap.enter);
     };
     childObject.onMouseLeave = () =>
     {
-        kinetic(mapBox).add(g_AnimationSettings.childMap.leave);
+        animate(mapBox).add(g_AnimationSettings.childMap.leave);
     };
     childObject.onMouseWheelUp = () =>
     {
@@ -530,7 +530,7 @@ MapsSearchBoxInput.prototype.onTick = function ()
         return;
 
     if ((this.lastCaption && !caption) || (!this.lastCaption && caption))
-        kinetic(this.mapsSearchBoxNotice).
+        animate(this.mapsSearchBoxNotice).
             add({ "textcolor": { "a": !caption ? "1" : "0" } });
 
     if (!caption)

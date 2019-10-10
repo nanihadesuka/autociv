@@ -1,10 +1,8 @@
 /**
  * GUI animator addon
  * Use:
- *  kinetic(guiObject).add(settings)
- *  kinetic(guiObject).complete([completeQueue])
- *  kinetic(guiObject).end([endQueue])
- *  kinetic(guiObject).chain(chainSettingsList, [defaultSettings])
+ *  animate(guiObject).add(settings)
+ *  animate(guiObject).chain(chainSettingsList, [defaultSettings])
  *	etc ...
  *  · Methods can be chained
  *
@@ -43,31 +41,30 @@
  *   setting will overrite the old one.
  */
 
-function AnimateGUIManager() { this.objects = new Map(); };
+function AnimateGUIManager() { this.objects = {}; };
 
 AnimateGUIManager.prototype.get = function (guiObject)
 {
-	if (!this.objects.has(guiObject.name))
-		this.objects.set(guiObject.name, new AnimateGUIObjectManager(guiObject));
-
-	return this.objects.get(guiObject.name);
+	return this.objects[guiObject.name] || (this.objects[guiObject.name] = new AnimateGUIObjectManager(guiObject));
 };
 
 AnimateGUIManager.prototype.onTick = function ()
 {
-	for (let [name, object] of this.objects)
-		if (!object.onTick().isAlive())
-			this.objects.delete(name);
+	for (let name in this.objects)
+		if (!this.objects[name].onTick().isAlive())
+			delete this.objects[name];
 };
 
-
-function kinetic(guiObject)
+/**
+ * @param {object | string} object
+ */
+function animate(object)
 {
-	let name = typeof guiObject == "string" ? Engine.GetGUIObjectByName(guiObject) : guiObject;
-	return kinetic.instance.get(name);
+	let guiObject = typeof object == "string" ? Engine.GetGUIObjectByName(object) : object;
+	return animate.instance.get(guiObject);
 }
 
-kinetic.instance = new AnimateGUIManager();
+animate.instance = new AnimateGUIManager();
 
 // onTick routine always called on all pages with global.xml included (all?)
-kinetic.onTick = function () { kinetic.instance.onTick(); }
+animate.onTick = function () { animate.instance.onTick(); }

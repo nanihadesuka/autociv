@@ -116,7 +116,7 @@ var GridBrowser = /** @class */ (function () {
         for (i = 0; i < self.numBoxesCreated; i++) {
             x = i % self.nColumns;
             y = Math.floor(i / self.nColumns);
-            kinetic(self.children[i]).add({
+            animate(self.children[i]).add({
                 "size": {
                     "left": self.child.width * x - xCenter,
                     "right": self.child.width * (x + 1) - xCenter,

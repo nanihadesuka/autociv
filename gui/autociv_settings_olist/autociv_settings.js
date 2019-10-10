@@ -4,7 +4,7 @@ let hotkeyData = {};
 let g_containerBackground = {
 	"fadeIn": function ()
 	{
-		kinetic("dialogBackground").add({
+		animate("dialogBackground").add({
 			"start": { "color": { "a": 0 } },
 			"color": { "a": 0.4 },
 			"duration": 500
@@ -14,7 +14,7 @@ let g_containerBackground = {
 	{
 		if (this.done)
 			return;
-		kinetic("dialogBackground").add({
+		animate("dialogBackground").add({
 			"color": { "a": 0.0 },
 			"onComplete": () => autocivCL.Engine.PopGUIPage({}),
 			"duration": 500
@@ -307,7 +307,7 @@ let restartMessage = {
 	"assignedGUIObjectName": "restartMessage",
 	"onOpen": function ()
 	{
-		kinetic("restartMessage").add({
+		animate("restartMessage").add({
 			"onStart": object =>
 			{
 				object.hidden = false;
@@ -319,7 +319,7 @@ let restartMessage = {
 	},
 	"onClose": function ()
 	{
-		kinetic("restartMessage").add({
+		animate("restartMessage").add({
 			"onComplete": object =>
 			{
 				object.hidden = true;

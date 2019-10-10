@@ -30,9 +30,10 @@ AnimateGUIObjectManager.prototype.add = function (settings)
 	if (newAnimation.values.queue)
 		this.queue.push(newAnimation)
 	else
-		this.running = this.running.
-			filter(animation => animation.removeIntersections(newAnimation).isAlive()).
-			concat(newAnimation);
+	{
+		this.running = this.running.filter(animation => animation.removeIntersections(newAnimation).isAlive());
+		this.running.push(newAnimation);
+	}
 
 	return this;
 }
@@ -46,25 +47,6 @@ AnimateGUIObjectManager.prototype.onTick = function ()
 
 	return this;
 };
-
-/**
- * Ends animation as if had reached end time.
- * onStart/onTick/onComplete called as usual.
- * Optional argument to complete all remaining queues.
- */
-AnimateGUIObjectManager.prototype.complete = function (completeQueue)
-{
-	for (let animation of this.running)
-		animation.complete();
-
-	if (completeQueue) for (let animation of this.queue)
-	{
-		animation.values.delay = 0;
-		animation.values.duration = 0;
-	}
-
-	return this;
-}
 
 /**
  * Ends animation as if had reached end time but without
@@ -82,20 +64,6 @@ AnimateGUIObjectManager.prototype.finish = function (completeQueue)
 		animation.values.delay = 0;
 		animation.values.duration = 0;
 	}
-
-	return this;
-}
-
-/**
- * Ends animation at given time of command.
- * onStart/onTick/onComplete not called.
- * Optional argument to end all remaining queues.
- */
-AnimateGUIObjectManager.prototype.end = function (endQueue)
-{
-	this.running = [];
-	if (endQueue)
-		this.queue = [];
 
 	return this;
 }

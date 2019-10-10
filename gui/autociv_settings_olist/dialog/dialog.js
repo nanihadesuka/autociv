@@ -7,23 +7,23 @@ function closeNoSave() { autocivCL.Engine.PopGUIPage(); }
 function init(data)
 {
     g_data = data;
-    kinetic("dialogBackground").add({
+    animate("dialogBackground").add({
         "color": "0 0 0 50",
         "duration": 1000
     });
-    kinetic("setting_value_border").add({ "color": "255", });
-    kinetic("setting_value_border").add({ "color": "60 60 60 255", });
-    kinetic("setting_value_text").add({ "color": "20 20 20 255" });
-    kinetic("options").add({ "size": { "bottom": 30 }, "color": "60 60 60 255" });
+    animate("setting_value_border").add({ "color": "255", });
+    animate("setting_value_border").add({ "color": "60 60 60 255", });
+    animate("setting_value_text").add({ "color": "20 20 20 255" });
+    animate("options").add({ "size": { "bottom": 30 }, "color": "60 60 60 255" });
 
     // Save button
     let options_save = Engine.GetGUIObjectByName("options_save");
-    kinetic(options_save).add({ "color": { "g": 50 / 255 } });
+    animate(options_save).add({ "color": { "g": 50 / 255 } });
     Object.assign(options_save, {
-        "onMouseLeftPress": () => kinetic(options_save).add({ "color": { "g": 150 / 255 } }),
+        "onMouseLeftPress": () => animate(options_save).add({ "color": { "g": 150 / 255 } }),
         "onMouseLeftRelease": () =>
         {
-            kinetic(options_save).add({ "color": { "g": 70 / 255 } });
+            animate(options_save).add({ "color": { "g": 70 / 255 } });
             if (g_noChanges)
                 closeNoSave();
             else
@@ -35,38 +35,38 @@ function init(data)
                 }, true);
             }
         },
-        "onMouseEnter": () => kinetic(options_save).add({ "color": { "g": 70 / 255 } }),
-        "onMouseLeave": () => kinetic(options_save).add({ "color": { "g": 50 / 255 } })
+        "onMouseEnter": () => animate(options_save).add({ "color": { "g": 70 / 255 } }),
+        "onMouseLeave": () => animate(options_save).add({ "color": { "g": 50 / 255 } })
     })
 
     // Clear button
     let options_clear = Engine.GetGUIObjectByName("options_clear");
-    kinetic(options_clear).add({ "color": { "b": 50 / 255 } });
+    animate(options_clear).add({ "color": { "b": 50 / 255 } });
     Object.assign(options_clear, {
-        "onMouseLeftPress": () => kinetic(options_clear).add({ "color": { "b": 150 / 255 } }),
+        "onMouseLeftPress": () => animate(options_clear).add({ "color": { "b": 150 / 255 } }),
         "onMouseLeftRelease": () =>
         {
             g_currentCombo = [];
             comboGeneratorTrans({ "value": g_currentCombo.join("+") });
-            kinetic(options_clear).add({ "color": { "b": 70 / 255 } })
+            animate(options_clear).add({ "color": { "b": 70 / 255 } })
             g_noChanges = false;
         },
-        "onMouseEnter": () => kinetic(options_clear).add({ "color": { "b": 70 / 255 } }),
-        "onMouseLeave": () => kinetic(options_clear).add({ "color": { "b": 50 / 255 } })
+        "onMouseEnter": () => animate(options_clear).add({ "color": { "b": 70 / 255 } }),
+        "onMouseLeave": () => animate(options_clear).add({ "color": { "b": 50 / 255 } })
     })
 
     // Cancel button
     let options_cancel = Engine.GetGUIObjectByName("options_cancel");
-    kinetic(options_cancel).add({ "color": { "r": 50 / 255 } });
+    animate(options_cancel).add({ "color": { "r": 50 / 255 } });
     Object.assign(options_cancel, {
-        "onMouseLeftPress": () => kinetic(options_cancel).add({ "color": { "r": 150 / 255 } }),
+        "onMouseLeftPress": () => animate(options_cancel).add({ "color": { "r": 150 / 255 } }),
         "onMouseLeftRelease": () =>
         {
-            kinetic(options_cancel).add({ "color": { "r": 70 / 255 } });
+            animate(options_cancel).add({ "color": { "r": 70 / 255 } });
             closeNoSave();
         },
-        "onMouseEnter": () => kinetic(options_cancel).add({ "color": { "r": 70 / 255 } }),
-        "onMouseLeave": () => kinetic(options_cancel).add({ "color": { "r": 50 / 255 } })
+        "onMouseEnter": () => animate(options_cancel).add({ "color": { "r": 70 / 255 } }),
+        "onMouseLeave": () => animate(options_cancel).add({ "color": { "r": 50 / 255 } })
     })
 
     comboGenerator(data)
@@ -103,7 +103,7 @@ function comboGenerator(data)
         let hidden = combo[i] == undefined;
         child.hidden = hidden;
         if (hidden)
-            kinetic(child).add({
+            animate(child).add({
                 "start": {
                     "size": {
                         "left": 4 + comboLenAcum[comboLenAcum.length - 1],
@@ -115,7 +115,7 @@ function comboGenerator(data)
                 "textcolor": "150 150 150 0",
             });
         else
-            kinetic(child).add({
+            animate(child).add({
                 "start": {
                     "size": {
                         "left": 4 + comboLenAcum[i],
@@ -143,13 +143,13 @@ function comboGeneratorTrans(data)
         let hidden = combo[i] == undefined;
         child.hidden = hidden;
         if (hidden)
-            kinetic(child).add({
+            animate(child).add({
                 "onComplete": object => object.caption = "",
                 "color": "40 40 40 0",
                 "textcolor": "150 150 150 0",
             });
         else
-            kinetic(child).add({
+            animate(child).add({
                 "onStart": object => object.caption = combo[i],
                 "size": {
                     "left": 4 + comboLenAcum[i],

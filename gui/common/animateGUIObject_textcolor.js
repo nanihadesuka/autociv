@@ -6,9 +6,7 @@ AnimateGUIObject.prototype.identity.textcolor = {
 	},
 	"get": guiObject =>
 	{
-		let color = guiObject.textcolor;
-		color.a = color.a === undefined ? 1 : color.a;
-		return color;
+		return Object.assign({ "a": 1 }, guiObject.textcolor);
 	},
 	"fromString": AnimateGUIObject.prototype.identity.color.fromString,
 	"fromObject": AnimateGUIObject.prototype.identity.color.fromObject,

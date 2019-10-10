@@ -155,7 +155,7 @@ ResizeBar.prototype.viewResizeBar = function ()
 	fSize[this.side] = iSize[this.side] + this.sideSign() * this.halfWidth;
 	fSize[this.sideComplementary()] = iSize[this.side] - this.sideSign() * this.halfWidth;
 
-	kinetic(ResizeBar.bar).add({
+	animate(ResizeBar.bar).add({
 		"onStart": bar =>
 		{
 			bar.size = iSize;
@@ -172,7 +172,7 @@ ResizeBar.prototype.hideResizeBar = function ()
 	iSize[this.side] = centerPos;
 	iSize[this.sideComplementary()] = centerPos;
 
-	kinetic(ResizeBar.bar).add({
+	animate(ResizeBar.bar).add({
 		"size": iSize,
 		"onComplete": bar => bar.hidden = true
 	});
@@ -231,7 +231,7 @@ ResizeBar.prototype.drop = function ()
 	if (displacement)
 	{
 		ResizeBar.ghostMode = true;
-		kinetic(this.object).add({
+		animate(this.object).add({
 			"size": { [this.side]: this.object.size[this.side] + displacement },
 			"onComplete": () =>
 			{
@@ -240,7 +240,7 @@ ResizeBar.prototype.drop = function ()
 			}
 		});
 		for (let [object, side] of this.objectsHooked)
-			kinetic(object).add({
+			animate(object).add({
 				"size": { [side]: object.size[side] + displacement }
 			});
 	}
