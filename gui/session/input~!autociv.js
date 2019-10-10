@@ -175,9 +175,9 @@ function autociv_setFormation(formation)
 	return true;
 }
 
-function autociv_CreateCorpses(create = true)
+function autociv_SetCorpsesMax(value)
 {
-	Engine.GuiInterfaceCall("autociv_CreateCorpses", create);
+	Engine.GuiInterfaceCall("autociv_SetCorpsesMax", value);
 }
 
 var g_autociv_hotkeys = {

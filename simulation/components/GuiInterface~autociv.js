@@ -1,6 +1,52 @@
-GuiInterface.prototype.autociv_CreateCorpses = function (player, create = true)
+if (!GuiInterface.prototype.Init)
+    GuiInterface.prototype.Init = function () { };
+
+GuiInterface.prototype.Init = (function (originalFunction)
 {
-    this.autociv_hideCorpses = !create;
+    return function ()
+    {
+        this.autociv_corpse = { "entities": new Set(), "max": 10 };
+        return originalFunction.apply(this, arguments);
+    }
+})(GuiInterface.prototype.Init);
+
+
+GuiInterface.prototype.autociv_CorpseAdd = function (entity)
+{
+    if (!entity || this.autociv_corpse.max === Infinity)
+        return;
+
+    this.autociv_corpse.entities.add(entity);
+    if (this.autociv_corpse.entities.size <= this.autociv_corpse.max)
+        return;
+
+    let iterator = this.autociv_corpse.entities.values();
+    while (this.autociv_corpse.entities.size > this.autociv_corpse.max)
+    {
+        let val = iterator.next();
+        if (val.done)
+            break;
+
+        this.autociv_corpse.entities.delete(val.value);
+        if (val.value != INVALID_ENTITY)
+            Engine.DestroyEntity(val.value)
+    }
+}
+
+GuiInterface.prototype.autociv_SetCorpsesMax = function (player, max = Infinity)
+{
+    if (max === Infinity || /Infinity/i.test(max))
+    {
+        this.autociv_corpse.entities.clear();
+        this.autociv_corpse.max = Infinity;
+        return;
+    }
+
+    let number = parseInt(max);
+    if (!Number.isInteger(number) || number < 0)
+        return warn("Invalid max corpses value " + max);
+
+    this.autociv_corpse.max = number;
 };
 
 GuiInterface.prototype.autociv_SetAutotrain = function (player, data)
@@ -96,7 +142,7 @@ let autociv_exposedFunctions = {
     "autociv_FindEntitiesWithGenericName": 1,
     "autociv_FindEntitiesWithClasses": 1,
     "autociv_FindEntitiesWithClassesExpression": 1,
-    "autociv_CreateCorpses": 1
+    "autociv_SetCorpsesMax": 1
 };
 
 GuiInterface.prototype.ScriptCall = (function (originalFunction)

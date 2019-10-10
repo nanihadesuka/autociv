@@ -48,8 +48,7 @@ init = (function (originalFunction)
 		autociv_bugFix_entity_unkown_reason();
 		autociv_addVersionLabel();
 
-		let hideCorpses = Engine.ConfigDB_GetValue("user", "autociv.session.graphics.hide.corpses") === "true";
-		autociv_CreateCorpses(!hideCorpses);
+		autociv_SetCorpsesMax(Engine.ConfigDB_GetValue("user", "autociv.session.graphics.corpses.max"));
 		return result;
 	}
 })(init);
