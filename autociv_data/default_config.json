@@ -2,7 +2,7 @@
 	"autociv.settings.reset.all": "false",
 	"autociv.lobby.chat.comments.max": 10000,
 	"autociv.lobby.chat.notifications.max": 30,
-	"autociv.session.graphics.corpses.max": "Infinity",
+	"autociv.session.graphics.corpses.max": 100,
 	"hotkey.autociv.open.test": "Ctrl+A+T",
 	"hotkey.autociv.open.autociv_settings": "F4",
 	"hotkey.autociv.gamesetup.openMapBrowser": "Alt+O",

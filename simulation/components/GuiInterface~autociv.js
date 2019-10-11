@@ -5,7 +5,10 @@ GuiInterface.prototype.Init = (function (originalFunction)
 {
     return function ()
     {
-        this.autociv_corpse = { "entities": new Set(), "max": 10 };
+        this.autociv_corpse = {
+            "entities": new Set(),
+            "max": Infinity
+        };
         return originalFunction.apply(this, arguments);
     }
 })(GuiInterface.prototype.Init);
@@ -13,23 +16,23 @@ GuiInterface.prototype.Init = (function (originalFunction)
 
 GuiInterface.prototype.autociv_CorpseAdd = function (entity)
 {
-    if (!entity || this.autociv_corpse.max === Infinity)
+    if (!entity || (this.autociv_corpse.max === Infinity))
         return;
 
-    this.autociv_corpse.entities.add(entity);
-    if (this.autociv_corpse.entities.size <= this.autociv_corpse.max)
+    let c = this.autociv_corpse;
+    c.entities.add(entity);
+    if (c.entities.size <= c.max)
         return;
 
-    let iterator = this.autociv_corpse.entities.values();
-    while (this.autociv_corpse.entities.size > this.autociv_corpse.max)
+    let iterator = c.entities.values();
+    while (c.entities.size > c.max)
     {
-        let val = iterator.next();
-        if (val.done)
+        let response = iterator.next();
+        if (response.done)
             break;
-
-        this.autociv_corpse.entities.delete(val.value);
-        if (val.value != INVALID_ENTITY)
-            Engine.DestroyEntity(val.value)
+        c.entities.delete(response.value);
+        if (response.value != INVALID_ENTITY)
+            Engine.DestroyEntity(response.value)
     }
 }
 
@@ -154,3 +157,6 @@ GuiInterface.prototype.ScriptCall = (function (originalFunction)
             originalFunction.apply(this, arguments);
     }
 })(GuiInterface.prototype.ScriptCall);
+
+
+Engine.ReRegisterComponentType(IID_GuiInterface, "GuiInterface", GuiInterface);
