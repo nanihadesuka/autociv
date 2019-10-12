@@ -1,12 +1,32 @@
 let g_SDL_keycode_value_to_0ad_key = Engine.ReadJSONFile("autociv_data/SDL_keycode_value_to_0ad_key.json");
-let g_currentCombo = [];
-let g_noChanges = true;
+let g_combo = [];
+let g_changes = false;
 
-function closeNoSave() { autocivCL.Engine.PopGUIPage(); }
+function close(save = false)
+{
+    if (save && g_changes)
+        autocivCL.Engine.PopGUIPage({
+            "saveNewCombo": true,
+            "value": g_combo.join("+"),
+            "i": attr.data.i
+        }, true);
+    else
+        autocivCL.Engine.PopGUIPage();
+}
+
+function clearCombo()
+{
+    if (!g_combo.length)
+        return;
+    g_combo = [];
+    g_changes = true;
+    comboGeneratorTrans({ "value": g_combo.join("+") });
+    animate("options_clear").add({ "color": { "b": 70 / 255 } })
+}
 
 function init(attr)
 {
-    Engine.GetGUIObjectByName("dialogBackground").onMouseLeftPress = closeNoSave;
+    Engine.GetGUIObjectByName("dialogBackground").onMouseLeftPress = close;
 
     animate("dialog").add({
         "start": {
@@ -27,53 +47,26 @@ function init(attr)
     // Save button
     let options_save = Engine.GetGUIObjectByName("options_save");
     animate(options_save).add({ "color": { "g": 50 / 255 } });
-    Object.assign(options_save, {
-        "onMouseLeftPress": () => animate(options_save).add({ "color": { "g": 150 / 255 } }),
-        "onMouseLeftRelease": () =>
-        {
-            animate(options_save).add({ "color": { "g": 70 / 255 } });
-            if (g_noChanges)
-                closeNoSave();
-            else
-                autocivCL.Engine.PopGUIPage({
-                    "saveNewCombo": true,
-                    "value": g_currentCombo.join("+"),
-                    "i": attr.data.i
-                }, true);
-        },
-        "onMouseEnter": () => animate(options_save).add({ "color": { "g": 70 / 255 } }),
-        "onMouseLeave": () => animate(options_save).add({ "color": { "g": 50 / 255 } })
-    })
+    options_save.onMouseLeftPress = () => animate(options_save).add({ "color": { "g": 150 / 255 } });
+    options_save.onMouseLeftRelease = () => close(true);
+    options_save.onMouseEnter = () => animate(options_save).add({ "color": { "g": 70 / 255 } });
+    options_save.onMouseLeave = () => animate(options_save).add({ "color": { "g": 50 / 255 } });
 
     // Clear button
     let options_clear = Engine.GetGUIObjectByName("options_clear");
     animate(options_clear).add({ "color": { "b": 50 / 255 } });
-    Object.assign(options_clear, {
-        "onMouseLeftPress": () => animate(options_clear).add({ "color": { "b": 150 / 255 } }),
-        "onMouseLeftRelease": () =>
-        {
-            g_currentCombo = [];
-            comboGeneratorTrans({ "value": g_currentCombo.join("+") });
-            animate(options_clear).add({ "color": { "b": 70 / 255 } })
-            g_noChanges = false;
-        },
-        "onMouseEnter": () => animate(options_clear).add({ "color": { "b": 70 / 255 } }),
-        "onMouseLeave": () => animate(options_clear).add({ "color": { "b": 50 / 255 } })
-    })
+    options_clear.onMouseLeftPress = () => animate(options_clear).add({ "color": { "b": 150 / 255 } });
+    options_clear.onMouseLeftRelease = () => clearCombo();
+    options_clear.onMouseEnter = () => animate(options_clear).add({ "color": { "b": 70 / 255 } });
+    options_clear.onMouseLeave = () => animate(options_clear).add({ "color": { "b": 50 / 255 } });
 
     // Cancel button
     let options_cancel = Engine.GetGUIObjectByName("options_cancel");
     animate(options_cancel).add({ "color": { "r": 50 / 255 } });
-    Object.assign(options_cancel, {
-        "onMouseLeftPress": () => animate(options_cancel).add({ "color": { "r": 150 / 255 } }),
-        "onMouseLeftRelease": () =>
-        {
-            animate(options_cancel).add({ "color": { "r": 70 / 255 } });
-            closeNoSave();
-        },
-        "onMouseEnter": () => animate(options_cancel).add({ "color": { "r": 70 / 255 } }),
-        "onMouseLeave": () => animate(options_cancel).add({ "color": { "r": 50 / 255 } })
-    })
+    options_cancel.onMouseLeftPress = () => animate(options_cancel).add({ "color": { "r": 150 / 255 } });
+    options_cancel.onMouseLeftRelease = () => close(false);
+    options_cancel.onMouseEnter = () => animate(options_cancel).add({ "color": { "r": 70 / 255 } });
+    options_cancel.onMouseLeave = () => animate(options_cancel).add({ "color": { "r": 50 / 255 } });
 
     comboGenerator(attr.data)
 }
@@ -175,13 +168,13 @@ function keyPriority(key)
 
 function comboBreaker(newEntry)
 {
-    if (g_currentCombo.length >= 4 || g_currentCombo.includes(newEntry))
+    if (g_combo.length >= 4 || g_combo.includes(newEntry) || !newEntry)
         return;
 
-    g_noChanges = false;
-    g_currentCombo.push(newEntry);
-    g_currentCombo.sort((a, b) => keyPriority(a) > keyPriority(b));
-    comboGeneratorTrans({ "value": g_currentCombo.join("+") });
+    g_changes = true;
+    g_combo.push(newEntry);
+    g_combo.sort((a, b) => keyPriority(a) > keyPriority(b));
+    comboGeneratorTrans({ "value": g_combo.join("+") });
 };
 
 function handleInputBeforeGui(ev)

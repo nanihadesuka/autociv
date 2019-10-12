@@ -1,8 +1,8 @@
 /**
  * GUI animator addon
  * Use:
- *  animate(guiObject).add(settings)
- *  animate(guiObject).chain(chainSettingsList, [defaultSettings])
+ *  animate(GUIObject).add(settings)
+ *  animate(GUIObject).chain(chainSettingsList, [defaultSettings])
  *	etc ...
  *  · Methods can be chained
  *
@@ -20,9 +20,9 @@
  *	  "delay"     : 100,
  *	  "curve"     : "linear",
  *	  "curve"     : x => x*x*x - 1,
- *	  "onStart"   : guiObject => warn("animation has started"),
- *	  "onTick"    : guiObject => warn("animation has ticked"),
- *	  "onComplete": guiObject => warn("animation has completed"),
+ *	  "onStart"   : GUIObject => warn("animation has started"),
+ *	  "onTick"    : GUIObject => warn("animation has ticked"),
+ *	  "onComplete": GUIObject => warn("animation has completed"),
  *	  "queue"     : false
  *	};
  *
@@ -43,9 +43,9 @@
 
 function AnimateGUIManager() { this.objects = {}; };
 
-AnimateGUIManager.prototype.get = function (guiObject)
+AnimateGUIManager.prototype.get = function (GUIObject)
 {
-	return this.objects[guiObject.name] || (this.objects[guiObject.name] = new AnimateGUIObjectManager(guiObject));
+	return this.objects[GUIObject.name] || (this.objects[GUIObject.name] = new AnimateGUIObjectManager(GUIObject));
 };
 
 AnimateGUIManager.prototype.onTick = function ()
@@ -60,8 +60,8 @@ AnimateGUIManager.prototype.onTick = function ()
  */
 function animate(object)
 {
-	let guiObject = typeof object == "string" ? Engine.GetGUIObjectByName(object) : object;
-	return animate.instance.get(guiObject);
+	let GUIObject = typeof object == "string" ? Engine.GetGUIObjectByName(object) : object;
+	return animate.instance.get(GUIObject);
 }
 
 animate.instance = new AnimateGUIManager();

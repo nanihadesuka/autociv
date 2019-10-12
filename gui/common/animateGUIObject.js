@@ -3,6 +3,7 @@ function AnimateGUIObject(guiObject, settings)
 	this.guiObject = guiObject;
 	this.settings = deepfreeze(settings);
 
+	// Stores animation data as duration,queue,etc.
 	this.values = {};
 	for (let value in AnimateGUIObject.defaults)
 		this.values[value] = clone(this.settings[value] === undefined ?
@@ -11,22 +12,11 @@ function AnimateGUIObject(guiObject, settings)
 	this.values.curve = typeof this.values.curve == "string" ?
 		AnimateGUIObject.curves[this.values.curve] : this.values.curve;
 
-	let parse = rawSettings =>
-	{
-		let q = {};
-		for (let type in rawSettings)
-			if (type in this.identity)
-				q[type] = typeof rawSettings[type] == "object" ?
-					this.identity[type].fromObject(rawSettings[type]) :
-					this.identity[type].fromString(rawSettings[type]);
-		return q;
-	}
+	// Stores the parsed types defined by this.indentity.
+	this.startTypes = this.settings.start ? this.getTypes(this.settings.start) : {};
+	this.types = this.getTypes(this.settings);
 
-	// Stores the initial parsed settings defined in this.indentity.
-	this.startTypes = this.settings.start ? parse(this.settings.start) : {};
-	this.types = parse(this.settings);
-
-	// Stores this.types parsed actions. Filled in stageStart.
+	// Stores parsed types actions. Filled in stageStart.
 	this.attributes = {};
 
 	this.stagesChain = [
@@ -62,7 +52,18 @@ AnimateGUIObject.curves = {
  */
 AnimateGUIObject.prototype.identity = {};
 
-AnimateGUIObject.prototype.parseAction = function (type)
+AnimateGUIObject.prototype.getTypes = function (rawSettings)
+{
+	let types = {};
+	for (let type in rawSettings)
+		if (type in this.identity)
+			types[type] = typeof rawSettings[type] == "object" ?
+				this.identity[type].fromObject(rawSettings[type]) :
+				this.identity[type].fromString(rawSettings[type]);
+	return types;
+};
+
+AnimateGUIObject.prototype.getAttribute = function (type)
 {
 	let attribute = { "parameters": {} };
 
@@ -81,9 +82,7 @@ AnimateGUIObject.prototype.parseAction = function (type)
 			object[parameter] = attribute.parameters[parameter](x);
 		this.identity[type].set(this.guiObject, object);
 	}
-
-	this.attributes[type] = attribute;
-	return this;
+	return attribute;
 };
 
 AnimateGUIObject.prototype.run = function (time)
@@ -125,12 +124,12 @@ AnimateGUIObject.prototype.stageStart = function (time)
 		this.settings.onStart(this.guiObject, this);
 
 	/**
-	 * Parse action is called here given the user might want
+	 * Is called here given the user might want
 	 * to modify the object's initial values while the delay
 	 * animation is running.
 	 */
 	for (let type in this.types)
-		this.parseAction(type);
+		this.attributes[type] = this.getAttribute(type);
 
 	return true;
 };
@@ -221,14 +220,7 @@ function GUIObjectSet(GUIObject, settings)
 	const guiObject = typeof GUIObject == "string" ?
 		Engine.GetGUIObjectByName(GUIObject) : GUIObject;
 
-	let types = {};
-
-	if (settings !== undefined)
-		for (let type in identity)
-			if (settings[type])
-				types[type] = typeof settings[type] == "object" ?
-					identity[type].fromObject(settings[type]) :
-					identity[type].fromString(settings[type]);
+	let types = AnimateGUIObject.prototype.getTypes(settings);
 
 	for (let type in types)
 	{
