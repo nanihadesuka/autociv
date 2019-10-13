@@ -1,8 +1,9 @@
-function AnimateGUIObjectManager(guiObject)
+function AnimateGUIObjectManager(GUIObject, GUIManagerInstance)
 {
-	this.guiObject = guiObject
-	this.running = []
-	this.queue = []
+	this.GUIManagerInstance = GUIManagerInstance;
+	this.GUIObject = GUIObject;
+	this.running = [];
+	this.queue = [];
 }
 
 AnimateGUIObjectManager.prototype.isAlive = function ()
@@ -25,9 +26,10 @@ AnimateGUIObjectManager.prototype.isAlive = function ()
  */
 AnimateGUIObjectManager.prototype.add = function (settings)
 {
-	let newAnimation = new AnimateGUIObject(this.guiObject, settings);
+	this.GUIManagerInstance.setTicking(this);
+	let newAnimation = new AnimateGUIObject(this.GUIObject, settings);
 
-	if (newAnimation.values.queue)
+	if (newAnimation.data.queue)
 		this.queue.push(newAnimation)
 	else
 	{
@@ -56,13 +58,14 @@ AnimateGUIObjectManager.prototype.onTick = function ()
  */
 AnimateGUIObjectManager.prototype.finish = function (completeQueue)
 {
+	this.GUIManagerInstance.setTicking(this);
 	for (let animation of this.running)
 		animation.complete(true);
 
 	if (completeQueue) for (let animation of this.queue)
 	{
-		animation.values.delay = 0;
-		animation.values.duration = 0;
+		animation.data.delay = 0;
+		animation.data.duration = 0;
 	}
 
 	return this;
@@ -70,12 +73,13 @@ AnimateGUIObjectManager.prototype.finish = function (completeQueue)
 
 /**
  * Chain animations
- * @param {Object} guiObject
+ * @param {Object} GUIObject
  * @param {Object[]} chainSettingsList
  * @param {Object} sharedSettings
  */
 AnimateGUIObjectManager.prototype.chain = function (chainSettingsList, sharedSettings)
 {
+	this.GUIManagerInstance.setTicking(this);
 	for (let settings of chainSettingsList)
 		this.add(Object.assign({}, sharedSettings, settings));
 

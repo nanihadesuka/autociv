@@ -41,18 +41,32 @@
  *   setting will overrite the old one.
  */
 
-function AnimateGUIManager() { this.objects = {}; };
+function AnimateGUIManager()
+{
+	this.objects = new Set();
+};
 
 AnimateGUIManager.prototype.get = function (GUIObject)
 {
-	return this.objects[GUIObject.name] || (this.objects[GUIObject.name] = new AnimateGUIObjectManager(GUIObject));
+	if (!GUIObject.onACAnimate)
+	{
+		GUIObject.onACAnimate = function () { };
+		GUIObject.onACAnimate.manager = new AnimateGUIObjectManager(GUIObject, this);
+	}
+	this.objects.add(GUIObject.onACAnimate.manager);
+	return GUIObject.onACAnimate.manager;
+};
+
+AnimateGUIManager.prototype.setTicking = function (AnimateGUIObjectManagerInstance)
+{
+	this.objects.add(AnimateGUIObjectManagerInstance);
 };
 
 AnimateGUIManager.prototype.onTick = function ()
 {
-	for (let name in this.objects)
-		if (!this.objects[name].onTick().isAlive())
-			delete this.objects[name];
+	for (let object of this.objects)
+		if (!object.onTick().isAlive())
+			this.objects.delete(object);
 };
 
 /**

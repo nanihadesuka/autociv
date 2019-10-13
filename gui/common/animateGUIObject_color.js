@@ -1,12 +1,12 @@
-AnimateGUIObject.prototype.identity.color = {
-	"types": deepfreeze(["r", "g", "b", "a"]),
-	"set": function (guiObject, object)
+AnimateGUIObject.prototype.identities.color = {
+	"parameters": deepfreeze(["r", "g", "b", "a"]),
+	"set": function (GUIObject, object)
 	{
-		guiObject.sprite = "color: " + this.toString(object);
+		GUIObject.sprite = "color: " + this.toString(object);
 	},
-	"get": function (guiObject)
+	"get": function (GUIObject)
 	{
-		return Object.assign({ "a": 1 }, this.fromString(guiObject.sprite.match(/:(.+)$/)[1]));
+		return Object.assign({ "a": 1 }, this.fromString(GUIObject.sprite.match(/:(.+)$/)[1]));
 	},
 	"fromString": text =>
 	{

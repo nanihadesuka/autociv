@@ -1,7 +1,7 @@
-AnimateGUIObject.prototype.identity.size = {
-	"types": deepfreeze(["left", "top", "right", "bottom", "rleft", "rtop", "rright", "rbottom"]),
-	"set": (guiObject, object) => guiObject.size = object,
-	"get": guiObject => guiObject.size,
+AnimateGUIObject.prototype.identities.size = {
+	"parameters": deepfreeze(["left", "top", "right", "bottom", "rleft", "rtop", "rright", "rbottom"]),
+	"set": (GUIObject, object) => GUIObject.size = object,
+	"get": GUIObject => GUIObject.size,
 	"fromString": function (text)
 	{
 		let size = {};
@@ -11,11 +11,11 @@ AnimateGUIObject.prototype.identity.size = {
 			let block = blocks[i].split("%");
 			if (block.length == 2)
 			{
-				size[this.types[i + 4]] = +block[0];
-				size[this.types[i]] = +block[1];
+				size[this.parameters[i + 4]] = +block[0];
+				size[this.parameters[i]] = +block[1];
 			}
 			else
-				size[this.types[i]] = +block[0];
+				size[this.parameters[i]] = +block[0];
 		};
 		return size;
 	},

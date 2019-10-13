@@ -1,6 +1,7 @@
-let g_SDL_keycode_value_to_0ad_key = Engine.ReadJSONFile("autociv_data/SDL_keycode_value_to_0ad_key.json");
-let g_combo = [];
-let g_changes = false;
+var g_SDL_keycode_value_to_0ad_key = Engine.ReadJSONFile("autociv_data/SDL_keycode_value_to_0ad_key.json");
+var g_combo = [];
+var g_changes = false;
+var g_data = {};
 
 function close(save = false)
 {
@@ -8,7 +9,7 @@ function close(save = false)
         autocivCL.Engine.PopGUIPage({
             "saveNewCombo": true,
             "value": g_combo.join("+"),
-            "i": attr.data.i
+            "i": g_data.data.i
         }, true);
     else
         autocivCL.Engine.PopGUIPage();
@@ -16,25 +17,24 @@ function close(save = false)
 
 function clearCombo()
 {
-    if (!g_combo.length)
-        return;
     g_combo = [];
     g_changes = true;
     comboGeneratorTrans({ "value": g_combo.join("+") });
     animate("options_clear").add({ "color": { "b": 70 / 255 } })
 }
 
-function init(attr)
+function init(data)
 {
-    Engine.GetGUIObjectByName("dialogBackground").onMouseLeftPress = close;
+    g_data = data;
+    Engine.GetGUIObjectByName("dialogBackground").onMouseLeftPress = () => close(false);
 
     animate("dialog").add({
         "start": {
             "size": {
                 "left": -7.5,
-                "top": attr.absoluteSize.top,
-                "bottom": attr.absoluteSize.bottom,
-                "right": attr.absoluteSize.right - attr.absoluteSize.left - 7.5
+                "top": g_data.absoluteSize.top,
+                "bottom": g_data.absoluteSize.bottom,
+                "right": g_data.absoluteSize.right - g_data.absoluteSize.left - 7.5
             }
         },
         "color": "40 40 40 255"
@@ -44,31 +44,36 @@ function init(attr)
     animate("setting_value_text").add({ "color": "20 20 20 255" });
     animate("options").add({ "size": { "bottom": 30 }, "color": "60 60 60 255" });
 
+    let color = (btn, t, v) => btn.add({ "color": { [t]: v / 255 } });
+
     // Save button
     let options_save = Engine.GetGUIObjectByName("options_save");
-    animate(options_save).add({ "color": { "g": 50 / 255 } });
-    options_save.onMouseLeftPress = () => animate(options_save).add({ "color": { "g": 150 / 255 } });
+    let saveBtn = animate(options_save);
+    color(saveBtn, "g", 50);
+    options_save.onMouseLeftPress = () => color(saveBtn, "g", 150);
     options_save.onMouseLeftRelease = () => close(true);
-    options_save.onMouseEnter = () => animate(options_save).add({ "color": { "g": 70 / 255 } });
-    options_save.onMouseLeave = () => animate(options_save).add({ "color": { "g": 50 / 255 } });
+    options_save.onMouseEnter = () => color(saveBtn, "g", 70);
+    options_save.onMouseLeave = () => color(saveBtn, "g", 50);
 
     // Clear button
     let options_clear = Engine.GetGUIObjectByName("options_clear");
-    animate(options_clear).add({ "color": { "b": 50 / 255 } });
-    options_clear.onMouseLeftPress = () => animate(options_clear).add({ "color": { "b": 150 / 255 } });
+    let clearBtn = animate(options_clear);
+    color(clearBtn, "b", 50);
+    options_clear.onMouseLeftPress = () => color(clearBtn, "b", 150);
     options_clear.onMouseLeftRelease = () => clearCombo();
-    options_clear.onMouseEnter = () => animate(options_clear).add({ "color": { "b": 70 / 255 } });
-    options_clear.onMouseLeave = () => animate(options_clear).add({ "color": { "b": 50 / 255 } });
+    options_clear.onMouseEnter = () => color(clearBtn, "b", 70);
+    options_clear.onMouseLeave = () => color(clearBtn, "b", 50);
 
     // Cancel button
     let options_cancel = Engine.GetGUIObjectByName("options_cancel");
-    animate(options_cancel).add({ "color": { "r": 50 / 255 } });
-    options_cancel.onMouseLeftPress = () => animate(options_cancel).add({ "color": { "r": 150 / 255 } });
+    let cancelBtn = animate(options_cancel);
+    color(cancelBtn, "r", 50);
+    options_cancel.onMouseLeftPress = () => color(cancelBtn, "r", 150);
     options_cancel.onMouseLeftRelease = () => close(false);
-    options_cancel.onMouseEnter = () => animate(options_cancel).add({ "color": { "r": 70 / 255 } });
-    options_cancel.onMouseLeave = () => animate(options_cancel).add({ "color": { "r": 50 / 255 } });
+    options_cancel.onMouseEnter = () => color(cancelBtn, "r", 70);
+    options_cancel.onMouseLeave = () => color(cancelBtn, "r", 50);
 
-    comboGenerator(attr.data)
+    comboGenerator(g_data.data)
 }
 
 function calcKeyWidth(text)

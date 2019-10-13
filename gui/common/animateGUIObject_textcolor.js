@@ -1,14 +1,14 @@
-AnimateGUIObject.prototype.identity.textcolor = {
-	"types": AnimateGUIObject.prototype.identity.color.types,
-	"set": function (guiObject, object)
+AnimateGUIObject.prototype.identities.textcolor = {
+	"parameters": AnimateGUIObject.prototype.identities.color.parameters,
+	"set": function (GUIObject, object)
 	{
-		guiObject.textcolor = this.toString(object);
+		GUIObject.textcolor = this.toString(object);
 	},
-	"get": guiObject =>
+	"get": GUIObject =>
 	{
-		return Object.assign({ "a": 1 }, guiObject.textcolor);
+		return Object.assign({ "a": 1 }, GUIObject.textcolor);
 	},
-	"fromString": AnimateGUIObject.prototype.identity.color.fromString,
-	"fromObject": AnimateGUIObject.prototype.identity.color.fromObject,
-	"toString": AnimateGUIObject.prototype.identity.color.toString
+	"fromString": AnimateGUIObject.prototype.identities.color.fromString,
+	"fromObject": AnimateGUIObject.prototype.identities.color.fromObject,
+	"toString": AnimateGUIObject.prototype.identities.color.toString
 };
