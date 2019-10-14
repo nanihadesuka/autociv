@@ -1,3 +1,6 @@
+var g_autociv_stanza = new ConfigJSON("stanza", false);
+g_autociv_stanza.removeAllValues();
+
 addChatMessage = (function (originalFunction)
 {
 	return function (msg)
@@ -7,7 +10,7 @@ addChatMessage = (function (originalFunction)
 })(addChatMessage);
 
 // Create the function that fgod uses if fgod not enabled
-if ("getFilteredMods" in global)
+if (!getFilteredMods)
 	var getFilteredMods = function ()
 	{
 		let mod = ([name, version]) => !/^FGod.*/i.test(name);
@@ -22,9 +25,6 @@ getFilteredMods = (function (originalFunction)
 		return originalFunction.apply(this, arguments).filter(mod);
 	}
 })(getFilteredMods);
-
-var g_autociv_stanza = new ConfigJSON("stanza", false);
-g_autociv_stanza.removeAllValues();
 
 sendRegisterGameStanzaImmediate = function ()
 {
@@ -54,8 +54,6 @@ sendRegisterGameStanzaImmediate = function ()
 		"stunPort": g_StunEndpoint ? g_StunEndpoint.port : "",
 		"mods": JSON.stringify(getFilteredMods()) // <----- THIS CHANGES
 	};
-
-	g_autociv_stanza.setValue("gamesetup", stanza);
 
 	// Only send the stanza if the relevant settings actually changed
 	if (g_LastGameStanza && Object.keys(stanza).every(prop => g_LastGameStanza[prop] == stanza[prop]))
@@ -154,6 +152,19 @@ function autociv_InitBots()
 	autociv_InitSharedCommands()
 }
 
+function autociv_hookOnStanzaChanges()
+{
+	sendRegisterGameStanzaImmediate = (function (originalFunction)
+	{
+		return function ()
+		{
+			let result = originalFunction.apply(this, arguments);
+			g_autociv_stanza.setValue("gamesetup", g_LastGameStanza);
+			return result;
+		}
+	})(sendRegisterGameStanzaImmediate);
+}
+
 selectPanel = (function (originalFunction)
 {
 	return function (arg)
@@ -169,12 +180,13 @@ selectPanel = (function (originalFunction)
 
 init = (function (originalFunction)
 {
-	return function (args)
+	return function ()
 	{
 		autociv_InitBots();
 		originalFunction.apply(this, arguments);
 		// Fix hack for hack fix
 		updateSettingsPanelPosition(-1);
+		autociv_hookOnStanzaChanges();
 
 		// FGod command not working
 		delete g_NetworkCommands['/showip'];

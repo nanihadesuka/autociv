@@ -51,22 +51,15 @@ AnimateGUIObjectManager.prototype.onTick = function ()
 };
 
 /**
- * Ends animation as if had reached end time but without
- * updating attributes.
+ * Ends animation as if had reached end time but without updating attributes.
  * onStart/onTick/onComplete called as usual.
- * Optional argument to complete all remaining queues.
  */
-AnimateGUIObjectManager.prototype.finish = function (completeQueue)
+AnimateGUIObjectManager.prototype.finish = function ()
 {
 	this.GUIManagerInstance.setTicking(this);
 	for (let animation of this.running)
 		animation.complete(true);
 
-	if (completeQueue) for (let animation of this.queue)
-	{
-		animation.data.delay = 0;
-		animation.data.duration = 0;
-	}
 
 	return this;
 }

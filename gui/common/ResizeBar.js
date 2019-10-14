@@ -58,7 +58,7 @@ ResizeBar.prototype.parseObject = function (object)
 		object;
 };
 
-ResizeBar.prototype.mouseInside = function ()
+ResizeBar.prototype.isMouseInside = function ()
 {
 	if (!this.isVisibleCondition())
 		return false;
@@ -77,7 +77,7 @@ ResizeBar.prototype.mouseInside = function ()
 				rect.left + this.halfWidth < ResizeBar.mouse.x &&
 				rect.right - this.halfWidth > ResizeBar.mouse.x;
 		default:
-			warn(`No side by name: "${this.side}"\n` + Error().stack);
+			return false;
 	}
 };
 
@@ -144,73 +144,67 @@ ResizeBar.prototype.sideMouse = function (side)
 ResizeBar.prototype.viewResizeBar = function ()
 {
 	let absPos = this.object.getComputedSize();
-
-	let iSize = GUISize();
-	iSize[this.side] = absPos[this.side];
-	iSize[this.sideComplementary()] = absPos[this.side];
-	iSize[this.sideOpposite()] = absPos[this.sideOpposite()];
-	iSize[this.sideCrossed()] = absPos[this.sideCrossed()];
-
-	let fSize = Object.assign({}, iSize); // Copy
-	fSize[this.side] = iSize[this.side] + this.sideSign() * this.halfWidth;
-	fSize[this.sideComplementary()] = iSize[this.side] - this.sideSign() * this.halfWidth;
-
-	animate(ResizeBar.bar).add({
-		"onStart": bar =>
-		{
-			bar.size = iSize;
-			bar.hidden = false;
+	animate(ResizeBar.bar).finish().add({
+		"start": {
+			"size": {
+				[this.side]: absPos[this.side],
+				[this.sideComplementary()]: absPos[this.side],
+				[this.sideOpposite()]: absPos[this.sideOpposite()],
+				[this.sideCrossed()]: absPos[this.sideCrossed()]
+			}
 		},
-		"size": fSize
+		"onStart": bar => bar.hidden = false,
+		"size": {
+			[this.side]: absPos[this.side] + this.sideSign() * this.halfWidth,
+			[this.sideComplementary()]: absPos[this.side] - this.sideSign() * this.halfWidth
+		}
 	});
 };
 
 ResizeBar.prototype.hideResizeBar = function ()
 {
 	let iSize = ResizeBar.bar.size;
-	let centerPos = (iSize[this.side] + iSize[this.sideComplementary()]) * 0.5;
-	iSize[this.side] = centerPos;
-	iSize[this.sideComplementary()] = centerPos;
-
-	animate(ResizeBar.bar).add({
-		"size": iSize,
+	let centerPos = (iSize[this.side] + iSize[this.sideComplementary()]) / 2;
+	animate(ResizeBar.bar).finish().add({
+		"size": {
+			[this.side]: centerPos,
+			[this.sideComplementary()]: centerPos
+		},
 		"onComplete": bar => bar.hidden = true
 	});
 };
 
 ResizeBar.prototype.tick = function ()
 {
-	// If some bar is being dragged ignore all the others.
+	// If no bar is being dragged
 	if (!ResizeBar.dragging)
 	{
-		let isInside = this.mouseInside();
-		// If same "state" and bar visible do nothing.
-		if (this.wasInside == isInside && !ResizeBar.bar.hidden)
+		if (this.wasInside == this.isMouseInside())
 			return;
-		// If the cursor goes inside bar then make the bar visible.
-		if (isInside)
-			this.viewResizeBar();
-		// If the cursor goes outside bar then hide the bar.
-		else
+
+		if (this.wasInside)
 			this.hideResizeBar();
-		// Update last "state"
-		this.wasInside = isInside;
-		return isInside;
+		else
+			this.viewResizeBar();
+
+		return this.wasInside = !this.wasInside;
 	}
 	// If this resize bar in specific is being dragged then update this bar position.
 	else if (this.dragging)
 	{
-		let size = ResizeBar.bar.size;
 		let position = ResizeBar.mouse[this.sideMouse()] - ResizeBar.dispErr;
-		size[this.side] = position + this.sideSign() * this.halfWidth;
-		size[this.sideComplementary()] = position - this.sideSign() * this.halfWidth;
-		ResizeBar.bar.size = size;
+		GUIObjectSet(ResizeBar.bar, {
+			"size": {
+				[this.side]: position + this.sideSign() * this.halfWidth,
+				[this.sideComplementary()]: position - this.sideSign() * this.halfWidth
+			}
+		});
 	}
 };
 
 ResizeBar.prototype.drag = function ()
 {
-	if (!this.mouseInside())
+	if (!this.isMouseInside())
 		return false;
 
 	ResizeBar.mousePress.set(ResizeBar.mouse);

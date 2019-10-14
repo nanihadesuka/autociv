@@ -3,15 +3,11 @@ function AnimateGUIObject(GUIObject, settings)
 	this.GUIObject = GUIObject;
 	this.settings = deepfreeze(settings);
 
-	// Stores animation data. E.g. duration, queue, curve function, etc.
-	this.data = this.getData(this.settings);
-
-	// Stores the parsed values as defined by this.indentity.
-	this.startValues = this.settings.start ? this.getValues(this.settings.start) : {};
-	this.endValues = this.getValues(this.settings);
-
-	// Stores parsed types actions. Filled in stageStart.
-	this.actions = {};
+	this.data = AnimateGUIObject.getData(this.settings);
+	this.startValues = AnimateGUIObject.getValues(this.settings.start || {});
+	this.endValues = AnimateGUIObject.getValues(this.settings);
+	this.actions = AnimateGUIObject.getActions(this.settings);
+	this.tasks = {}; // Filled in stageStart given it might change before it
 
 	this.stagesChain = [
 		this.stageInit,
@@ -41,71 +37,85 @@ AnimateGUIObject.curves = {
 };
 
 /**
- * Types specialized methods (size, color, textcolor, ...)
+ * Specialized methods (size, color, textcolor, ...)
  * Each defined in its animateGUIObject_*.js
  */
-AnimateGUIObject.prototype.identities = {};
+AnimateGUIObject.identities = {};
 
-AnimateGUIObject.prototype.getData = function (raw)
+AnimateGUIObject.getData = function (raw)
 {
-	let datas = {};
-	for (let data in AnimateGUIObject.defaults)
-		datas[data] = clone(data in raw ? raw[data] : AnimateGUIObject.defaults[data]);
+	let data = {};
+	for (let v in AnimateGUIObject.defaults)
+		data[v] = clone(v in raw ? raw[v] : AnimateGUIObject.defaults[v]);
 
 	// Curve input can be string or function and is outputed as function
-	datas.curve = AnimateGUIObject.curves[datas.curve] || datas.curve;
-	return datas;
+	data.curve = AnimateGUIObject.curves[data.curve] || data.curve;
+
+	return data;
 };
 
-AnimateGUIObject.prototype.getValues = function (raw)
+AnimateGUIObject.getValues = function (raw)
 {
 	let values = {};
-	for (let value in this.identities) if (value in raw)
-		values[value] = typeof raw[value] == "object" ?
-			this.identities[value].fromObject(raw[value]) :
-			this.identities[value].fromString(raw[value]);
+	for (let type in AnimateGUIObject.identities) if (type in raw)
+		values[type] = typeof raw[type] == "object" ?
+			AnimateGUIObject.identities[type].fromObject(raw[type]) :
+			AnimateGUIObject.identities[type].fromString(raw[type]);
+
 	return values;
 };
 
-AnimateGUIObject.prototype.getAction = function (raw, type)
+AnimateGUIObject.getActions = function (raw)
 {
-	let attribute = { "parameters": {} };
-	let identity = this.identities[type];
+	return {
+		"onStart": raw.onStart || function () { },
+		"onTick": raw.onTick || function () { },
+		"onComplete": raw.onComplete || function () { },
+	};
+};
 
-	let original = identity.get(this.GUIObject);
+
+AnimateGUIObject.getTask = function (raw, type, GUIObject)
+{
+	let task = { "parameters": {} };
+	let identity = AnimateGUIObject.identities[type];
+	let original = identity.get(GUIObject);
+
 	for (let parameter of identity.parameters) if (parameter in raw)
 	{
 		let start = original[parameter];
 		let end = raw[parameter];
-		attribute.parameters[parameter] = x => start + x * (end - start);
+		task.parameters[parameter] = x => start + x * (end - start);
 	}
 
-	attribute.calc = x =>
+	task.calc = x =>
 	{
-		let object = identity.get(this.GUIObject);
-		for (let parameter in attribute.parameters)
-			object[parameter] = attribute.parameters[parameter](x);
-		identity.set(this.GUIObject, object);
+		let object = identity.get(GUIObject);
+		for (let parameter in task.parameters)
+			object[parameter] = task.parameters[parameter](x);
+		identity.set(GUIObject, object);
 	}
-	return attribute;
+
+	return task;
 };
 
-AnimateGUIObject.prototype.getActions = function (raw)
+AnimateGUIObject.getTasks = function (raw, GUIObject)
 {
-	let actions = {};
-	for (let type in this.identities) if (type in raw)
-		actions[type] = this.getAction(raw[type], type)
-	return actions;
+	let tasks = {};
+	for (let type in AnimateGUIObject.identities) if (type in raw)
+		tasks[type] = AnimateGUIObject.getTask(raw[type], type, GUIObject)
+
+	return tasks;
 };
 
-AnimateGUIObject.prototype.setValues = function (values, GUIObject = this.GUIObject)
+AnimateGUIObject.setValues = function (values, GUIObject)
 {
 	for (let type in values)
 	{
-		let object = this.identities[type].get(GUIObject);
+		let object = AnimateGUIObject.identities[type].get(GUIObject);
 		for (let parameter in values[type])
 			object[parameter] = values[type][parameter];
-		this.identities[type].set(GUIObject, object);
+		AnimateGUIObject.identities[type].set(GUIObject, object);
 	}
 };
 
@@ -113,6 +123,7 @@ AnimateGUIObject.prototype.run = function (time)
 {
 	while (this.stage && this.stage(time))
 		this.stage = this.stagesChain.shift();
+
 	return this;
 };
 
@@ -125,6 +136,7 @@ AnimateGUIObject.prototype.stageInit = function (time)
 {
 	this.data.start = time + this.data.delay;
 	this.data.end = this.data.start + this.data.duration;
+
 	return true;
 };
 
@@ -135,14 +147,11 @@ AnimateGUIObject.prototype.stageDelay = function (time)
 
 AnimateGUIObject.prototype.stageStart = function (time)
 {
-	// Set starting values if any.
-	this.setValues(this.startValues);
-
-	if (this.settings.onStart)
-		this.settings.onStart(this.GUIObject, this);
-
-	// Called here given the user might modify the object before stageStart
-	this.actions = this.getActions(this.endValues);
+	AnimateGUIObject.setValues(this.startValues, this.GUIObject);
+	delete this.startValues;
+	this.actions.onStart(this.GUIObject, this);
+	this.tasks = AnimateGUIObject.getTasks(this.endValues, this.GUIObject);
+	delete this.endValues;
 
 	return true;
 };
@@ -150,43 +159,38 @@ AnimateGUIObject.prototype.stageStart = function (time)
 AnimateGUIObject.prototype.stageTick = function (time)
 {
 	let running = time < this.data.end;
-	let uniformTime = running ?
-		(time - this.data.start) / this.data.duration :
-		1;
-	let x = this.data.curve(uniformTime);
+	let unitary = running ? (time - this.data.start) / this.data.duration : 1;
+	let x = this.data.curve(unitary);
 
-	if (!this.noActionsUpdate)
-		for (let attribute in this.actions)
-			this.actions[attribute].calc(x);
+	if (!this.noTasksUpdate) for (let type in this.tasks)
+		this.tasks[type].calc(x);
 
-	if (this.settings.onTick)
-		this.settings.onTick(this.GUIObject, this);
+	this.actions.onTick(this.GUIObject, this);
 
 	return !running;
 };
 
 AnimateGUIObject.prototype.stageComplete = function (time)
 {
-	if (this.settings.onComplete)
-		this.settings.onComplete(this.GUIObject, this);
+	this.actions.onComplete(this.GUIObject, this);
 
 	return true;
 };
 
 /**
- * Checks if the animation has any type that still modifies the GUIObject.
+ * Checks if the animation has any task that still modifies the GUIObject.
  */
 AnimateGUIObject.prototype.isAlive = function ()
 {
-	return !!Object.keys(this.endValues).length;
+	return !!Object.keys(this.tasks).length;
 };
 
 /**
- * Removes types/actions that the old animation has with the new animation.
+ * Removes types/tasks that the old animation has with the new animation.
  */
 AnimateGUIObject.prototype.removeIntersections = function (newAnimation)
 {
-	for (let type of Object.keys(this.endValues))
+	for (let type in this.tasks) if (type in newAnimation.endValues)
 		this.removeValueIntersections(newAnimation, type);
 
 	return this;
@@ -194,43 +198,33 @@ AnimateGUIObject.prototype.removeIntersections = function (newAnimation)
 
 AnimateGUIObject.prototype.removeValueIntersections = function (newAnimation, type)
 {
-	if (!newAnimation.endValues[type])
+	for (let parameter in this.tasks[type])
+		if (parameter in newAnimation.endValues[type])
+			delete this.tasks[type][parameter];
+
+	for (let parameter in this.tasks[type])
 		return;
-
-	for (let parameter of Object.keys(this.endValues[type]))
-	{
-		if (newAnimation.endValues[type][parameter] === undefined)
-			continue;
-
-		delete this.endValues[type][parameter];
-		if (this.actions[type])
-			delete this.actions[type].parameters[parameter];
-	}
-
-	if (Object.keys(this.endValues[type]).length)
-		return;
-
-	delete this.endValues[type];
-	delete this.actions[type];
-	return this;
+	delete this.tasks[type];
 };
 
 /**
  * Jump to the end of the animation.
  * onStart/onTick/onComplete behaviour doesn't change.
- * @param {Boolean} noActionsUpdate Ends animations witout updating actions.
+ * @param {Boolean} noTasksUpdate Ends animations witout updating tasks.
  */
-AnimateGUIObject.prototype.complete = function (noActionsUpdate = false)
+AnimateGUIObject.prototype.complete = function (noTasksUpdate = false)
 {
-	this.noActionsUpdate = noActionsUpdate;
+	this.noTasksUpdate = noTasksUpdate;
 	this.data.end = Date.now();
+
 	return this;
 };
 
 function GUIObjectSet(object, settings)
 {
+	let values = AnimateGUIObject.getValues(settings);
 	const GUIObject = typeof object == "string" ? Engine.GetGUIObjectByName(object) : object;
-	let values = AnimateGUIObject.prototype.getValues(settings);
-	AnimateGUIObject.prototype.setValues(values, GUIObject);
+	AnimateGUIObject.setValues(values, GUIObject);
+
 	return GUIObject;
 }

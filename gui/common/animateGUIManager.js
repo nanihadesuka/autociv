@@ -3,7 +3,9 @@
  * Use:
  *  animate(GUIObject).add(settings)
  *  animate(GUIObject).chain(chainSettingsList, [defaultSettings])
+ *  animate(GUIObject).complete().add(setting).chain([...],{"queue":true})
  *	etc ...
+ *
  *  · Methods can be chained
  *
  * 	Example of settings:
@@ -26,17 +28,14 @@
  *	  "queue"     : false
  *	};
  *
- * · "textcolor" only works with objects that can have text.
- * · "color" only works if the object parameter sprite is defined
- *    as sprite = "color: R G B A".
+ * · "textcolor" only works if object has caption.
+ * · "color" only works if object has a defined sprite = "color: R G B A" in the XML.
  * · "size" always works.
  *
  * · AnimateGUIObject.default for defaults that can be changed.
- * · AnimateGUIObject.curves for animation transitions types="string"
- *   that can be changed.
+ * · AnimateGUIObject.curves for animations normalized step functions
  *
- * · Each setting can be set independent from the other (including
- *   individual values of each setting).
+ * · Each value can be set independent (including individual parameters).
  * · In case of two animations with the same setting the new animation
  *   setting will overrite the old one.
  */
@@ -48,15 +47,16 @@ function AnimateGUIManager()
 
 AnimateGUIManager.prototype.get = function (GUIObject)
 {
-	if (!GUIObject.onACAnimate)
+	if (!GUIObject.onAutocivAnimate)
 	{
-		GUIObject.onACAnimate = function () { };
-		GUIObject.onACAnimate.manager = new AnimateGUIObjectManager(GUIObject, this);
+		GUIObject.onAutocivAnimate = function () { };
+		GUIObject.onAutocivAnimate.manager = new AnimateGUIObjectManager(GUIObject, this);
 	}
-	this.objects.add(GUIObject.onACAnimate.manager);
-	return GUIObject.onACAnimate.manager;
+	this.objects.add(GUIObject.onAutocivAnimate.manager);
+	return GUIObject.onAutocivAnimate.manager;
 };
 
+// Adds GUIObjectManager instance back to this.objects so it can onTick again
 AnimateGUIManager.prototype.setTicking = function (AnimateGUIObjectManagerInstance)
 {
 	this.objects.add(AnimateGUIObjectManagerInstance);

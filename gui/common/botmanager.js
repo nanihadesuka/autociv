@@ -374,11 +374,6 @@ botManager.addBot("autociv", {
 
 		let fullName = data.sender + (!!data.rating ? ` (${data.rating})` : "");
 
-		// Ignore if in "double click" ready state (exception: host)
-		// if (game.get.player.selfName() !== fullName &&
-			// game.get.player.status(fullName) == "locked")
-			// return;
-
 		// Special case: spec makes a player observer.
 		if (firstWord == "spec")
 		{
@@ -397,11 +392,12 @@ botManager.addBot("autociv", {
 		 * You can add any new civ code name you want from any civ you made.
 		 * E.g. if you make a new civ called "FoobarCiv", then your civ
 		 * code will be "foo" and the possible entries ["foo"(civ code
-		 * added automatically no need to add), "custom name 1", "custom
+		 * added automatically, no need to add), "custom name 1", "custom
 		 * name 2", "custom name N"].
 		 * Doesn't care if uppercase or lowercase for custom name entries
-		 * (but yes for the civ code).
+		 * (but does for the civ code).
 		 */
+
 		// Load custom civ names.
 		let customNamesCivs = Engine.ReadJSONFile("autociv_data/civilizations.json");
 
