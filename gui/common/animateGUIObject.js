@@ -9,15 +9,14 @@ function AnimateGUIObject(GUIObject, settings)
 	this.actions = AnimateGUIObject.getActions(this.settings);
 	this.tasks = {}; // Filled in stageStart given it might change before it
 
-	this.stagesChain = [
+	this.stages = [
 		this.stageInit,
 		this.stageDelay,
 		this.stageStart,
 		this.stageTick,
 		this.stageComplete
 	];
-
-	this.stage = this.stagesChain[0];
+	this.stage = this.stages[0];
 }
 
 AnimateGUIObject.defaults = {
@@ -122,7 +121,7 @@ AnimateGUIObject.setValues = function (values, GUIObject)
 AnimateGUIObject.prototype.run = function (time)
 {
 	while (this.stage && this.stage(time))
-		this.stage = this.stagesChain.shift();
+		this.stage = this.stages.shift();
 
 	return this;
 };
@@ -148,10 +147,10 @@ AnimateGUIObject.prototype.stageDelay = function (time)
 AnimateGUIObject.prototype.stageStart = function (time)
 {
 	AnimateGUIObject.setValues(this.startValues, this.GUIObject);
-	delete this.startValues;
+	// delete this.startValues;
 	this.actions.onStart(this.GUIObject, this);
 	this.tasks = AnimateGUIObject.getTasks(this.endValues, this.GUIObject);
-	delete this.endValues;
+	// delete this.endValues;
 
 	return true;
 };
@@ -202,9 +201,8 @@ AnimateGUIObject.prototype.removeValueIntersections = function (newAnimation, ty
 		if (parameter in newAnimation.endValues[type])
 			delete this.tasks[type][parameter];
 
-	for (let parameter in this.tasks[type])
-		return;
-	delete this.tasks[type];
+	if (!Object.keys(this.tasks[type]).length)
+		delete this.tasks[type];
 };
 
 /**

@@ -166,11 +166,15 @@ function autociv_setFormation(formation)
 	if (!formation || !g_autociv_validFormations.includes(formation))
 		return;
 
-	let formationPath = `special/formations/${formation}`;
-	if (!canMoveSelectionIntoFormation(formationPath))
+	let formationTemplate = `special/formations/${formation}`;
+	if (!canMoveSelectionIntoFormation(formationTemplate))
 		return;
 
-	performFormation(g_Selection.toList(), formationPath);
+	Engine.PostNetworkCommand({
+		"type": "formation",
+		"entities": g_Selection.toList(),
+		"name": formationTemplate
+	});
 
 	return true;
 }

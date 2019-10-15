@@ -3,28 +3,17 @@ function ResizeBar(object, side, width, objectsHooked, isVisibleCondition, onDra
 {
 	this.object = this.parseObject(object);
 	this.side = side;
-
-	this.halfWidth = width === undefined ?
-		ResizeBar.defaults.width / 2 :
-		width / 2;
-
-	this.objectsHooked = objectsHooked ? objectsHooked : [];
-
-	this.isVisibleCondition = isVisibleCondition ?
-		isVisibleCondition :
-		() => !this.object.hidden;
-
-	this.onDragDown = onDragDown ? onDragDown : () => { };
-
-	// True if the last time (tick) the mouse was inside.
-	this.wasInside = false;
-
-	// True if this bar is being dragged.
-	this.dragging = false;
-
+	this.halfWidth = (width || ResizeBar.defaults.width) / 2;
+	this.objectsHooked = objectsHooked || [];
+	this.isVisibleCondition = isVisibleCondition || (() => !this.object.hidden);
+	this.onDragDown = onDragDown || (() => { });
+	this.wasMouseInside = false;
+	this.selectionOffset = 0;
 	for (let i = 0; i < this.objectsHooked.length; ++i)
 		this.objectsHooked[i][0] = this.parseObject(this.objectsHooked[i][0]);
 }
+
+ResizeBar.defaults = { "width": 14 };
 
 ResizeBar.mouse = {
 	"x": 0,
@@ -40,22 +29,15 @@ ResizeBar.mousePress = Object.assign({}, ResizeBar.mouse);
 
 ResizeBar.mouseRelease = Object.assign({}, ResizeBar.mouse);
 
-// True is one of the bars is being dragged.
-ResizeBar.dragging = false;
-
-ResizeBar.defaults = { "width": 14 };
+// Holds ResizeBar instance of the that is being dragged
+ResizeBar.dragging = undefined;
 
 // Used to disable bar selection while the resize animation is happening.
 ResizeBar.ghostMode = false;
 
-// Signed distance from bar center to mouse cursor when selected.
-ResizeBar.dispErr = 0;
-
 ResizeBar.prototype.parseObject = function (object)
 {
-	return typeof object == "string" ?
-		Engine.GetGUIObjectByName(object) :
-		object;
+	return typeof object == "string" ? Engine.GetGUIObjectByName(object) : object;
 };
 
 ResizeBar.prototype.isMouseInside = function ()
@@ -64,18 +46,19 @@ ResizeBar.prototype.isMouseInside = function ()
 		return false;
 
 	let rect = this.object.getComputedSize();
+	let pos = ResizeBar.mouse;
 	switch (this.side)
 	{
 		case "left":
 		case "right":
-			return Math.abs(rect[this.side] - ResizeBar.mouse.x) <= this.halfWidth &&
-				rect.top + this.halfWidth < ResizeBar.mouse.y &&
-				rect.bottom - this.halfWidth > ResizeBar.mouse.y;
+			return Math.abs(rect[this.side] - pos.x) <= this.halfWidth &&
+				rect.top + this.halfWidth < pos.y &&
+				rect.bottom - this.halfWidth > pos.y;
 		case "top":
 		case "bottom":
-			return Math.abs(rect[this.side] - ResizeBar.mouse.y) <= this.halfWidth &&
-				rect.left + this.halfWidth < ResizeBar.mouse.x &&
-				rect.right - this.halfWidth > ResizeBar.mouse.x;
+			return Math.abs(rect[this.side] - pos.y) <= this.halfWidth &&
+				rect.left + this.halfWidth < pos.x &&
+				rect.right - this.halfWidth > pos.x;
 		default:
 			return false;
 	}
@@ -176,29 +159,32 @@ ResizeBar.prototype.hideResizeBar = function ()
 
 ResizeBar.prototype.tick = function ()
 {
-	// If no bar is being dragged
-	if (!ResizeBar.dragging)
+	if (ResizeBar.dragging === this)
 	{
-		if (this.wasInside == this.isMouseInside())
-			return;
-
-		if (this.wasInside)
-			this.hideResizeBar();
-		else
-			this.viewResizeBar();
-
-		return this.wasInside = !this.wasInside;
-	}
-	// If this resize bar in specific is being dragged then update this bar position.
-	else if (this.dragging)
-	{
-		let position = ResizeBar.mouse[this.sideMouse()] - ResizeBar.dispErr;
+		let position = ResizeBar.mouse[this.sideMouse()] - this.selectionOffset;
 		GUIObjectSet(ResizeBar.bar, {
 			"size": {
 				[this.side]: position + this.sideSign() * this.halfWidth,
 				[this.sideComplementary()]: position - this.sideSign() * this.halfWidth
 			}
 		});
+	}
+	else if (!ResizeBar.dragging)
+	{
+		let isInside = this.isMouseInside();
+
+		if (isInside && this.wasMouseInside && ResizeBar.bar.hidden)
+			return this.viewResizeBar();
+
+		if (this.wasMouseInside == isInside)
+			return;
+
+		if (this.wasMouseInside)
+			this.hideResizeBar();
+		else
+			this.viewResizeBar();
+
+		return this.wasMouseInside = !this.wasMouseInside;
 	}
 };
 
@@ -208,15 +194,14 @@ ResizeBar.prototype.drag = function ()
 		return false;
 
 	ResizeBar.mousePress.set(ResizeBar.mouse);
-	ResizeBar.dragging = true;
-	ResizeBar.dispErr = ResizeBar.mousePress[this.sideMouse()] - this.object.getComputedSize()[this.side];
-	this.dragging = true;
+	ResizeBar.dragging = this;
+	this.selectionOffset = ResizeBar.mousePress[this.sideMouse()] - this.object.getComputedSize()[this.side];
 	return true;
 };
 
 ResizeBar.prototype.drop = function ()
 {
-	if (!this.dragging)
+	if (ResizeBar.dragging !== this)
 		return false;
 
 	ResizeBar.mouseRelease.set(ResizeBar.mouse);
@@ -239,8 +224,7 @@ ResizeBar.prototype.drop = function ()
 			});
 	}
 
-	ResizeBar.dragging = false;
-	this.dragging = false;
+	ResizeBar.dragging = undefined;
 	return true;
 };
 
