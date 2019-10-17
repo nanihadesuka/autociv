@@ -1,4 +1,4 @@
-AnimateGUIObject.identities.color = {
+AnimateGUIObject.types.color = {
 	"parameters": deepfreeze(["r", "g", "b", "a"]),
 	"set": function (GUIObject, object)
 	{

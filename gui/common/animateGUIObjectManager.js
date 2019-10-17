@@ -60,7 +60,6 @@ AnimateGUIObjectManager.prototype.finish = function ()
 	for (let animation of this.running)
 		animation.complete(true);
 
-
 	return this;
 }
 

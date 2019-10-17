@@ -1,19 +1,16 @@
 // See lobby_autociv.js init function for examples.
-function ResizeBar(object, side, width, objectsHooked, isVisibleCondition, onDragDown)
+function ResizeBar(object, side, width = 14, objectsHooked = [], isVisibleCondition = () => !this.object.hidden)
 {
 	this.object = this.parseObject(object);
 	this.side = side;
-	this.halfWidth = (width || ResizeBar.defaults.width) / 2;
-	this.objectsHooked = objectsHooked || [];
-	this.isVisibleCondition = isVisibleCondition || (() => !this.object.hidden);
-	this.onDragDown = onDragDown || (() => { });
+	this.halfWidth = width / 2;
+	this.objectsHooked = objectsHooked;
+	this.isVisibleCondition = isVisibleCondition;
 	this.wasMouseInside = false;
 	this.selectionOffset = 0;
 	for (let i = 0; i < this.objectsHooked.length; ++i)
 		this.objectsHooked[i][0] = this.parseObject(this.objectsHooked[i][0]);
 }
-
-ResizeBar.defaults = { "width": 14 };
 
 ResizeBar.mouse = {
 	"x": 0,
@@ -27,9 +24,7 @@ ResizeBar.mouse = {
 
 ResizeBar.mousePress = Object.assign({}, ResizeBar.mouse);
 
-ResizeBar.mouseRelease = Object.assign({}, ResizeBar.mouse);
-
-// Holds ResizeBar instance of the that is being dragged
+// Holds ResizeBar instance of the bar that is being dragged
 ResizeBar.dragging = undefined;
 
 // Used to disable bar selection while the resize animation is happening.
@@ -67,9 +62,9 @@ ResizeBar.prototype.isMouseInside = function ()
 /**
  * Returns the complementary parameter.
  */
-ResizeBar.prototype.sideComplementary = function (side)
+ResizeBar.prototype.sideComplementary = function (side = this.side)
 {
-	switch (side ? side : this.side)
+	switch (side)
 	{
 		case "left": return "right";
 		case "right": return "left";
@@ -81,13 +76,13 @@ ResizeBar.prototype.sideComplementary = function (side)
 /**
  * Returns the opposite parameter.
  */
-ResizeBar.prototype.sideOpposite = function (side)
+ResizeBar.prototype.sideOpposite = function (side = this.side)
 {
-	switch (side ? side : this.side)
+	switch (side)
 	{
 		case "left": return "top";
-		case "right": return "bottom";
 		case "top": return "left";
+		case "right": return "bottom";
 		case "bottom": return "right";
 	}
 };
@@ -95,14 +90,14 @@ ResizeBar.prototype.sideOpposite = function (side)
 /**
  * Returns the opposite and complementary paramter.
  */
-ResizeBar.prototype.sideCrossed = function (side)
+ResizeBar.prototype.sideCrossed = function (side = this.side)
 {
-	return this.sideComplementary(this.sideOpposite());
+	return this.sideComplementary(this.sideOpposite(side));
 };
 
-ResizeBar.prototype.sideSign = function (side)
+ResizeBar.prototype.sideSign = function (side = this.side)
 {
-	switch (side ? side : this.side)
+	switch (side)
 	{
 		case "right":
 		case "bottom":
@@ -112,9 +107,9 @@ ResizeBar.prototype.sideSign = function (side)
 	}
 };
 
-ResizeBar.prototype.sideMouse = function (side)
+ResizeBar.prototype.sideMouse = function (side = this.side)
 {
-	switch (side ? side : this.side)
+	switch (side)
 	{
 		case "left":
 		case "right":
@@ -124,35 +119,41 @@ ResizeBar.prototype.sideMouse = function (side)
 	}
 };
 
-ResizeBar.prototype.viewResizeBar = function ()
+ResizeBar.prototype.getBarSizes = function ()
 {
 	let absPos = this.object.getComputedSize();
-	animate(ResizeBar.bar).finish().add({
-		"start": {
-			"size": {
-				[this.side]: absPos[this.side],
-				[this.sideComplementary()]: absPos[this.side],
-				[this.sideOpposite()]: absPos[this.sideOpposite()],
-				[this.sideCrossed()]: absPos[this.sideCrossed()]
-			}
-		},
-		"onStart": bar => bar.hidden = false,
-		"size": {
+	return {
+		"open": {
 			[this.side]: absPos[this.side] + this.sideSign() * this.halfWidth,
-			[this.sideComplementary()]: absPos[this.side] - this.sideSign() * this.halfWidth
+			[this.sideComplementary()]: absPos[this.side] - this.sideSign() * this.halfWidth,
+			[this.sideOpposite()]: absPos[this.sideOpposite()],
+			[this.sideCrossed()]: absPos[this.sideCrossed()]
+		},
+		"closed": {
+			[this.side]: absPos[this.side],
+			[this.sideComplementary()]: absPos[this.side],
+			[this.sideOpposite()]: absPos[this.sideOpposite()],
+			[this.sideCrossed()]: absPos[this.sideCrossed()]
 		}
+	};
+};
+
+ResizeBar.prototype.viewResizeBar = function ()
+{
+	let sizes = this.getBarSizes();
+	animate(ResizeBar.bar).finish().add({
+		"start": { "size": sizes.closed },
+		"size": sizes.open,
+		"onStart": bar => bar.hidden = false
 	});
 };
 
 ResizeBar.prototype.hideResizeBar = function ()
 {
-	let iSize = ResizeBar.bar.size;
-	let centerPos = (iSize[this.side] + iSize[this.sideComplementary()]) / 2;
+	let sizes = this.getBarSizes();
 	animate(ResizeBar.bar).finish().add({
-		"size": {
-			[this.side]: centerPos,
-			[this.sideComplementary()]: centerPos
-		},
+		"start": { "size": sizes.open },
+		"size": sizes.closed,
 		"onComplete": bar => bar.hidden = true
 	});
 };
@@ -162,30 +163,35 @@ ResizeBar.prototype.tick = function ()
 	if (ResizeBar.dragging === this)
 	{
 		let position = ResizeBar.mouse[this.sideMouse()] - this.selectionOffset;
+		let absPos = this.object.getComputedSize();
 		GUIObjectSet(ResizeBar.bar, {
 			"size": {
 				[this.side]: position + this.sideSign() * this.halfWidth,
-				[this.sideComplementary()]: position - this.sideSign() * this.halfWidth
+				[this.sideComplementary()]: position - this.sideSign() * this.halfWidth,
+				[this.sideOpposite()]: absPos[this.sideOpposite()],
+				[this.sideCrossed()]: absPos[this.sideCrossed()]
 			}
 		});
+		return true;
 	}
 	else if (!ResizeBar.dragging)
 	{
 		let isInside = this.isMouseInside();
-
 		if (isInside && this.wasMouseInside && ResizeBar.bar.hidden)
-			return this.viewResizeBar();
-
-		if (this.wasMouseInside == isInside)
-			return;
-
-		if (this.wasMouseInside)
-			this.hideResizeBar();
-		else
 			this.viewResizeBar();
 
-		return this.wasMouseInside = !this.wasMouseInside;
+		if (this.wasMouseInside == isInside)
+			return isInside;
+
+		if (isInside)
+			this.viewResizeBar();
+		else
+			this.hideResizeBar();
+
+		this.wasMouseInside = isInside;
+		return isInside;
 	}
+	return false;
 };
 
 ResizeBar.prototype.drag = function ()
@@ -204,19 +210,13 @@ ResizeBar.prototype.drop = function ()
 	if (ResizeBar.dragging !== this)
 		return false;
 
-	ResizeBar.mouseRelease.set(ResizeBar.mouse);
-
-	let displacement = ResizeBar.mouseRelease[this.sideMouse()] - ResizeBar.mousePress[this.sideMouse()];
+	let displacement = ResizeBar.mouse[this.sideMouse()] - ResizeBar.mousePress[this.sideMouse()];
 	if (displacement)
 	{
 		ResizeBar.ghostMode = true;
 		animate(this.object).add({
 			"size": { [this.side]: this.object.size[this.side] + displacement },
-			"onComplete": () =>
-			{
-				this.onDragDown();
-				ResizeBar.ghostMode = false;
-			}
+			"onComplete": () => ResizeBar.ghostMode = false
 		});
 		for (let [object, side] of this.objectsHooked)
 			animate(object).add({
@@ -255,11 +255,10 @@ ResizeBar.prototype.drop = function ()
  * @param {Function} [isVisibleCondition] Condition that makes the resize bar
  * visible/enabled if it returns true. By default the condition is the property
  * hidden of the main XML object, visible/enabled if not hidden.
- * @param {Function} [onDragDown] Call executed after dragging down the bar.
  */
-var resizeBar = function (object, side, width, objectsHooked, isVisibleCondition, onDragDown)
+var resizeBar = function (object, side, width, objectsHooked, isVisibleCondition)
 {
-	resizeBar.list.push(new ResizeBar(object, side, width, objectsHooked, isVisibleCondition, onDragDown));
+	resizeBar.list.push(new ResizeBar(object, side, width, objectsHooked, isVisibleCondition));
 };
 
 
@@ -271,19 +270,18 @@ resizeBar.disabled = false;
 
 resizeBar.onEvent = function (event)
 {
-	if (resizeBar.disabled)
-		return;
-
-	if (resizeBar.firstTick)
+	if (resizeBar.disabled || !ResizeBar.bar)
 		return;
 
 	switch (event.type)
 	{
 		case "mousebuttondown":
+			ResizeBar.mouse.set(event)
 			for (let bar of resizeBar.list)
 				if (bar.drag()) return true;
 			break;
 		case "mousebuttonup":
+			ResizeBar.mouse.set(event)
 			for (let bar of resizeBar.list)
 				if (bar.drop()) return true;
 			break;
@@ -291,7 +289,7 @@ resizeBar.onEvent = function (event)
 			ResizeBar.mouse.set(event)
 			break;
 	}
-}
+};
 
 /**
  * Tick routine always called on all pages with
@@ -302,19 +300,17 @@ resizeBar.onTick = function ()
 	if (resizeBar.disabled)
 		return;
 
-	// Don't process anything at the first tick (error otherwise)
-	switch (resizeBar.firstTick)
+	if (!ResizeBar.bar)
 	{
-		case true:
-			resizeBar.firstTick = false;
-			ResizeBar.bar = Engine.GetGUIObjectByName("glResizeBar");
-			break;
-		default:
-			if (!ResizeBar.ghostMode)
-				for (let bar of resizeBar.list)
-					if (bar.tick()) break;
+		ResizeBar.bar = Engine.GetGUIObjectByName("glResizeBar");
+		return;
 	}
-}
+
+	if (!ResizeBar.ghostMode)
+		for (let bar of resizeBar.list)
+			if (bar.tick())
+				break;
+};
 
 /* THIS NEEDS TO BE ADDED ON FILES WHERE YOU WANT TO USE IT
 

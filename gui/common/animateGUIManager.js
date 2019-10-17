@@ -35,7 +35,7 @@
  * · AnimateGUIObject.default for defaults that can be changed.
  * · AnimateGUIObject.curves for animations normalized step functions
  *
- * · Each value can be set independent (including individual parameters).
+ * · Each setting can be set independent (including individual parameters).
  * · In case of two animations with the same setting the new animation
  *   setting will overrite the old one.
  */

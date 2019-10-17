@@ -7,7 +7,7 @@ function AnimateGUIObject(GUIObject, settings)
 	this.startValues = AnimateGUIObject.getValues(this.settings.start || {});
 	this.endValues = AnimateGUIObject.getValues(this.settings);
 	this.actions = AnimateGUIObject.getActions(this.settings);
-	this.tasks = {}; // Filled in stageStart given it might change before it
+	this.tasks = {}; // Filled in stageStart
 
 	this.stages = [
 		this.stageInit,
@@ -36,10 +36,10 @@ AnimateGUIObject.curves = {
 };
 
 /**
- * Specialized methods (size, color, textcolor, ...)
+ * Specialized methods for each type (size, color, textcolor, ...)
  * Each defined in its animateGUIObject_*.js
  */
-AnimateGUIObject.identities = {};
+AnimateGUIObject.types = {};
 
 AnimateGUIObject.getData = function (raw)
 {
@@ -56,10 +56,10 @@ AnimateGUIObject.getData = function (raw)
 AnimateGUIObject.getValues = function (raw)
 {
 	let values = {};
-	for (let type in AnimateGUIObject.identities) if (type in raw)
+	for (let type in AnimateGUIObject.types) if (type in raw)
 		values[type] = typeof raw[type] == "object" ?
-			AnimateGUIObject.identities[type].fromObject(raw[type]) :
-			AnimateGUIObject.identities[type].fromString(raw[type]);
+			AnimateGUIObject.types[type].fromObject(raw[type]) :
+			AnimateGUIObject.types[type].fromString(raw[type]);
 
 	return values;
 };
@@ -73,11 +73,10 @@ AnimateGUIObject.getActions = function (raw)
 	};
 };
 
-
 AnimateGUIObject.getTask = function (raw, type, GUIObject)
 {
 	let task = { "parameters": {} };
-	let identity = AnimateGUIObject.identities[type];
+	let identity = AnimateGUIObject.types[type];
 	let original = identity.get(GUIObject);
 
 	for (let parameter of identity.parameters) if (parameter in raw)
@@ -101,7 +100,7 @@ AnimateGUIObject.getTask = function (raw, type, GUIObject)
 AnimateGUIObject.getTasks = function (raw, GUIObject)
 {
 	let tasks = {};
-	for (let type in AnimateGUIObject.identities) if (type in raw)
+	for (let type in AnimateGUIObject.types) if (type in raw)
 		tasks[type] = AnimateGUIObject.getTask(raw[type], type, GUIObject)
 
 	return tasks;
@@ -111,10 +110,10 @@ AnimateGUIObject.setValues = function (values, GUIObject)
 {
 	for (let type in values)
 	{
-		let object = AnimateGUIObject.identities[type].get(GUIObject);
+		let object = AnimateGUIObject.types[type].get(GUIObject);
 		for (let parameter in values[type])
 			object[parameter] = values[type][parameter];
-		AnimateGUIObject.identities[type].set(GUIObject, object);
+		AnimateGUIObject.types[type].set(GUIObject, object);
 	}
 };
 

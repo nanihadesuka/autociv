@@ -1,4 +1,4 @@
-AnimateGUIObject.identities.size = {
+AnimateGUIObject.types.size = {
 	"parameters": deepfreeze(["left", "top", "right", "bottom", "rleft", "rtop", "rright", "rbottom"]),
 	"set": (GUIObject, object) => GUIObject.size = object,
 	"get": GUIObject => GUIObject.size,
