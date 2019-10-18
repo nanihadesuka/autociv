@@ -14,42 +14,47 @@ GuiInterface.prototype.Init = (function (originalFunction)
 })(GuiInterface.prototype.Init);
 
 
+GuiInterface.prototype.autociv_CorpseUpdate = function ()
+{
+    for (let entity of this.autociv_corpse.entities)
+    {
+        if (this.autociv_corpse.entities.size <= this.autociv_corpse.max)
+            break;
+        this.autociv_corpse.entities.delete(entity);
+        Engine.DestroyEntity(entity)
+    }
+}
+
 GuiInterface.prototype.autociv_CorpseAdd = function (entity)
 {
-    if (!entity || (this.autociv_corpse.max === Infinity))
+    if (!entity ||
+        entity == INVALID_ENTITY ||
+        this.autociv_corpse.max == Infinity)
         return;
 
-    let c = this.autociv_corpse;
-    c.entities.add(entity);
-    if (c.entities.size <= c.max)
-        return;
-
-    let iterator = c.entities.values();
-    while (c.entities.size > c.max)
-    {
-        let response = iterator.next();
-        if (response.done)
-            break;
-        c.entities.delete(response.value);
-        if (response.value != INVALID_ENTITY)
-            Engine.DestroyEntity(response.value)
-    }
+    this.autociv_corpse.entities.add(entity);
+    this.autociv_CorpseUpdate();
 }
 
 GuiInterface.prototype.autociv_SetCorpsesMax = function (player, max = Infinity)
 {
-    if (max === Infinity || /Infinity/i.test(max))
+    let value = +max;
+    if (value === Infinity)
     {
         this.autociv_corpse.entities.clear();
         this.autociv_corpse.max = Infinity;
         return;
     }
 
-    let number = parseInt(max);
-    if (!Number.isInteger(number) || number < 0)
-        return warn("Invalid max corpses value " + max);
+    value = parseInt(value);
+    if (!Number.isInteger(value) || value < 0)
+    {
+        warn("Invalid max corpses value " + max);
+        return;
+    }
 
-    this.autociv_corpse.max = number;
+    this.autociv_corpse.max = value;
+    this.autociv_CorpseUpdate();
 };
 
 GuiInterface.prototype.autociv_SetAutotrain = function (player, data)
@@ -152,7 +157,7 @@ GuiInterface.prototype.ScriptCall = (function (originalFunction)
 {
     return function (player, name, args)
     {
-        return autociv_exposedFunctions[name] ?
+        return name in autociv_exposedFunctions ?
             this[name](player, args) :
             originalFunction.apply(this, arguments);
     }
