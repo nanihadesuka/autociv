@@ -164,28 +164,31 @@ let autociv_SharedCommands = {
 
 function autociv_InitSharedCommands()
 {
-	switch (botManager.messageInterface)
+	if (!(botManager.messageInterface in autociv_InitSharedCommands.pipe))
+		return;
+
+	for (let key in autociv_SharedCommands)
+		autociv_InitSharedCommands.pipe[botManager.messageInterface](key);
+}
+
+autociv_InitSharedCommands.pipe = {
+	"lobby": key =>
 	{
-		case "lobby":
-			Object.keys(autociv_SharedCommands).forEach(key =>
+		g_ChatCommands[key] = {
+			"description": autociv_SharedCommands[key].description,
+			"handler": args =>
 			{
-				g_ChatCommands[key] = {
-					"description": autociv_SharedCommands[key].description,
-					"handler": (args) =>
-					{
-						let text = args.filter(a => a != "").join(" ");
-						autociv_SharedCommands[key].handler(text);
-					}
-				}
-			});
-			break;
-		case "gamesetup":
-		case "ingame":
-			Object.keys(autociv_SharedCommands).forEach(key =>
-			{
-				g_NetworkCommands["/" + key] = autociv_SharedCommands[key].handler;
-			});
-			break;
-		default:
+				let text = args.filter(a => a != "").join(" ");
+				autociv_SharedCommands[key].handler(text);
+			}
+		}
+	},
+	"gamesetup": key =>
+	{
+		g_NetworkCommands["/" + key] = autociv_SharedCommands[key].handler;
+	},
+	"ingame": key =>
+	{
+		g_NetworkCommands["/" + key] = autociv_SharedCommands[key].handler;
 	}
 }

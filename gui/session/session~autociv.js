@@ -53,16 +53,6 @@ init = (function (originalFunction)
 	}
 })(init);
 
-onTick = (function (originalFunction)
-{
-	return function ()
-	{
-		g_autociv_SpecialHotkeyCalled = false;
-		return originalFunction.apply(this, arguments);
-	}
-})(onTick);
-
-
 
 function autociv_saveStanzaSession()
 {

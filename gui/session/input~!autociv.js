@@ -78,14 +78,16 @@ function autociv_clearSelectedProductionQueues()
 
 	g_Selection.toList().map(GetEntityState).filter(v => !!v).forEach(entity =>
 	{
-		if (entity.production && entity.production.queue && entity.id !== undefined)
-			for (let queueItem of entity.production.queue)
-				if (queueItem.id !== undefined)
-					Engine.PostNetworkCommand({
-						"type": "stop-production",
-						"entity": entity.id,
-						"id": queueItem.id
-					});
+		if (!entity.production || !entity.production.queue || entity.id === undefined)
+			return;
+
+		for (let queueItem of entity.production.queue)
+			if (queueItem.id !== undefined)
+				Engine.PostNetworkCommand({
+					"type": "stop-production",
+					"entity": entity.id,
+					"id": queueItem.id
+				});
 	});
 	return true;
 }
@@ -163,7 +165,7 @@ function autociv_selectFromList(entities, selectAll, accumulateSelection)
 
 function autociv_setFormation(formation)
 {
-	if (!formation || !g_autociv_validFormations.includes(formation))
+	if (!g_autociv_validFormations.includes(formation))
 		return;
 
 	let formationTemplate = `special/formations/${formation}`;
@@ -188,23 +190,21 @@ var g_autociv_hotkeys = {
 	"autociv.session.building.autotrain.enable": function (ev)
 	{
 		if (ev.type == "hotkeydown")
-		{
 			Engine.GuiInterfaceCall("autociv_SetAutotrain", {
 				"active": true,
 				"entities": g_Selection.toList()
 			});
-		}
+
 		return true;
 	},
 	"autociv.session.building.autotrain.disable": function (ev)
 	{
 		if (ev.type == "hotkeydown")
-		{
 			Engine.GuiInterfaceCall("autociv_SetAutotrain", {
 				"active": false,
 				"entities": g_Selection.toList()
 			});
-		}
+
 		return true;
 	},
 	"autociv.open.autociv_settings": function (ev)
@@ -215,16 +215,13 @@ var g_autociv_hotkeys = {
 	"autociv.session.production.queue.clear": function (ev)
 	{
 		if (ev.type == "hotkeydown")
-		{
 			autociv_clearSelectedProductionQueues();
-		}
+
 		return true;
 	}
 }
 
-var g_autociv_SpecialHotkeyCalled = false;
-
-var g_autociv_SpecialHotkeys = {
+var g_autociv_hotkeysPrefixes = {
 	// Hotkeys for building placement
 	"autociv.session.building.place.": function (ev, hotkeyPrefix)
 	{
@@ -259,15 +256,18 @@ handleInputAfterGui = (function (originalFunction)
 {
 	return function (ev)
 	{
-		// Special case hotkeys
-		if (!g_autociv_SpecialHotkeyCalled && ev.type == "hotkeydown")
-			for (let hotkeyPrefix in g_autociv_SpecialHotkeys)
-				if (ev.hotkey && ev.hotkey.startsWith(hotkeyPrefix))
-					return !!g_autociv_SpecialHotkeys[hotkeyPrefix](ev, hotkeyPrefix);
+		if (ev.hotkey)
+		{
+			// Special case hotkeys
+			if (ev.type == "hotkeydown")
+				for (let prefix in g_autociv_hotkeysPrefixes)
+					if (ev.hotkey.startsWith(prefix))
+						return !!g_autociv_hotkeysPrefixes[prefix](ev, prefix);
 
-		// Hotkey with normal behaviour
-		if (ev.hotkey && ev.hotkey in g_autociv_hotkeys)
-			return !!g_autociv_hotkeys[ev.hotkey](ev);
+			// Hotkey with normal behaviour
+			if (ev.hotkey in g_autociv_hotkeys)
+				return !!g_autociv_hotkeys[ev.hotkey](ev);
+		}
 
 		return originalFunction.apply(this, arguments);
 	}
