@@ -26,12 +26,12 @@ var autociv_addChatMessage = {
 	"notifications": {
 		"max": +Engine.ConfigDB_GetValue("user", "autociv.lobby.chat.notifications.max"),
 		"count": 0,
-		"is": text => text.search(/<.*>/) === -1
+		"is": text => !/<.*>/.test(text)
 	},
 	"comments": {
 		"max": +Engine.ConfigDB_GetValue("user", "autociv.lobby.chat.comments.max"),
 		"count": 0,
-		"is": text => text.search(/<.*>/) !== -1
+		"is": text => /<.*>/.test(text)
 	},
 	"updateAfterTick": 3,
 	"updateAfterTickRenderOnce": function ()
@@ -39,12 +39,13 @@ var autociv_addChatMessage = {
 		if (g_Autociv_TickCount === this.updateAfterTick + 1)
 			Engine.GetGUIObjectByName("chatText").caption = g_ChatMessages.join("\n");
 	},
-	"rate": function (originalFunction, msg)
+	"rate": function (target, that, args)
 	{
+		let msg = args[0];
 		let oldLength = g_ChatMessages.length;
 		let noRedraw = g_Autociv_TickCount <= this.updateAfterTick;
 		if (noRedraw) this.addChatMessageNoRedraw(msg);
-		else originalFunction(msg);
+		else target.apply(that, args);
 
 		if (oldLength == g_ChatMessages.length || !g_ChatMessages.length)
 			return;
@@ -68,14 +69,10 @@ var autociv_addChatMessage = {
 	}
 };
 
-addChatMessage = (function (originalFunction)
+patchApplyN("addChatMessage", function (target, that, args)
 {
-	return function (msg)
-	{
-		return botManager.react(msg) || autociv_addChatMessage.rate(originalFunction, msg);
-	};
-
-})(addChatMessage)
+	return botManager.react(args[0]) || autociv_addChatMessage.rate(target, that, args);
+})
 
 g_ChatCommands["pingall"] = {
 	"description": translate("Ping all 'Online' and 'Observer' players."),
@@ -167,66 +164,54 @@ function autociv_InitBots()
 	autociv_InitSharedCommands();
 }
 
-init = (function (originalFunction)
+patchApplyN("init", function (target, that, args)
 {
-	return function (...args)
-	{
-		autociv_InitBots();
+	autociv_InitBots();
 
-		originalFunction(...args);
+	target.apply(that, args);
 
-		let fgodMod = Engine.GetEngineInfo().mods.some(mod => mod[0].toLowerCase().startsWith("fgod"));
+	let fgodMod = Engine.GetEngineInfo().mods.some(mod => mod[0].toLowerCase().startsWith("fgod"));
 
-		let hookList = [
-			["profilePanel", "right"],
-			["leftButtonPanel", "right"],
-			[fgodMod ? "playerList" : "playersBox", "right"]
-		];
-		if (fgodMod)
-			hookList.push(["presenceDropdown", "right"], ["playerGamesNumber", "right"])
+	let hookList = [
+		["profilePanel", "right"],
+		["leftButtonPanel", "right"],
+		[fgodMod ? "playerList" : "playersBox", "right"]
+	];
+	if (fgodMod)
+		hookList.push(["presenceDropdown", "right"], ["playerGamesNumber", "right"])
 
-		resizeBar("chatPanel", "top", undefined, [[fgodMod ? "gameList" : "gamesBox", "bottom"]])
-		resizeBar("middlePanel", "left", undefined, hookList);
-		resizeBar("rightPanel", "left", undefined, [["middlePanel", "right"]]);
+	resizeBar("chatPanel", "top", undefined, [[fgodMod ? "gameList" : "gamesBox", "bottom"]])
+	resizeBar("middlePanel", "left", undefined, hookList);
+	resizeBar("rightPanel", "left", undefined, [["middlePanel", "right"]]);
 
-		let gameInfo = Engine.GetGUIObjectByName("gameInfo");
-		let gameInfoUsers = gameInfo.children[gameInfo.children.length - 1];
-		let gameInfoDescription = gameInfo.children[gameInfo.children.length - 2];
-		resizeBar(gameInfoUsers, "top", undefined, [[gameInfoDescription, "bottom"]], () => !gameInfo.hidden);
+	let gameInfo = Engine.GetGUIObjectByName("gameInfo");
+	let gameInfoUsers = gameInfo.children[gameInfo.children.length - 1];
+	let gameInfoDescription = gameInfo.children[gameInfo.children.length - 2];
+	resizeBar(gameInfoUsers, "top", undefined, [[gameInfoDescription, "bottom"]], () => !gameInfo.hidden);
 
-		Engine.GetGUIObjectByName("chatInput").focus();
-	}
-})(init);
+	Engine.GetGUIObjectByName("chatInput").focus();
+});
 
 var g_Autociv_TickCount = 0;
-onTick = (function (originalFunction)
+patchApplyN("onTick", function (target, that, args)
 {
-	return function ()
-	{
-		++g_Autociv_TickCount;
-		autociv_addChatMessage.updateAfterTickRenderOnce();
-		originalFunction();
-	}
-})(onTick);
+	++g_Autociv_TickCount;
+	autociv_addChatMessage.updateAfterTickRenderOnce();
+	return target.apply(that, args)
+})
 
 // Hack. This two should have their own pushGuiPage but they don't.
-setLeaderboardVisibility = (function (originalFunction)
+patchApplyN("setLeaderboardVisibility", function (target, that, args)
 {
-	return function (visible)
-	{
-		resizeBar.disabled = visible;
-		originalFunction(visible);
-	}
-})(setLeaderboardVisibility);
+	resizeBar.disabled = args[0];
+	return target.apply(that, args)
+})
 
-setUserProfileVisibility = (function (originalFunction)
+patchApplyN("setUserProfileVisibility", function (target, that, args)
 {
-	return function (visible)
-	{
-		resizeBar.disabled = visible;
-		originalFunction(visible);
-	}
-})(setUserProfileVisibility);
+	resizeBar.disabled = args[0];
+	return target.apply(that, args);
+});
 
 function autociv_reconnect()
 {
@@ -291,7 +276,7 @@ function autociv_reregister()
 	checkRegistration(500);
 }
 
-reconnectMessageBox = function ()
+patchApplyN("reconnectMessageBox", function (target, that, args)
 {
 	messageBox(
 		400, 200,
@@ -299,4 +284,4 @@ reconnectMessageBox = function ()
 		translate("Confirmation"),
 		[translate("No"), translate("Yes")],
 		[null, autociv_reconnect]);
-}
+})

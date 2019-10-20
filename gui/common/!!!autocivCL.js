@@ -1,5 +1,19 @@
 const is24 = Engine.GetEngineInfo().engine_version !== "0.0.23";
 
+/**
+ * @param {String} oldFnName
+ * @param {Function} patchFn
+ */
+function patchApplyN(oldFnName, patchFn)
+{
+    if (!(oldFnName in global))
+        global[oldFnName] = function () { };
+
+    global[oldFnName] = new Proxy(global[oldFnName], {
+        apply: patchFn
+    });
+}
+
 let autocivCL = {
     "engine_version": Engine.GetEngineInfo().engine_version,
     "Engine": {
