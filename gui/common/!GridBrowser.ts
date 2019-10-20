@@ -161,22 +161,20 @@ class GridBrowser {
 			const x = i % this.nColumns;
 			const y = Math.floor(i / this.nColumns);
 			//@ts-ignore
-			animateObject(
-				this.children[i],
+			animate(this.children[i]).add({
+				"size":
 				{
-					"size":
-					{
-						"left": this.child.width * x - xCenter,
-						"right": this.child.width * (x + 1) - xCenter,
-						"top": this.child.height * y,
-						"bottom": this.child.height * (y + 1),
-						"rleft": 50,
-						"rright": 50,
-						"rtop": 0,
-						"rbottom": 0
-					},
-					"duration": noAnimation ? 0 : 0
-				}
+					"left": this.child.width * x - xCenter,
+					"right": this.child.width * (x + 1) - xCenter,
+					"top": this.child.height * y,
+					"bottom": this.child.height * (y + 1),
+					"rleft": 50,
+					"rright": 50,
+					"rtop": 0,
+					"rbottom": 0
+				},
+				"duration": noAnimation ? 0 : 0
+			}
 			)
 		}
 	};

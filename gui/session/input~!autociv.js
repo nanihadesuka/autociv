@@ -256,7 +256,7 @@ handleInputAfterGui = (function (originalFunction)
 {
 	return function (ev)
 	{
-		if (ev.hotkey)
+		if ("hotkey" in ev)
 		{
 			// Special case hotkeys
 			if (ev.type == "hotkeydown")

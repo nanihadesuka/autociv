@@ -1,143 +1,149 @@
+"use strict";
+/**
+ * Function that arranges a list of "boxed-like" GUI objects with width-centering
+ * (currently) and page based way mode.
+ *
+ * Needs an object as container and a object to display the page numbering (if not
+ * make hidden object and assign it to it).
+ *
+ * To add advanced, more detailed, objects inside each box add a custom childFunction:
+ * childFunction(page_list_element, page_list_element_index, page_list,
+ * global_list_element_index, global_list,child_object).
+ *
+ * For example look at mapbrowser.js / mapbrowser.xml implementation.
+ */
+// initializer, list is each childen data
 var GridBrowser = /** @class */ (function () {
     function GridBrowser(containerName, pageCounterName, list, selectedIndex, childDimensions, childFunction) {
-        var self = this;
-        self.container = Engine.GetGUIObjectByName(containerName);
-        self.pageCounter = Engine.GetGUIObjectByName(pageCounterName);
-        self.children = self.container.children;
-        self.numBoxesCreated = self.children.length;
-        self.childFunction = childFunction;
-        self.list = list;
-        self.selectedIndex = selectedIndex;
-        self.child = childDimensions;
-        self.helperList = new Uint8Array(self.numBoxesCreated);
-        self.currentPage = 0;
-        self.nColumns = 0;
-        self.nRows = 0;
-        self._generateGrid(true);
-        self.goToPage(self.getPageOfSelected());
+        this.container = Engine.GetGUIObjectByName(containerName);
+        this.pageCounter = Engine.GetGUIObjectByName(pageCounterName);
+        this.children = this.container.children;
+        this.numBoxesCreated = this.children.length;
+        this.childFunction = childFunction;
+        this.list = list;
+        this.selectedIndex = selectedIndex;
+        this.child = childDimensions;
+        this.helperList = new Uint8Array(this.numBoxesCreated);
+        this.currentPage = 0;
+        this.nColumns = 0;
+        this.nRows = 0;
+        this._generateGrid(true);
+        this.goToPage(this.getPageOfSelected());
     }
     GridBrowser.prototype.setIndexOfSelected = function (index) {
-        var self = this;
-        self.selectedIndex = max(0, min(index, self.list.length - 1));
+        this.selectedIndex = Math.max(0, Math.min(index, this.list.length - 1));
     };
+    ;
     GridBrowser.prototype.goToPage = function (pageNumber) {
-        var ՐՏ_1, ՐՏ_2;
-        var self = this;
-        var numOfBoxesToShow, startIndex, subList, subListChildren, i;
-        self.currentPage = max(0, min(pageNumber, self.getNumOfPages() - 1));
-        self.pageCounter.caption = self.getCurrentPage() + 1 + "/" + self.getNumOfPages();
-        if (self.list.length === 0) {
-            numOfBoxesToShow = 0;
+        // Set current page
+        this.currentPage = Math.max(0, Math.min(pageNumber, this.getNumOfPages() - 1));
+        // Update page counter
+        this.pageCounter.caption = (this.getCurrentPage() + 1) + "/" + this.getNumOfPages();
+        // Update childs' content (generate page)
+        var nubOfBoxesToShow = this.list.length == 0 ?
+            0 :
+            this.getCurrentPage() == this.getNumOfPages() - 1 ?
+                (this.list.length - 1) % this.getMaxNumBoxesInPage() + 1 :
+                this.getMaxNumBoxesInPage();
+        var startIndex = this.getCurrentPage() * this.getMaxNumBoxesInPage();
+        var subList = this.list.slice(startIndex, startIndex + nubOfBoxesToShow);
+        var subListChildren = this.children.slice(0, nubOfBoxesToShow);
+        for (var i = 0; i < nubOfBoxesToShow; ++i) {
+            this.children[i].hidden = false;
+            this.childFunction(subList[i], i, subList, startIndex + i, this.list, this.helperList, this.children[i], subListChildren, this.children);
         }
-        else if (((ՐՏ_1 = self.getCurrentPage()) === (ՐՏ_2 = self.getNumOfPages() - 1) || typeof ՐՏ_1 === "object" && ՐՏ_eq(ՐՏ_1, ՐՏ_2))) {
-            numOfBoxesToShow = (self.list.length - 1) % self.getMaxNumBoxesInPage() + 1;
-        }
-        else {
-            numOfBoxesToShow = self.getMaxNumBoxesInPage();
-        }
-        startIndex = self.getCurrentPage() * self.getMaxNumBoxesInPage();
-        subList = self.list.slice(startIndex, startIndex + numOfBoxesToShow);
-        subListChildren = self.children.slice(0, numOfBoxesToShow);
-        for (i = 0; i < numOfBoxesToShow; i++) {
-            self.children[i].hidden = false;
-            self.childFunction(subList[i], i, subList, startIndex + i, self.list, self.helperList, self.children[i], subListChildren, self.children);
-        }
-        for (i = numOfBoxesToShow; i < self.numBoxesCreated; i++) {
-            self.children[i].hidden = true;
-        }
+        for (var i = nubOfBoxesToShow; i < this.numBoxesCreated; ++i)
+            this.children[i].hidden = true;
     };
+    ;
     GridBrowser.prototype.getCurrentPage = function () {
-        var self = this;
-        if (self.list.length === 0) {
-            return 0;
-        }
-        return self.currentPage;
+        return this.list.length == 0 ? 0 : this.currentPage;
     };
+    ;
     GridBrowser.prototype.getPageOfIndex = function (index) {
-        var self = this;
-        if (self.list.length === 0 || index === -1) {
-            return 0;
-        }
-        return Math.floor(index / self.getMaxNumBoxesInPage());
+        return this.list.length == 0 || index == -1 ?
+            0 :
+            Math.floor(index / this.getMaxNumBoxesInPage());
     };
+    ;
     GridBrowser.prototype.getPageOfSelected = function () {
-        var self = this;
-        return self.getPageOfIndex(self.selectedIndex);
+        return this.getPageOfIndex(this.selectedIndex);
     };
+    ;
     GridBrowser.prototype.getPageIndexOfSelected = function () {
-        var self = this;
-        if (self.selectedIndex === -1 || self.list.length === 0) {
-            return -1;
-        }
-        return self.selectedIndex % self.getMaxNumBoxesInPage();
+        return this.selectedIndex == -1 || this.list.length == 0 ?
+            -1 :
+            this.selectedIndex % this.getMaxNumBoxesInPage();
     };
+    ;
     GridBrowser.prototype.getMaxNumBoxesInPage = function () {
-        var self = this;
-        return min(self.nColumns * self.nRows, self.numBoxesCreated);
+        return Math.min(this.nColumns * this.nRows, this.numBoxesCreated);
     };
+    ;
+    // Update number of pages. Always at least 1 page.
     GridBrowser.prototype.getNumOfPages = function () {
-        var self = this;
-        return max(1, Math.ceil(self.list.length / self.getMaxNumBoxesInPage()));
+        return Math.max(1, Math.ceil(this.list.length / this.getMaxNumBoxesInPage()));
     };
+    ;
     GridBrowser.prototype.setList = function (list) {
-        var self = this;
-        self.list = list;
-        self.goToPage(0);
+        this.list = list;
+        this.goToPage(0);
     };
+    ;
     GridBrowser.prototype.setChildDimensions = function (childDimensions) {
-        var self = this;
-        var inSelectedPage, firstChildIndex, page;
-        inSelectedPage = self.getPageOfSelected() === self.getCurrentPage();
-        firstChildIndex = self.getCurrentPage() * self.getMaxNumBoxesInPage();
-        self.child = childDimensions;
-        self._generateGrid(false);
-        if (inSelectedPage) {
-            page = self.getPageOfSelected();
-        }
-        else {
-            page = self.getPageOfIndex(firstChildIndex);
-        }
-        self.goToPage(page);
+        var inSelectedPage = this.getPageOfSelected() == this.getCurrentPage();
+        var firstChildIndex = this.getCurrentPage() * this.getMaxNumBoxesInPage();
+        this.child = childDimensions;
+        this._generateGrid(false);
+        var page = inSelectedPage ?
+            this.getPageOfSelected() :
+            this.getPageOfIndex(firstChildIndex);
+        this.goToPage(page);
     };
+    ;
     GridBrowser.prototype.generateGrid = function () {
-        var self = this;
-        self._generateGrid(false);
-        self.goToPage(self.getPageOfSelected());
+        this._generateGrid(false);
+        this.goToPage(this.getPageOfSelected());
     };
+    ;
     GridBrowser.prototype._generateGrid = function (noAnimation) {
-        var self = this;
-        var rect, xCenter, i, x, y;
-        rect = self.container.getComputedSize();
+        // Update number of columns and rows
+        var rect = this.container.getComputedSize();
         rect.width = rect.right - rect.left;
         rect.height = rect.bottom - rect.top;
-        self.nColumns = max(1, Math.floor(rect.width / self.child.width));
-        self.nRows = max(1, Math.floor(rect.height / self.child.height));
-        xCenter = self.child.width * self.nColumns / 2;
-        for (i = 0; i < self.numBoxesCreated; i++) {
-            x = i % self.nColumns;
-            y = Math.floor(i / self.nColumns);
-            animate(self.children[i]).add({
+        this.nColumns = Math.max(1, Math.floor(rect.width / this.child.width));
+        this.nRows = Math.max(1, Math.floor(rect.height / this.child.height));
+        var xCenter = this.child.width * this.nColumns / 2;
+        // let yCenter = this.child.height * this.nRows / 2;
+        // Update child position, dimensions
+        for (var i = 0; i < this.numBoxesCreated; ++i) {
+            var x = i % this.nColumns;
+            var y = Math.floor(i / this.nColumns);
+            //@ts-ignore
+            animate(this.children[i]).add({
                 "size": {
-                    "left": self.child.width * x - xCenter,
-                    "right": self.child.width * (x + 1) - xCenter,
-                    "top": self.child.height * y,
-                    "bottom": self.child.height * (y + 1),
+                    "left": this.child.width * x - xCenter,
+                    "right": this.child.width * (x + 1) - xCenter,
+                    "top": this.child.height * y,
+                    "bottom": this.child.height * (y + 1),
                     "rleft": 50,
                     "rright": 50,
                     "rtop": 0,
                     "rbottom": 0
                 },
-                "duration": 0
+                "duration": noAnimation ? 0 : 0
             });
         }
     };
+    ;
     GridBrowser.prototype.nextPage = function () {
-        var self = this;
-        self.goToPage((self.getCurrentPage() + 1) % self.getNumOfPages());
+        this.goToPage((this.getCurrentPage() + 1) % this.getNumOfPages());
     };
+    ;
     GridBrowser.prototype.previousPage = function () {
-        var self = this;
-        self.goToPage((self.getCurrentPage() + self.getNumOfPages() - 1) % self.getNumOfPages());
+        this.goToPage((this.getCurrentPage() + this.getNumOfPages() - 1) % this.getNumOfPages());
     };
+    ;
     return GridBrowser;
 }());
+;
