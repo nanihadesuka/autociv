@@ -167,20 +167,17 @@ function autociv_InitBots()
 patchApplyN("init", function (target, that, args)
 {
 	autociv_InitBots();
-
 	target.apply(that, args);
-
-	let fgodMod = Engine.GetEngineInfo().mods.some(mod => mod[0].toLowerCase().startsWith("fgod"));
 
 	let hookList = [
 		["profilePanel", "right"],
 		["leftButtonPanel", "right"],
-		[fgodMod ? "playerList" : "playersBox", "right"]
+		[autociv_isFGod ? "playerList" : "playersBox", "right"]
 	];
-	if (fgodMod)
+	if (autociv_isFGod)
 		hookList.push(["presenceDropdown", "right"], ["playerGamesNumber", "right"])
 
-	resizeBar("chatPanel", "top", undefined, [[fgodMod ? "gameList" : "gamesBox", "bottom"]])
+	resizeBar("chatPanel", "top", undefined, [[autociv_isFGod ? "gameList" : "gamesBox", "bottom"]])
 	resizeBar("middlePanel", "left", undefined, hookList);
 	resizeBar("rightPanel", "left", undefined, [["middlePanel", "right"]]);
 

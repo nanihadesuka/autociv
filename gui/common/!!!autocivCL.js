@@ -1,4 +1,5 @@
-const is24 = Engine.GetEngineInfo().engine_version !== "0.0.23";
+var autociv_is24 = Engine.GetEngineInfo().engine_version !== "0.0.23";
+var autociv_isFGod = Engine.GetEngineInfo().mods.some(([name, version]) => /^FGod.*/i.test(name));
 
 /**
  * @param {String} oldFnName
@@ -7,7 +8,10 @@ const is24 = Engine.GetEngineInfo().engine_version !== "0.0.23";
 function patchApplyN(oldFnName, patchFn)
 {
     if (!(oldFnName in global))
-        global[oldFnName] = function () { };
+    {
+        warn(`patchApplyN: Function ${oldFnName} not defined`)
+        return;
+    }
 
     global[oldFnName] = new Proxy(global[oldFnName], {
         apply: patchFn

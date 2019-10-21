@@ -1,17 +1,11 @@
-hasSameMods = (function (originalFunction)
+patchApplyN("hasSameMods", function (target, that, args)
 {
-	return function (modsA, modsB)
-	{
-		let mod = ([name, version]) => !/^FGod.*/i.test(name);
-		return originalFunction(modsA.filter(mod), modsB.filter(mod));
-	}
-})(hasSameMods);
+	let mod = ([name, version]) => !/^FGod.*/i.test(name);
+	return target.apply(that, args.map(mods => mods.filter(mod)));
+})
 
-hasSameMods = (function (originalFunction)
+patchApplyN("hasSameMods", function (target, that, args)
 {
-	return function (modsA, modsB)
-	{
-		let mod = ([name, version]) => !/^AutoCiv.*/i.test(name);
-		return originalFunction(modsA.filter(mod), modsB.filter(mod));
-	}
-})(hasSameMods);
+	let mod = ([name, version]) => !/^AutoCiv.*/i.test(name);
+	return target.apply(that, args.map(mods => mods.filter(mod)));
+})

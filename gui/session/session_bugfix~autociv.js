@@ -55,13 +55,11 @@ function autociv_bugFix_entity_unkown_reason()
 	}
 }
 
-
-
 // Call on init
 function autociv_bugFix_openChat()
 {
 	// Hack fix to the "t"
-	if (is24)
+	if (autociv_is24)
 	{
 		g_Chat.openPage = (function (originalFunction)
 		{

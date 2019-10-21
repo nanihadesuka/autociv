@@ -45,35 +45,32 @@ function autociv_initCheck()
     return state;
 };
 
-init = (function (originalFunction)
+patchApplyN("init", function (target, that, args)
 {
-    return function (...args)
+    let state = autociv_initCheck();
+    if (state.needsRestart)
     {
-        let state = autociv_initCheck();
-        if (state.needsRestart)
-        {
-            let message = ["0 A.D needs to restart.\n", "Reasons:\n"].
-                concat(Array.from(state.reasons).map(v => ` · ${v}`)).
-                join("\n");
+        let message = ["0 A.D needs to restart.\n", "Reasons:\n"].
+            concat(Array.from(state.reasons).map(v => ` · ${v}`)).
+            join("\n");
 
-            messageBox(500, 300, message,
-                "AutoCiv mod notice",
-                ["Cancel", "Restart"],
-                [() => { }, () => Engine.RestartEngine()]
-            );
+        messageBox(500, 300, message,
+            "AutoCiv mod notice",
+            ["Cancel", "Restart"],
+            [() => { }, () => Engine.RestartEngine()]
+        );
 
-            let hasFgodAutoStartup = Engine.ConfigDB_GetValue("user", "gui.startintolobby") === "true";
-            if (hasFgodAutoStartup)
-                Engine.ConfigDB_CreateValue("user", "gui.startintolobby", "false")
-            let result = originalFunction.apply(this, args);
-            if (hasFgodAutoStartup)
-                Engine.ConfigDB_CreateValue("user", "gui.startintolobby", "true")
+        let hasFgodAutoStartup = Engine.ConfigDB_GetValue("user", "gui.startintolobby") === "true";
+        if (hasFgodAutoStartup)
+            Engine.ConfigDB_CreateValue("user", "gui.startintolobby", "false")
+        let result = target.apply(that, args);
+        if (hasFgodAutoStartup)
+            Engine.ConfigDB_CreateValue("user", "gui.startintolobby", "true")
 
-            return result;
-        }
-        originalFunction.apply(this, args);
+        return result;
     }
-})(init);
+    return target.apply(that, args);
+})
 
 var g_AutocivHotkeyActions = {
     "autociv.open.autociv_settings": function (ev)

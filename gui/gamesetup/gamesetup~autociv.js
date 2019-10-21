@@ -1,67 +1,66 @@
 var g_autociv_stanza = new ConfigJSON("stanza", false);
 g_autociv_stanza.removeAllValues();
 
-addChatMessage = (function (originalFunction)
+function autociv_patchModFilter()
 {
-	return function (msg)
+	patchApplyN("addChatMessage", function (target, that, args)
 	{
-		return botManager.react(msg) || originalFunction.apply(this, arguments);
-	}
-})(addChatMessage);
+		return botManager.react(args[0]) || target.apply(that, args);
+	})
 
-// Create the function that fgod uses if fgod not enabled
-if (!getFilteredMods)
-	var getFilteredMods = function ()
+	if (!global["getFilteredMods"])
+		global["getFilteredMods"] = function () { return Engine.GetEngineInfo().mods };
+
+	// FGod sendRegisterGameStanzaImmediate dependency
+	patchApplyN("getFilteredMods", function (target, that, args)
 	{
 		let mod = ([name, version]) => !/^FGod.*/i.test(name);
-		return Engine.GetEngineInfo().mods.filter(mod);
-	};
+		return target.apply(that, args).filter(mod);
+	});
 
-getFilteredMods = (function (originalFunction)
-{
-	return function ()
+	patchApplyN("getFilteredMods", function (target, that, args)
 	{
 		let mod = ([name, version]) => !/^AutoCiv.*/i.test(name);
-		return originalFunction.apply(this, arguments).filter(mod);
-	}
-})(getFilteredMods);
+		return target.apply(that, args).filter(mod);
+	});
 
-sendRegisterGameStanzaImmediate = function ()
-{
-	if (!g_IsController || !Engine.HasXmppClient())
-		return;
-
-	if (g_GameStanzaTimer !== undefined)
+	sendRegisterGameStanzaImmediate = function ()
 	{
-		clearTimeout(g_GameStanzaTimer);
-		g_GameStanzaTimer = undefined;
-	}
+		if (!g_IsController || !Engine.HasXmppClient())
+			return;
 
-	let clients = formatClientsForStanza();
-	let stanza = {
-		"name": g_ServerName,
-		"port": g_ServerPort,
-		"hostUsername": Engine.LobbyGetNick(),
-		"mapName": g_GameAttributes.map,
-		"niceMapName": getMapDisplayName(g_GameAttributes.map),
-		"mapSize": g_GameAttributes.mapType == "random" ? g_GameAttributes.settings.Size : "Default",
-		"mapType": g_GameAttributes.mapType,
-		"victoryConditions": g_GameAttributes.settings.VictoryConditions.join(","),
-		"nbp": clients.connectedPlayers,
-		"maxnbp": g_GameAttributes.settings.PlayerData.length,
-		"players": clients.list,
-		"stunIP": g_StunEndpoint ? g_StunEndpoint.ip : "",
-		"stunPort": g_StunEndpoint ? g_StunEndpoint.port : "",
-		"mods": JSON.stringify(getFilteredMods()) // <----- THIS CHANGES
+		if (g_GameStanzaTimer !== undefined)
+		{
+			clearTimeout(g_GameStanzaTimer);
+			g_GameStanzaTimer = undefined;
+		}
+
+		let clients = formatClientsForStanza();
+		let stanza = {
+			"name": g_ServerName,
+			"port": g_ServerPort,
+			"hostUsername": Engine.LobbyGetNick(),
+			"mapName": g_GameAttributes.map,
+			"niceMapName": getMapDisplayName(g_GameAttributes.map),
+			"mapSize": g_GameAttributes.mapType == "random" ? g_GameAttributes.settings.Size : "Default",
+			"mapType": g_GameAttributes.mapType,
+			"victoryConditions": g_GameAttributes.settings.VictoryConditions.join(","),
+			"nbp": clients.connectedPlayers,
+			"maxnbp": g_GameAttributes.settings.PlayerData.length,
+			"players": clients.list,
+			"stunIP": g_StunEndpoint ? g_StunEndpoint.ip : "",
+			"stunPort": g_StunEndpoint ? g_StunEndpoint.port : "",
+			"mods": JSON.stringify(getFilteredMods()) // <----- THIS CHANGES
+		};
+
+		// Only send the stanza if the relevant settings actually changed
+		if (g_LastGameStanza && Object.keys(stanza).every(prop => g_LastGameStanza[prop] == stanza[prop]))
+			return;
+
+		g_LastGameStanza = stanza;
+		Engine.SendRegisterGame(stanza);
 	};
-
-	// Only send the stanza if the relevant settings actually changed
-	if (g_LastGameStanza && Object.keys(stanza).every(prop => g_LastGameStanza[prop] == stanza[prop]))
-		return;
-
-	g_LastGameStanza = stanza;
-	Engine.SendRegisterGame(stanza);
-};
+}
 
 var g_AutocivHotkeyActions = {
 	"autociv.gamesetup.openMapBrowser": function (ev)
@@ -154,41 +153,34 @@ function autociv_InitBots()
 
 function autociv_hookOnStanzaChanges()
 {
-	sendRegisterGameStanzaImmediate = (function (originalFunction)
+	patchApplyN("sendRegisterGameStanzaImmediate", function (target, that, args)
 	{
-		return function ()
-		{
-			let result = originalFunction.apply(this, arguments);
-			g_autociv_stanza.setValue("gamesetup", g_LastGameStanza);
-			return result;
-		}
-	})(sendRegisterGameStanzaImmediate);
+		let result = target.apply(that, args);
+		g_autociv_stanza.setValue("gamesetup", g_LastGameStanza);
+		return result;
+	})
 }
 
-selectPanel = (function (originalFunction)
+patchApplyN("selectPanel", function (target, that, args)
 {
-	return function (arg)
+	let result = target.apply(that, args);
+	if (args[0] === undefined)
 	{
-		originalFunction.apply(this, arguments);
-		if (arg === undefined)
-		{
-			Engine.GetGUIObjectByName("chatInput").blur();
-			Engine.GetGUIObjectByName("chatInput").focus();
-		}
+		Engine.GetGUIObjectByName("chatInput").blur();
+		Engine.GetGUIObjectByName("chatInput").focus();
 	}
-})(selectPanel);
+	return result;
+})
 
-init = (function (originalFunction)
+patchApplyN("init", function (target, that, args)
 {
-	return function ()
-	{
-		autociv_InitBots();
-		originalFunction.apply(this, arguments);
-		// Fix hack for hack fix
-		updateSettingsPanelPosition(-1);
-		autociv_hookOnStanzaChanges();
+	autociv_InitBots();
+	target.apply(that, args);
+	autociv_hookOnStanzaChanges();
+	autociv_patchModFilter();
 
-		// FGod command not working
-		delete g_NetworkCommands['/showip'];
-	}
-})(init);
+	// FGod command not working
+	delete g_NetworkCommands['/showip'];
+	// Fix hack for hack fix
+	updateSettingsPanelPosition(-1);
+})

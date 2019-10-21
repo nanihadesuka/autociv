@@ -252,23 +252,21 @@ var g_autociv_hotkeysPrefixes = {
 	}
 };
 
-handleInputAfterGui = (function (originalFunction)
+patchApplyN("handleInputAfterGui", function (target, that, args)
 {
-	return function (ev)
+	let ev = args[0];
+	if ("hotkey" in ev)
 	{
-		if ("hotkey" in ev)
-		{
-			// Special case hotkeys
-			if (ev.type == "hotkeydown")
-				for (let prefix in g_autociv_hotkeysPrefixes)
-					if (ev.hotkey.startsWith(prefix))
-						return !!g_autociv_hotkeysPrefixes[prefix](ev, prefix);
+		// Special case hotkeys
+		if (ev.type == "hotkeydown")
+			for (let prefix in g_autociv_hotkeysPrefixes)
+				if (ev.hotkey.startsWith(prefix))
+					return !!g_autociv_hotkeysPrefixes[prefix](ev, prefix);
 
-			// Hotkey with normal behaviour
-			if (ev.hotkey in g_autociv_hotkeys)
-				return !!g_autociv_hotkeys[ev.hotkey](ev);
-		}
-
-		return originalFunction.apply(this, arguments);
+		// Hotkey with normal behaviour
+		if (ev.hotkey in g_autociv_hotkeys)
+			return !!g_autociv_hotkeys[ev.hotkey](ev);
 	}
-})(handleInputAfterGui);
+
+	return target.apply(that, args);
+})

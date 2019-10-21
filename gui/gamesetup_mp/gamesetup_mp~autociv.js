@@ -12,11 +12,8 @@ function handleInputBeforeGui(ev)
     return false;
 }
 
-init = (function (originalFunction)
+patchApplyN("init", function (target, that, args)
 {
-    return function (...attribs)
-    {
-        Engine.GetGUIObjectByName("hostServerName").focus()
-        return originalFunction(...attribs)
-    }
-})(init)
+    Engine.GetGUIObjectByName("hostServerName").focus()
+    return target.apply(that, args);
+})

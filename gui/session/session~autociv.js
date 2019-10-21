@@ -1,13 +1,10 @@
 var g_autociv_validFormations = [];
 var g_autociv_stanza = new ConfigJSON("stanza", false);
 
-addChatMessage = (function (originalFunction)
+patchApplyN("addChatMessage", function (target, that, args)
 {
-	return function (msg)
-	{
-		return botManager.react(msg) || originalFunction.apply(this, arguments);
-	}
-})(addChatMessage);
+	return botManager.react(args[0]) || target.apply(that, args);
+})
 
 function autociv_initBots()
 {
@@ -37,22 +34,18 @@ function autociv_getValidFormations()
 		map(text => (text.match(/^.*\/(.+)\.xml$/) || [])[1]).filter(v => !!v);
 }
 
-init = (function (originalFunction)
+patchApplyN("init", function (target, that, args)
 {
-	return function ()
-	{
-		let result = originalFunction.apply(this, arguments);
-		autociv_initBots();
-		g_autociv_validFormations = autociv_getValidFormations();
-		autociv_bugFix_openChat();
-		autociv_bugFix_entity_unkown_reason();
-		autociv_addVersionLabel();
+	let result = target.apply(that, args);
+	autociv_initBots();
+	g_autociv_validFormations = autociv_getValidFormations();
+	autociv_bugFix_openChat();
+	autociv_bugFix_entity_unkown_reason();
+	autociv_addVersionLabel();
 
-		autociv_SetCorpsesMax(Engine.ConfigDB_GetValue("user", "autociv.session.graphics.corpses.max"));
-		return result;
-	}
-})(init);
-
+	autociv_SetCorpsesMax(Engine.ConfigDB_GetValue("user", "autociv.session.graphics.corpses.max"));
+	return result;
+})
 
 function autociv_saveStanzaSession()
 {
@@ -112,11 +105,8 @@ function autociv_saveStanzaSession()
 	});
 }
 
-sendLobbyPlayerlistUpdate = (function (originalFunction)
+patchApplyN("sendLobbyPlayerlistUpdate", function (target, that, args)
 {
-	return function ()
-	{
-		autociv_saveStanzaSession();
-		return originalFunction.apply(this, arguments)
-	}
-})(sendLobbyPlayerlistUpdate);
+	autociv_saveStanzaSession();
+	return target.apply(that, args);
+})
