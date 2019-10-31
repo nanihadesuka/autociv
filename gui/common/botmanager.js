@@ -433,7 +433,6 @@ botManager.addBot("link", {
 		if (urls != null)
 			this.linkList.unshift(...urls.reverse())
 	},
-	// Returns false if successful
 	"openLink": function (text)
 	{
 		let i = parseInt(typeof text != "string" ? text : text.trim() != "" ? text : 0);
@@ -443,12 +442,10 @@ botManager.addBot("link", {
 		let url = String(this.linkList[i]);
 
 		// If the URL doesn't have a protocol prefix the game crashes :S
-		warn(url)
 		if (!/(https?|ftp):.*/i.test(url))
 			url = "http://" + url.trim();
 
 		Engine.OpenURL(url);
-		return false;
 	},
 	// Returns pretty info list of all links
 	"getInfo": function ()

@@ -1,5 +1,8 @@
 function autociv_bugFix_entity_unkown_reason()
 {
+	if (autociv_is24)
+		return;
+
 	displayPanelEntities = function ()
 	{
 		let buttons = Engine.GetGUIObjectByName("panelEntityPanel").children;
@@ -55,42 +58,23 @@ function autociv_bugFix_entity_unkown_reason()
 	}
 }
 
-// Call on init
 function autociv_bugFix_openChat()
 {
 	// Hack fix to the "t"
+	function patchFn(target, that, args)
+	{
+		let result = target.apply(that, args);
+		setTimeout(() =>
+		{
+			let chatInput = Engine.GetGUIObjectByName("chatInput");
+			if (chatInput.caption === "t")
+				chatInput.caption = "";
+		}, 1);
+		return result;
+	};
+
 	if (autociv_is24)
-	{
-		g_Chat.openPage = (function (originalFunction)
-		{
-			return function ()
-			{
-				let result = originalFunction.apply(this, arguments);
-				setTimeout(() =>
-				{
-					let chatInput = Engine.GetGUIObjectByName("chatInput");
-					if (chatInput.caption === "t")
-						chatInput.caption = "";
-				}, 1);
-				return result;
-			}
-		})(g_Chat.openPage);
-	}
+		patchApplyN(g_Chat, "openPage", patchFn);
 	else
-	{
-		openChat = (function (originalFunction)
-		{
-			return function ()
-			{
-				let result = originalFunction.apply(this, arguments);
-				setTimeout(() =>
-				{
-					let chatInput = Engine.GetGUIObjectByName("chatInput");
-					if (chatInput.caption === "t")
-						chatInput.caption = "";
-				}, 1);
-				return result;
-			}
-		})(openChat);
-	}
+		patchApplyN("openChat", patchFn);
 }

@@ -1,11 +1,6 @@
 var g_autociv_validFormations = [];
 var g_autociv_stanza = new ConfigJSON("stanza", false);
 
-patchApplyN("addChatMessage", function (target, that, args)
-{
-	return botManager.react(args[0]) || target.apply(that, args);
-})
-
 function autociv_initBots()
 {
 	botManager.get("playerReminder").load(true);
@@ -33,19 +28,6 @@ function autociv_getValidFormations()
 	return Engine.ListDirectoryFiles(folder, "*.xml", false).
 		map(text => (text.match(/^.*\/(.+)\.xml$/) || [])[1]).filter(v => !!v);
 }
-
-patchApplyN("init", function (target, that, args)
-{
-	let result = target.apply(that, args);
-	autociv_initBots();
-	g_autociv_validFormations = autociv_getValidFormations();
-	autociv_bugFix_openChat();
-	autociv_bugFix_entity_unkown_reason();
-	autociv_addVersionLabel();
-
-	autociv_SetCorpsesMax(Engine.ConfigDB_GetValue("user", "autociv.session.graphics.corpses.max"));
-	return result;
-})
 
 function autociv_saveStanzaSession()
 {
@@ -105,8 +87,32 @@ function autociv_saveStanzaSession()
 	});
 }
 
-patchApplyN("sendLobbyPlayerlistUpdate", function (target, that, args)
+function autociv_patchSession()
 {
-	autociv_saveStanzaSession();
-	return target.apply(that, args);
+	patchApplyN("addChatMessage", function (target, that, args)
+	{
+		return botManager.react(args[0]) || target.apply(that, args);
+	})
+
+	if (autociv_is24)
+		return;
+
+	patchApplyN("sendLobbyPlayerlistUpdate", function (target, that, args)
+	{
+		autociv_saveStanzaSession();
+		return target.apply(that, args);
+	})
+}
+patchApplyN("init", function (target, that, args)
+{
+	let result = target.apply(that, args);
+	autociv_initBots();
+	autociv_patchSession();
+	autociv_setFormation.validFormations = autociv_getValidFormations();
+	autociv_bugFix_openChat();
+	autociv_bugFix_entity_unkown_reason();
+	autociv_addVersionLabel();
+
+	autociv_SetCorpsesMax(Engine.ConfigDB_GetValue("user", "autociv.session.graphics.corpses.max"));
+	return result;
 })

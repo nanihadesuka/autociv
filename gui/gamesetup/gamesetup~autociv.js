@@ -1,67 +1,6 @@
 var g_autociv_stanza = new ConfigJSON("stanza", false);
 g_autociv_stanza.removeAllValues();
 
-function autociv_patchModFilter()
-{
-	patchApplyN("addChatMessage", function (target, that, args)
-	{
-		return botManager.react(args[0]) || target.apply(that, args);
-	})
-
-	if (!global["getFilteredMods"])
-		global["getFilteredMods"] = function () { return Engine.GetEngineInfo().mods };
-
-	// FGod sendRegisterGameStanzaImmediate dependency
-	patchApplyN("getFilteredMods", function (target, that, args)
-	{
-		let mod = ([name, version]) => !/^FGod.*/i.test(name);
-		return target.apply(that, args).filter(mod);
-	});
-
-	patchApplyN("getFilteredMods", function (target, that, args)
-	{
-		let mod = ([name, version]) => !/^AutoCiv.*/i.test(name);
-		return target.apply(that, args).filter(mod);
-	});
-
-	sendRegisterGameStanzaImmediate = function ()
-	{
-		if (!g_IsController || !Engine.HasXmppClient())
-			return;
-
-		if (g_GameStanzaTimer !== undefined)
-		{
-			clearTimeout(g_GameStanzaTimer);
-			g_GameStanzaTimer = undefined;
-		}
-
-		let clients = formatClientsForStanza();
-		let stanza = {
-			"name": g_ServerName,
-			"port": g_ServerPort,
-			"hostUsername": Engine.LobbyGetNick(),
-			"mapName": g_GameAttributes.map,
-			"niceMapName": getMapDisplayName(g_GameAttributes.map),
-			"mapSize": g_GameAttributes.mapType == "random" ? g_GameAttributes.settings.Size : "Default",
-			"mapType": g_GameAttributes.mapType,
-			"victoryConditions": g_GameAttributes.settings.VictoryConditions.join(","),
-			"nbp": clients.connectedPlayers,
-			"maxnbp": g_GameAttributes.settings.PlayerData.length,
-			"players": clients.list,
-			"stunIP": g_StunEndpoint ? g_StunEndpoint.ip : "",
-			"stunPort": g_StunEndpoint ? g_StunEndpoint.port : "",
-			"mods": JSON.stringify(getFilteredMods()) // <----- THIS CHANGES
-		};
-
-		// Only send the stanza if the relevant settings actually changed
-		if (g_LastGameStanza && Object.keys(stanza).every(prop => g_LastGameStanza[prop] == stanza[prop]))
-			return;
-
-		g_LastGameStanza = stanza;
-		Engine.SendRegisterGame(stanza);
-	};
-}
-
 var g_AutocivHotkeyActions = {
 	"autociv.gamesetup.openMapBrowser": function (ev)
 	{
@@ -149,6 +88,67 @@ function autociv_InitBots()
 	botManager.get("link").load(true);
 	botManager.setMessageInterface("gamesetup");
 	autociv_InitSharedCommands()
+}
+
+function autociv_patchModFilter()
+{
+	patchApplyN("addChatMessage", function (target, that, args)
+	{
+		return botManager.react(args[0]) || target.apply(that, args);
+	})
+
+	if (!global["getFilteredMods"])
+		global["getFilteredMods"] = function () { return Engine.GetEngineInfo().mods };
+
+	// FGod sendRegisterGameStanzaImmediate dependency
+	patchApplyN("getFilteredMods", function (target, that, args)
+	{
+		let mod = ([name, version]) => !/^FGod.*/i.test(name);
+		return target.apply(that, args).filter(mod);
+	});
+
+	patchApplyN("getFilteredMods", function (target, that, args)
+	{
+		let mod = ([name, version]) => !/^AutoCiv.*/i.test(name);
+		return target.apply(that, args).filter(mod);
+	});
+
+	sendRegisterGameStanzaImmediate = function ()
+	{
+		if (!g_IsController || !Engine.HasXmppClient())
+			return;
+
+		if (g_GameStanzaTimer !== undefined)
+		{
+			clearTimeout(g_GameStanzaTimer);
+			g_GameStanzaTimer = undefined;
+		}
+
+		let clients = formatClientsForStanza();
+		let stanza = {
+			"name": g_ServerName,
+			"port": g_ServerPort,
+			"hostUsername": Engine.LobbyGetNick(),
+			"mapName": g_GameAttributes.map,
+			"niceMapName": getMapDisplayName(g_GameAttributes.map),
+			"mapSize": g_GameAttributes.mapType == "random" ? g_GameAttributes.settings.Size : "Default",
+			"mapType": g_GameAttributes.mapType,
+			"victoryConditions": g_GameAttributes.settings.VictoryConditions.join(","),
+			"nbp": clients.connectedPlayers,
+			"maxnbp": g_GameAttributes.settings.PlayerData.length,
+			"players": clients.list,
+			"stunIP": g_StunEndpoint ? g_StunEndpoint.ip : "",
+			"stunPort": g_StunEndpoint ? g_StunEndpoint.port : "",
+			"mods": JSON.stringify(getFilteredMods()) // <----- THIS CHANGES
+		};
+
+		// Only send the stanza if the relevant settings actually changed
+		if (g_LastGameStanza && Object.keys(stanza).every(prop => g_LastGameStanza[prop] == stanza[prop]))
+			return;
+
+		g_LastGameStanza = stanza;
+		Engine.SendRegisterGame(stanza);
+	};
 }
 
 function autociv_hookOnStanzaChanges()

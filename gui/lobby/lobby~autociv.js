@@ -69,11 +69,6 @@ var autociv_addChatMessage = {
 	}
 };
 
-patchApplyN("addChatMessage", function (target, that, args)
-{
-	return botManager.react(args[0]) || autociv_addChatMessage.rate(target, that, args);
-})
-
 g_ChatCommands["pingall"] = {
 	"description": translate("Ping all 'Online' and 'Observer' players."),
 	"handler": function (args)
@@ -164,52 +159,6 @@ function autociv_InitBots()
 	autociv_InitSharedCommands();
 }
 
-patchApplyN("init", function (target, that, args)
-{
-	autociv_InitBots();
-	target.apply(that, args);
-
-	let hookList = [
-		["profilePanel", "right"],
-		["leftButtonPanel", "right"],
-		[autociv_isFGod ? "playerList" : "playersBox", "right"]
-	];
-	if (autociv_isFGod)
-		hookList.push(["presenceDropdown", "right"], ["playerGamesNumber", "right"])
-
-	resizeBar("chatPanel", "top", undefined, [[autociv_isFGod ? "gameList" : "gamesBox", "bottom"]])
-	resizeBar("middlePanel", "left", undefined, hookList);
-	resizeBar("rightPanel", "left", undefined, [["middlePanel", "right"]]);
-
-	let gameInfo = Engine.GetGUIObjectByName("gameInfo");
-	let gameInfoUsers = gameInfo.children[gameInfo.children.length - 1];
-	let gameInfoDescription = gameInfo.children[gameInfo.children.length - 2];
-	resizeBar(gameInfoUsers, "top", undefined, [[gameInfoDescription, "bottom"]], () => !gameInfo.hidden);
-
-	Engine.GetGUIObjectByName("chatInput").focus();
-});
-
-var g_Autociv_TickCount = 0;
-patchApplyN("onTick", function (target, that, args)
-{
-	++g_Autociv_TickCount;
-	autociv_addChatMessage.updateAfterTickRenderOnce();
-	return target.apply(that, args)
-})
-
-// Hack. This two should have their own pushGuiPage but they don't.
-patchApplyN("setLeaderboardVisibility", function (target, that, args)
-{
-	resizeBar.disabled = args[0];
-	return target.apply(that, args)
-})
-
-patchApplyN("setUserProfileVisibility", function (target, that, args)
-{
-	resizeBar.disabled = args[0];
-	return target.apply(that, args);
-});
-
 function autociv_reconnect()
 {
 	Engine.ConnectXmppClient();
@@ -273,6 +222,32 @@ function autociv_reregister()
 	checkRegistration(500);
 }
 
+patchApplyN("addChatMessage", function (target, that, args)
+{
+	return botManager.react(args[0]) || autociv_addChatMessage.rate(target, that, args);
+})
+
+var g_Autociv_TickCount = 0;
+patchApplyN("onTick", function (target, that, args)
+{
+	++g_Autociv_TickCount;
+	autociv_addChatMessage.updateAfterTickRenderOnce();
+	return target.apply(that, args)
+})
+
+// Hack. This two should have their own pushGuiPage but they don't.
+patchApplyN("setLeaderboardVisibility", function (target, that, args)
+{
+	resizeBar.disabled = args[0];
+	return target.apply(that, args)
+})
+
+patchApplyN("setUserProfileVisibility", function (target, that, args)
+{
+	resizeBar.disabled = args[0];
+	return target.apply(that, args);
+});
+
 patchApplyN("reconnectMessageBox", function (target, that, args)
 {
 	messageBox(
@@ -282,3 +257,28 @@ patchApplyN("reconnectMessageBox", function (target, that, args)
 		[translate("No"), translate("Yes")],
 		[null, autociv_reconnect]);
 })
+
+patchApplyN("init", function (target, that, args)
+{
+	autociv_InitBots();
+	target.apply(that, args);
+
+	let hookList = [
+		["profilePanel", "right"],
+		["leftButtonPanel", "right"],
+		[autociv_isFGod ? "playerList" : "playersBox", "right"]
+	];
+	if (autociv_isFGod)
+		hookList.push(["presenceDropdown", "right"], ["playerGamesNumber", "right"])
+
+	resizeBar("chatPanel", "top", undefined, [[autociv_isFGod ? "gameList" : "gamesBox", "bottom"]])
+	resizeBar("middlePanel", "left", undefined, hookList);
+	resizeBar("rightPanel", "left", undefined, [["middlePanel", "right"]]);
+
+	let gameInfo = Engine.GetGUIObjectByName("gameInfo");
+	let gameInfoUsers = gameInfo.children[gameInfo.children.length - 1];
+	let gameInfoDescription = gameInfo.children[gameInfo.children.length - 2];
+	resizeBar(gameInfoUsers, "top", undefined, [[gameInfoDescription, "bottom"]], () => !gameInfo.hidden);
+
+	Engine.GetGUIObjectByName("chatInput").focus();
+});

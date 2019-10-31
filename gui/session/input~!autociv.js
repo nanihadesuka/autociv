@@ -165,7 +165,7 @@ function autociv_selectFromList(entities, selectAll, accumulateSelection)
 
 function autociv_setFormation(formation)
 {
-	if (!g_autociv_validFormations.includes(formation))
+	if (!autociv_setFormation.validFormations.includes(formation))
 		return;
 
 	let formationTemplate = `special/formations/${formation}`;
@@ -180,6 +180,8 @@ function autociv_setFormation(formation)
 
 	return true;
 }
+autociv_setFormation.validFormations = [];
+
 
 function autociv_SetCorpsesMax(value)
 {
