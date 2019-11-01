@@ -5,5 +5,6 @@
         <pass shader="glsl/FXAA~autociv"/>
         <pass shader="glsl/radial_chromatic_aberration~autociv"/>
         <pass shader="glsl/hdr"/>
+        <pass shader="glsl/sharpen~autociv"/>
     </technique>
 </effect>
