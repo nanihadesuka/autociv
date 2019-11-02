@@ -1,18 +1,15 @@
 if (!GuiInterface.prototype.Init)
     GuiInterface.prototype.Init = function () { };
 
-GuiInterface.prototype.Init = (function (originalFunction)
-{
-    return function ()
-    {
-        this.autociv_corpse = {
-            "entities": new Set(),
-            "max": Infinity
-        };
-        return originalFunction.apply(this, arguments);
-    }
-})(GuiInterface.prototype.Init);
 
+patchApplyN(GuiInterface.prototype, "Init", function (target, that, args)
+{
+    that.autociv_corpse = {
+        "entities": new Set(),
+        "max": Infinity
+    };
+    return target.apply(that, args);
+})
 
 GuiInterface.prototype.autociv_CorpseUpdate = function ()
 {
@@ -102,6 +99,7 @@ GuiInterface.prototype.autociv_FindEntitiesWithClasses = function (player, class
             includesAll(cmpIdentity.GetClassesList());
     });
 };
+
 GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (player, classesExpression)
 {
     // /([^&!|()]+)/g  regex matches anything that is not a boolean operator
@@ -128,8 +126,8 @@ GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (pla
         return [];
     }
 
-    let rangeMan = Engine.QueryInterface(SYSTEM_ENTITY, IID_RangeManager);
-    return rangeMan.GetEntitiesByPlayer(player).filter(e =>
+    let rangeManager = Engine.QueryInterface(SYSTEM_ENTITY, IID_RangeManager);
+    return rangeManager.GetEntitiesByPlayer(player).filter(e =>
     {
         let cmpIdentity = Engine.QueryInterface(e, IID_Identity);
         let cmpUnitAI = Engine.QueryInterface(e, IID_UnitAI);
@@ -153,15 +151,11 @@ let autociv_exposedFunctions = {
     "autociv_SetCorpsesMax": 1
 };
 
-GuiInterface.prototype.ScriptCall = (function (originalFunction)
+patchApplyN(GuiInterface.prototype, "ScriptCall", function (target, that, args)
 {
-    return function (player, name, args)
-    {
-        return name in autociv_exposedFunctions ?
-            this[name](player, args) :
-            originalFunction.apply(this, arguments);
-    }
-})(GuiInterface.prototype.ScriptCall);
-
+    let [player, name, vargs] = args;
+    return name in autociv_exposedFunctions ? that[name](player, vargs) :
+        target.apply(that, args);
+})
 
 Engine.ReRegisterComponentType(IID_GuiInterface, "GuiInterface", GuiInterface);

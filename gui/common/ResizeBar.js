@@ -231,7 +231,7 @@ ResizeBar.prototype.drop = function ()
 /**
  * Creates a resize bar for an GUIObject.
  *
- * Example:
+ * Example: (lobby.js)
  *
  * resizeBar(
  *	Engine.GetGUIObjectByName("chatPanel"),
@@ -263,8 +263,6 @@ var resizeBar = function (object, side, width, objectsHooked, isVisibleCondition
 
 
 resizeBar.list = [];
-
-resizeBar.firstTick = true;
 
 resizeBar.disabled = false;
 

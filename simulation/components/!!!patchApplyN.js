@@ -35,3 +35,5 @@ function patchApplyN()
 
     prefix[method] = new Proxy(prefix[method], { apply: patch });
 }
+
+Engine.RegisterGlobal("patchApplyN",patchApplyN)
