@@ -269,6 +269,43 @@ patchApplyN("handleInputAfterGui", function (target, that, args)
 		if (ev.hotkey in g_autociv_hotkeys)
 			return !!g_autociv_hotkeys[ev.hotkey](ev);
 	}
+	return target.apply(that, args);
+})
+
+
+unitFilters.autociv_isNotWounded = entity =>
+{
+	let entState = GetEntityState(entity);
+	return entState &&
+		hasClass(entState, "Unit") &&
+		entState.maxHitpoints &&
+		100 * entState.hitpoints > entState.maxHitpoints * Engine.ConfigDB_GetValue("user", "gui.session.woundedunithotkeythreshold");
+};
+
+patchApplyN("getPreferredEntities", function (target, that, args)
+{
+	let [ents] = args;
+	if (Engine.HotkeyIsPressed("autociv.selection.nowoundedonly"))
+		return ents.filter(unitFilters.autociv_isNotWounded);
+
+	return target.apply(that, args);
+})
+
+patchApplyN("handleInputAfterGui", function (target, that, args)
+{
+	let ev = args[0];
+	if ("hotkey" in ev)
+	{
+		// Special case hotkeys
+		if (ev.type == "hotkeydown")
+			for (let prefix in g_autociv_hotkeysPrefixes)
+				if (ev.hotkey.startsWith(prefix))
+					return !!g_autociv_hotkeysPrefixes[prefix](ev, prefix);
+
+		// Hotkey with normal behaviour
+		if (ev.hotkey in g_autociv_hotkeys)
+			return !!g_autociv_hotkeys[ev.hotkey](ev);
+	}
 
 	return target.apply(that, args);
 })

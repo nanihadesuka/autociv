@@ -7,6 +7,7 @@
 	"hotkey.autociv.open.autociv_settings": "F4",
 	"hotkey.autociv.gamesetup.openMapBrowser": "Alt+O",
 	"hotkey.autociv.lobby.openMapBrowser": "Alt+B",
+	"hotkey.autociv.selection.nowoundedonly": "I",
 	"hotkey.autociv.session.building.place.City_Wall": "Space+W",
 	"hotkey.autociv.session.building.place.Wooden_Wall": "Space+E",
 	"hotkey.autociv.session.building.place.Temple": "Space+T",

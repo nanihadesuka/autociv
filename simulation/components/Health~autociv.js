@@ -1,13 +1,11 @@
-Health.prototype.CreateCorpse = (function (originalFunction)
+patchApplyN(Health.prototype, "CreateCorpse", function (target, that, args)
 {
-    return function (leaveResources)
+    let [leaveResources] = args;
+    let corpseEnt = target.apply(that, args);
+    if (!leaveResources)
     {
-        let corpseEnt = originalFunction.apply(this, arguments);
-        if (!leaveResources)
-        {
-            let cmpGUIInterface = Engine.QueryInterface(SYSTEM_ENTITY, IID_GuiInterface);
-            cmpGUIInterface.autociv_CorpseAdd(corpseEnt);
-        }
-        return corpseEnt;
+        let cmpGUIInterface = Engine.QueryInterface(SYSTEM_ENTITY, IID_GuiInterface);
+        cmpGUIInterface.autociv_CorpseAdd(corpseEnt);
     }
-})(Health.prototype.CreateCorpse);
+    return corpseEnt;
+})

@@ -39,7 +39,7 @@ vec3 FXAA()
 
 	float EDGE_THRESHOLD_MIN = 0.0312;
 	float EDGE_THRESHOLD_MAX = 0.125;
-	float SUBPIXEL_QUALITY = 0.5;
+	float SUBPIXEL_QUALITY = 0.75;
 
 	vec3 colorCenter = texture2D(renderedTex, v_tex).rgb;
 

@@ -115,7 +115,7 @@ GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (pla
         // Known pitfall:
         // & and && ( | and || ) are equivalent for 1 bit operations.
         // Use & and | or && and || but do not mix both in the same expression.
-        warn("INVALID HOTKEY CLASS EXPRESSION: " + classesExpression + "  Only operators allowed are: & ! | ( )");
+        warn("INVALID HOTKEY CLASS EXPRESSION: " + classesExpression + "  Only allowed operators are: & ! | ( )");
         return [];
     }
     // Test expression is well defined (doesn't throw errors)

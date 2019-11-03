@@ -1,27 +1,26 @@
 ProductionQueue.prototype.autociv_SetAutotrain = function (active)
 {
-    this.autociv_Autotrain = active;
+	this.autociv_Autotrain = active;
 }
 
-ProductionQueue.prototype.SpawnUnits = (function (originalFunction)
+
+patchApplyN(ProductionQueue.prototype, "SpawnUnits", function (target, that, args)
 {
-    return function (templateName, count, metadata)
-    {
-        if (!!this.autociv_Autotrain)
-        {
-            let cmpOwnership = Engine.QueryInterface(this.entity, IID_Ownership);
-            let cmpGUIInterface = Engine.QueryInterface(SYSTEM_ENTITY, IID_GuiInterface);
-            cmpGUIInterface.PushNotification({
-                "type": "autociv_Autotrain",
-                "template": templateName,
-                "entities": [this.entity],
-                "count": count,
-                "players": [cmpOwnership.GetOwner()]
-            });
-        }
-        return originalFunction.apply(this, arguments);
-    }
-})(ProductionQueue.prototype.SpawnUnits);
+	let [templateName, count, metadata] = args;
+	if (!!that.autociv_Autotrain)
+	{
+		let cmpOwnership = Engine.QueryInterface(that.entity, IID_Ownership);
+		let cmpGUIInterface = Engine.QueryInterface(SYSTEM_ENTITY, IID_GuiInterface);
+		cmpGUIInterface.PushNotification({
+			"type": "autociv_Autotrain",
+			"template": templateName,
+			"entities": [that.entity],
+			"count": count,
+			"players": [cmpOwnership.GetOwner()]
+		});
+	}
+	return target.apply(that, args);
+})
 
 
 ProductionQueue.prototype.Serialize = function ()
