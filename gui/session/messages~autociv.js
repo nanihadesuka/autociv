@@ -1,4 +1,4 @@
-g_NotificationsTypes["autociv_Autotrain"] = function (notification, player)
+g_NotificationsTypes["autociv_autotrain"] = function (notification, player)
 {
     if (player != Engine.GetPlayerID())
         return;

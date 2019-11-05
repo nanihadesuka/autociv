@@ -72,7 +72,7 @@ patchApplyN("init", function (target, that, args)
     return target.apply(that, args);
 })
 
-var g_AutocivHotkeyActions = {
+var g_autociv_hotkeyActions = {
     "autociv.open.autociv_settings": function (ev)
     {
         autocivCL.Engine.PushGuiPage("page_autociv_settings.xml");
@@ -87,8 +87,8 @@ function handleInputBeforeGui(ev)
 {
     resizeBar.onEvent(ev);
 
-    if (ev.hotkey && g_AutocivHotkeyActions[ev.hotkey])
-        g_AutocivHotkeyActions[ev.hotkey](ev);
+    if (ev.hotkey && g_autociv_hotkeyActions[ev.hotkey])
+        g_autociv_hotkeyActions[ev.hotkey](ev);
 
     return false;
 }

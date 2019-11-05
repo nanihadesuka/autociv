@@ -1,5 +1,5 @@
 // Snaps building placement to cursor and previews it
-function showBuildingPlacementTerrainSnap(mousePosX, mousePosY)
+function autociv_showBuildingPlacementTerrainSnap(mousePosX, mousePosY)
 {
 	placementSupport.position = Engine.GetTerrainAtScreenPoint(mousePosX, mousePosY);
 
@@ -65,7 +65,7 @@ function autociv_placeBuildingByGenericName(genericName)
 		return;
 
 	unitConstructionButton.onPress();
-	showBuildingPlacementTerrainSnap(mouseX, mouseY);
+	autociv_showBuildingPlacementTerrainSnap(mouseX, mouseY);
 
 	return true;
 }
@@ -163,7 +163,7 @@ function autociv_selectFromList(entities, selectAll, accumulateSelection)
 	return;
 }
 
-function autociv_setFormation(formation)
+function autociv_setFormation(formation = "null")
 {
 	if (!autociv_setFormation.validFormations.includes(formation))
 		return;
@@ -182,31 +182,28 @@ function autociv_setFormation(formation)
 }
 autociv_setFormation.validFormations = [];
 
-
 function autociv_SetCorpsesMax(value)
 {
 	Engine.GuiInterfaceCall("autociv_SetCorpsesMax", value);
 }
 
+function autociv_SetAutotrain(active, entities = g_Selection.toList())
+{
+	Engine.GuiInterfaceCall("autociv_SetAutotrain", {
+		"active": active,
+		"entities": entities
+	});
+}
+
 var g_autociv_hotkeys = {
 	"autociv.session.building.autotrain.enable": function (ev)
 	{
-		if (ev.type == "hotkeydown")
-			Engine.GuiInterfaceCall("autociv_SetAutotrain", {
-				"active": true,
-				"entities": g_Selection.toList()
-			});
-
+		autociv_SetAutotrain(true);
 		return true;
 	},
 	"autociv.session.building.autotrain.disable": function (ev)
 	{
-		if (ev.type == "hotkeydown")
-			Engine.GuiInterfaceCall("autociv_SetAutotrain", {
-				"active": false,
-				"entities": g_Selection.toList()
-			});
-
+		autociv_SetAutotrain(false);
 		return true;
 	},
 	"autociv.open.autociv_settings": function (ev)
@@ -216,9 +213,7 @@ var g_autociv_hotkeys = {
 	},
 	"autociv.session.production.queue.clear": function (ev)
 	{
-		if (ev.type == "hotkeydown")
-			autociv_clearSelectedProductionQueues();
-
+		autociv_clearSelectedProductionQueues();
 		return true;
 	}
 }
@@ -256,14 +251,13 @@ var g_autociv_hotkeysPrefixes = {
 
 patchApplyN("handleInputAfterGui", function (target, that, args)
 {
-	let ev = args[0];
-	if ("hotkey" in ev)
+	let [ev] = args;
+	if ("hotkey" in ev && ev.type == "hotkeydown")
 	{
 		// Special case hotkeys
-		if (ev.type == "hotkeydown")
-			for (let prefix in g_autociv_hotkeysPrefixes)
-				if (ev.hotkey.startsWith(prefix))
-					return !!g_autociv_hotkeysPrefixes[prefix](ev, prefix);
+		for (let prefix in g_autociv_hotkeysPrefixes)
+			if (ev.hotkey.startsWith(prefix))
+				return !!g_autociv_hotkeysPrefixes[prefix](ev, prefix);
 
 		// Hotkey with normal behaviour
 		if (ev.hotkey in g_autociv_hotkeys)
@@ -287,25 +281,6 @@ patchApplyN("getPreferredEntities", function (target, that, args)
 	let [ents] = args;
 	if (Engine.HotkeyIsPressed("autociv.selection.nowoundedonly"))
 		return ents.filter(unitFilters.autociv_isNotWounded);
-
-	return target.apply(that, args);
-})
-
-patchApplyN("handleInputAfterGui", function (target, that, args)
-{
-	let ev = args[0];
-	if ("hotkey" in ev)
-	{
-		// Special case hotkeys
-		if (ev.type == "hotkeydown")
-			for (let prefix in g_autociv_hotkeysPrefixes)
-				if (ev.hotkey.startsWith(prefix))
-					return !!g_autociv_hotkeysPrefixes[prefix](ev, prefix);
-
-		// Hotkey with normal behaviour
-		if (ev.hotkey in g_autociv_hotkeys)
-			return !!g_autociv_hotkeys[ev.hotkey](ev);
-	}
 
 	return target.apply(that, args);
 })

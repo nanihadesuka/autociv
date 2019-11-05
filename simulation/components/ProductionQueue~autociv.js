@@ -1,18 +1,18 @@
 ProductionQueue.prototype.autociv_SetAutotrain = function (active)
 {
-	this.autociv_Autotrain = active;
+	this.autociv_autotrain = active;
 }
 
 
 patchApplyN(ProductionQueue.prototype, "SpawnUnits", function (target, that, args)
 {
 	let [templateName, count, metadata] = args;
-	if (!!that.autociv_Autotrain)
+	if (that.autociv_autotrain)
 	{
 		let cmpOwnership = Engine.QueryInterface(that.entity, IID_Ownership);
 		let cmpGUIInterface = Engine.QueryInterface(SYSTEM_ENTITY, IID_GuiInterface);
 		cmpGUIInterface.PushNotification({
-			"type": "autociv_Autotrain",
+			"type": "autociv_autotrain",
 			"template": templateName,
 			"entities": [that.entity],
 			"count": count,
@@ -34,7 +34,7 @@ ProductionQueue.prototype.Serialize = function ()
 			continue;
 		if (key == "templates")
 			continue;
-		if (key == "autociv_Autotrain")
+		if (key == "autociv_autotrain")
 			continue;
 		state[key] = this[key];
 	}

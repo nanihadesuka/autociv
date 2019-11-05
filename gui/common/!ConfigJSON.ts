@@ -1,8 +1,8 @@
 class ConfigJSON {
     identifier: string;
+    saveToDisk: boolean;
     key: string;
     data: any;
-    saveToDisk: boolean;
 
     /**
      * @param identifier Must not contain spaces

@@ -117,7 +117,7 @@ g_NetMessageTypes["chat"]["subject"] = msg =>
 	return false;
 };
 
-var g_AutocivHotkeyActions = {
+var g_autociv_hotkeyActions = {
 	"cancel": function (ev)
 	{
 		// Engine.GetGUIObjectByName("chatInput").focus();
@@ -136,8 +136,8 @@ function handleInputBeforeGui(ev)
 {
 	resizeBar.onEvent(ev);
 
-	if (ev.hotkey && g_AutocivHotkeyActions[ev.hotkey])
-		g_AutocivHotkeyActions[ev.hotkey](ev);
+	if (ev.hotkey && g_autociv_hotkeyActions[ev.hotkey])
+		g_autociv_hotkeyActions[ev.hotkey](ev);
 
 	return false;
 }

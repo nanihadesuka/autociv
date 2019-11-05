@@ -1,4 +1,4 @@
-var g_AutocivHotkeyActions = {
+var g_autociv_hotkeyActions = {
     "confirm": function (ev)
     {
         confirmSetup()
@@ -7,8 +7,8 @@ var g_AutocivHotkeyActions = {
 
 function handleInputBeforeGui(ev)
 {
-    if (ev.hotkey && g_AutocivHotkeyActions[ev.hotkey])
-        g_AutocivHotkeyActions[ev.hotkey](ev);
+    if (ev.hotkey && g_autociv_hotkeyActions[ev.hotkey])
+        g_autociv_hotkeyActions[ev.hotkey](ev);
     return false;
 }
 
