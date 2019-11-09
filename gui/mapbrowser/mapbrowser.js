@@ -25,7 +25,6 @@ var g_Maps = {
     "byType": {}
 };
 
-
 var g_AnimationSettings = {
     "childButton":
     {
@@ -113,19 +112,17 @@ var g_MapBrowser;
  */
 var g_MapsSearchBoxInput;
 
-var g_TickCount = 0;
-
 /**
  * Stores what is the current selected map if any
  */
 var g_MapSelected = {
-    "set": selectedListIndex =>
+    "set": index =>
     {
-        g_MapBrowser.setIndexOfSelected(selectedListIndex);
-        if (selectedListIndex == -1)
+        g_MapBrowser.selectedIndex = index;
+        if (index == -1)
             return;
 
-        let map = g_MapBrowser.list[selectedListIndex];
+        let map = g_MapBrowser.list[index];
         if (!map)
             return;
 
@@ -157,27 +154,28 @@ var g_MapZoom = {
     "originalSize": { "width": 400, "height": 300 },
     "levels": [0.35, 0.40, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 2.0, 2.4, 2.9],
     "levelsIndexSelected": 5,
-    "getSize": () =>
+    "getSize": function ()
     {
-        let level = g_MapZoom.levels[g_MapZoom.levelsIndexSelected];
+        let level = this.levels[this.levelsIndexSelected];
         return {
-            "width": g_MapZoom.originalSize.width * level,
-            "height": g_MapZoom.originalSize.height * level
+            "width": this.originalSize.width * level,
+            "height": this.originalSize.height * level
         };
     },
-    "zoom": step =>
+    "zoom": function (step)
     {
         // step > 0 makes previews bigger
         let newIndex = Math.min(
-            Math.max(g_MapZoom.levelsIndexSelected + step, 0),
-            g_MapZoom.levels.length - 1
+            Math.max(this.levelsIndexSelected + step, 0),
+            this.levels.length - 1
         );
 
-        if (newIndex == g_MapZoom.levelsIndexSelected)
+        if (newIndex == this.levelsIndexSelected)
             return;
 
-        g_MapZoom.levelsIndexSelected = newIndex;
-        g_MapBrowser.setChildDimensions(g_MapZoom.getSize());
+        this.levelsIndexSelected = newIndex;
+        let size = this.getSize();
+        g_MapBrowser.setChildDimensions(size.width, size.height);
     }
 };
 
@@ -301,18 +299,19 @@ function initGUIObjects(data, type, filter)
         data.map.name :
         mapList[0].file.path + mapList[0].file.name;
 
-    let mapListSelectedIndex = mapList.
-        map(map => map.file.path + map.file.name).
-        indexOf(fullMapName);
-
+    let size = g_MapZoom.getSize();
     g_MapBrowser = new GridBrowser(
         "MapBrowserContainer",
         "currentPageNum",
         mapList,
-        mapListSelectedIndex,
-        g_MapZoom.getSize(),
+        size.width,
+        size.height,
         childFunction
     );
+
+    g_MapSelected.set(mapList.map(map => map.file.path + map.file.name).indexOf(fullMapName));
+    g_MapBrowser.generateGrid();
+    g_MapBrowser.goToPageOfSelected();
 
     // Define normal objects
     for (let objectName in g_GUIObjects)
@@ -327,10 +326,8 @@ function initGUIObjects(data, type, filter)
 function initActions()
 {
     // Simulate a click from mouse
-    if (g_MapBrowser.getPageIndexOfSelected() != -1)
-        g_MapBrowser.
-            children[g_MapBrowser.getPageIndexOfSelected()].
-            onMouseLeftPress();
+    if (g_MapBrowser.selectedChild)
+        g_MapBrowser.selectedChild.onMouseLeftPress();
 
     Engine.GetGUIObjectByName("mapsSearchBox").focus();
 }
@@ -338,86 +335,57 @@ function initActions()
 /**
  * Handles the behaviour of each map preview in the map browser grid
  * All parameters are feeded to the each child that is is shown in the grid
- * @param {Object} map
- * @param {Number} pageIndex
- * @param {List} pageList
- * @param {Number} listIndex
- * @param {List} list
- * @param {List} selectedChild Helper list that can store flags of each children, in this case is used to know the selected state of each child
- * @param {Object} childObject
- * @param {List} pageChildObjectList
- * @param {List} childObjectList
+ * This function will be binded with the GridBrowser instance.
+ * @param {GUIObject} child
+ * @param {Number} childIndex
+ * @param {Any} data
+ * @param {Number} dataIndex
  */
-function childFunction(map, pageIndex, pageList, listIndex, list, selectedChild, childObject, pageChildObjectList, childObjectList)
+function childFunction(child, childIndex, data, dataIndex)
 {
-    let getObject = (name, index) =>
-    {
-        return Engine.GetGUIObjectByName(name + "[" + (index === undefined ? pageIndex : index) + "]")
-    };
+    let getObject = (name, index = childIndex) => Engine.GetGUIObjectByName(`${name}[${index}]`);
+
     let mapPreview = getObject("mapPreview");
     let mapButton = getObject("mapButton");
     let mapBox = getObject("mapBox");
     let mapName = getObject("mapName");
 
-    // Outline if this box is the current selected map otherwise remove outline
-    selectedChild[pageIndex] = !g_MapSelected.map ?
-        false :
-        g_MapSelected.map.file.name == map.file.name;
+    child.onMouseLeftPress = () =>
+    {
+        if (this.selectedChild)
+            this.selectedChild.onUnselect();
 
-    animate(mapButton).add(selectedChild[pageIndex] ?
+        g_MapSelected.set(dataIndex);
+        animate(mapButton).add(g_AnimationSettings.childButton.selected);
+        animate(mapPreview).add(g_AnimationSettings.childPreview.press);
+        this.selected = data;
+        this.selectedChild = child;
+    };
+
+    child.onUnselect = () => animate(mapButton).add(g_AnimationSettings.childButton.unselected);
+    child.onMouseEnter = () => animate(mapBox).add(g_AnimationSettings.childMap.enter);
+    child.onMouseLeave = () => animate(mapBox).add(g_AnimationSettings.childMap.leave);
+    child.onMouseWheelUp = () => g_MapZoom.zoom(1);
+    child.onMouseWheelDown = () => g_MapZoom.zoom(-1);
+    child.onMouseLeftRelease = () => animate(mapPreview).add(g_AnimationSettings.childPreview.release);
+    child.onMouseLeftDoubleClick = () =>
+    {
+        g_MapSelected.set(dataIndex);
+        mapBrowserReturn(true);
+    };
+
+    animate(mapButton).add(data == this.selected ?
         g_AnimationSettings.childButton.selected :
         g_AnimationSettings.childButton.unselected
     );
 
-    mapName.caption = map.name;
-    mapPreview.sprite = map.preview;
-    childObject.tooltip = map.description;
-    childObject.onMouseLeftPress = () =>
-    {
-        g_MapSelected.set(listIndex);
-        // Unselect others
-        for (let i = 0; i < selectedChild.length; ++i)
-        {
-            if (i == pageIndex || selectedChild[i] == 0)
-                continue;
-            animate(getObject("mapButton", i)).
-                add(g_AnimationSettings.childButton.unselected);
-            selectedChild[i] = false;
-        }
-        selectedChild[pageIndex] = true;
-        animate(mapButton).add(g_AnimationSettings.childButton.selected);
-        animate(mapPreview).add(g_AnimationSettings.childPreview.press);
-
-    };
-    childObject.onMouseLeftRelease = () =>
-    {
-        animate(mapPreview).add(g_AnimationSettings.childPreview.release);
-    };
-    childObject.onMouseLeftDoubleClick = () =>
-    {
-        g_MapSelected.set(listIndex);
-        mapBrowserReturn(true);
-    };
-    childObject.onMouseEnter = () =>
-    {
-        animate(mapBox).add(g_AnimationSettings.childMap.enter);
-    };
-    childObject.onMouseLeave = () =>
-    {
-        animate(mapBox).add(g_AnimationSettings.childMap.leave);
-    };
-    childObject.onMouseWheelUp = () =>
-    {
-        g_MapZoom.zoom(1);
-    };
-    childObject.onMouseWheelDown = () =>
-    {
-        g_MapZoom.zoom(-1);
-    };
+    mapName.caption = data.name;
+    mapPreview.sprite = data.preview;
+    child.tooltip = data.description;
 };
 
 /**
- * Uses one element of the object as key to make a dictionary
+ * Uses one element of the array as key to make a dictionary
  * @param {Array} dict
  * @param {String} element
  * @return {Object}
@@ -563,38 +531,23 @@ MapsSearchBoxInput.prototype.onTick = function ()
 
 function mapBrowserReturn(sendSelected)
 {
-    /**
-     * Pop the page before calling the callback so the
-     * callback runs in the parent GUI page's context.
-     */
-
-    autocivCL.Engine.PopGUIPage(sendSelected && !!g_MapSelected.map ? {
-        "map":
-        {
-            "path": g_MapSelected.map.file.path,
-            "name": g_MapSelected.map.file.name,
-            "type": g_MapSelected.map.type,
-            "filter": g_MapSelected.filter
-        }
-    } : {}, true);
+    if (sendSelected && g_MapSelected.map)
+        autocivCL.Engine.PopGUIPage({
+            "map": {
+                "path": g_MapSelected.map.file.path,
+                "name": g_MapSelected.map.file.name,
+                "type": g_MapSelected.map.type,
+                "filter": g_MapSelected.filter
+            }
+        }, true);
+    else
+        autocivCL.Engine.PopGUIPage({}, true)
 }
 
 function onTick()
 {
-    /**
-     * Hack so it doesn't process the last keyboard event
-     * from parent page in the child page (e.g hotkey, enter).
-     */
-    switch (g_TickCount)
-    {
-        case 0:
-            break;
-        case 1:
-            g_MapsSearchBoxInput = new MapsSearchBoxInput("mapsSearchBox", "mapsSearchBoxNotice");
-            break;
-        default:
-            g_MapsSearchBoxInput.onTick();
-    }
-
-    ++g_TickCount;
+    if (!g_MapsSearchBoxInput)
+        g_MapsSearchBoxInput = new MapsSearchBoxInput("mapsSearchBox", "mapsSearchBoxNotice");
+    else
+        g_MapsSearchBoxInput.onTick();
 }

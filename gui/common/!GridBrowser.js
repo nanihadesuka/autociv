@@ -14,75 +14,48 @@
  */
 // initializer, list is each childen data
 var GridBrowser = /** @class */ (function () {
-    function GridBrowser(containerName, pageCounterName, list, selectedIndex, childDimensions, childFunction) {
+    function GridBrowser(containerName, pageCounterName, list, childWidth, childHeight, childFunction) {
         this.container = Engine.GetGUIObjectByName(containerName);
         this.pageCounter = Engine.GetGUIObjectByName(pageCounterName);
         this.children = this.container.children;
-        this.numBoxesCreated = this.children.length;
-        this.childFunction = childFunction;
+        this.childFunction = childFunction.bind(this);
+        this.childWidth = childWidth;
+        this.childHeight = childHeight;
         this.list = list;
-        this.selectedIndex = selectedIndex;
-        this.child = childDimensions;
-        this.helperList = new Uint8Array(this.numBoxesCreated);
+        this.selectedIndex = -1;
         this.currentPage = 0;
         this.nColumns = 0;
         this.nRows = 0;
         this._generateGrid(true);
-        this.goToPage(this.getPageOfSelected());
     }
-    GridBrowser.prototype.setIndexOfSelected = function (index) {
-        this.selectedIndex = Math.max(0, Math.min(index, this.list.length - 1));
+    GridBrowser.prototype.goToPageOfSelected = function () {
+        this.goToPage(this.getPageOfIndex(this.selectedIndex));
     };
-    ;
     GridBrowser.prototype.goToPage = function (pageNumber) {
-        // Set current page
-        this.currentPage = Math.max(0, Math.min(pageNumber, this.getNumOfPages() - 1));
-        // Update page counter
-        this.pageCounter.caption = (this.getCurrentPage() + 1) + "/" + this.getNumOfPages();
-        // Update childs' content (generate page)
-        var nubOfBoxesToShow = this.list.length == 0 ?
-            0 :
-            this.getCurrentPage() == this.getNumOfPages() - 1 ?
-                (this.list.length - 1) % this.getMaxNumBoxesInPage() + 1 :
-                this.getMaxNumBoxesInPage();
-        var startIndex = this.getCurrentPage() * this.getMaxNumBoxesInPage();
-        var subList = this.list.slice(startIndex, startIndex + nubOfBoxesToShow);
-        var subListChildren = this.children.slice(0, nubOfBoxesToShow);
-        for (var i = 0; i < nubOfBoxesToShow; ++i) {
+        this.currentPage = pageNumber;
+        this.pageCounter.caption = this.currentPage + 1 + "/" + Math.max(1, this.getNumOfPages());
+        var offset = this.currentPage * this.getBoxesPerPage();
+        var maxBoxes = this.getBoxesPerPage();
+        for (var i = 0; i < this.children.length; ++i) {
+            if (offset + i >= this.list.length || i >= maxBoxes) {
+                this.children[i].hidden = true;
+                continue;
+            }
             this.children[i].hidden = false;
-            this.childFunction(subList[i], i, subList, startIndex + i, this.list, this.helperList, this.children[i], subListChildren, this.children);
+            this.childFunction(this.children[i], i, this.list[offset + i], offset + i);
         }
-        for (var i = nubOfBoxesToShow; i < this.numBoxesCreated; ++i)
-            this.children[i].hidden = true;
-    };
-    ;
-    GridBrowser.prototype.getCurrentPage = function () {
-        return this.list.length == 0 ? 0 : this.currentPage;
     };
     ;
     GridBrowser.prototype.getPageOfIndex = function (index) {
-        return this.list.length == 0 || index == -1 ?
-            0 :
-            Math.floor(index / this.getMaxNumBoxesInPage());
+        return Math.floor(index / this.getBoxesPerPage());
     };
     ;
-    GridBrowser.prototype.getPageOfSelected = function () {
-        return this.getPageOfIndex(this.selectedIndex);
+    GridBrowser.prototype.getBoxesPerPage = function () {
+        return Math.min(this.nColumns * this.nRows, this.children.length);
     };
     ;
-    GridBrowser.prototype.getPageIndexOfSelected = function () {
-        return this.selectedIndex == -1 || this.list.length == 0 ?
-            -1 :
-            this.selectedIndex % this.getMaxNumBoxesInPage();
-    };
-    ;
-    GridBrowser.prototype.getMaxNumBoxesInPage = function () {
-        return Math.min(this.nColumns * this.nRows, this.numBoxesCreated);
-    };
-    ;
-    // Update number of pages. Always at least 1 page.
     GridBrowser.prototype.getNumOfPages = function () {
-        return Math.max(1, Math.ceil(this.list.length / this.getMaxNumBoxesInPage()));
+        return Math.ceil(this.list.length / this.getBoxesPerPage());
     };
     ;
     GridBrowser.prototype.setList = function (list) {
@@ -90,20 +63,22 @@ var GridBrowser = /** @class */ (function () {
         this.goToPage(0);
     };
     ;
-    GridBrowser.prototype.setChildDimensions = function (childDimensions) {
-        var inSelectedPage = this.getPageOfSelected() == this.getCurrentPage();
-        var firstChildIndex = this.getCurrentPage() * this.getMaxNumBoxesInPage();
-        this.child = childDimensions;
+    GridBrowser.prototype.setChildDimensions = function (width, height) {
+        var isSelectedInPage = this.selectedIndex != -1 &&
+            this.getPageOfIndex(this.selectedIndex) == this.currentPage;
+        var firstChildIndex = this.currentPage * this.getBoxesPerPage();
+        this.childWidth = width;
+        this.childHeight = height;
         this._generateGrid(false);
-        var page = inSelectedPage ?
-            this.getPageOfSelected() :
-            this.getPageOfIndex(firstChildIndex);
-        this.goToPage(page);
+        if (isSelectedInPage)
+            this.goToPageOfSelected();
+        else
+            this.goToPage(this.getPageOfIndex(firstChildIndex));
     };
     ;
     GridBrowser.prototype.generateGrid = function () {
         this._generateGrid(false);
-        this.goToPage(this.getPageOfSelected());
+        this.goToPage(this.getPageOfIndex(this.selectedIndex));
     };
     ;
     GridBrowser.prototype._generateGrid = function (noAnimation) {
@@ -111,21 +86,21 @@ var GridBrowser = /** @class */ (function () {
         var rect = this.container.getComputedSize();
         rect.width = rect.right - rect.left;
         rect.height = rect.bottom - rect.top;
-        this.nColumns = Math.max(1, Math.floor(rect.width / this.child.width));
-        this.nRows = Math.max(1, Math.floor(rect.height / this.child.height));
-        var xCenter = this.child.width * this.nColumns / 2;
-        // let yCenter = this.child.height * this.nRows / 2;
+        this.nColumns = Math.max(1, Math.floor(rect.width / this.childWidth));
+        this.nRows = Math.max(1, Math.floor(rect.height / this.childHeight));
+        var xCenter = this.childWidth * this.nColumns / 2;
+        // let yCenter = this.childHeight * this.nRows / 2;
         // Update child position, dimensions
-        for (var i = 0; i < this.numBoxesCreated; ++i) {
+        for (var i = 0; i < this.children.length; ++i) {
             var x = i % this.nColumns;
             var y = Math.floor(i / this.nColumns);
             //@ts-ignore
             animate(this.children[i]).add({
                 "size": {
-                    "left": this.child.width * x - xCenter,
-                    "right": this.child.width * (x + 1) - xCenter,
-                    "top": this.child.height * y,
-                    "bottom": this.child.height * (y + 1),
+                    "left": this.childWidth * x - xCenter,
+                    "right": this.childWidth * (x + 1) - xCenter,
+                    "top": this.childHeight * y,
+                    "bottom": this.childHeight * (y + 1),
                     "rleft": 50,
                     "rright": 50,
                     "rtop": 0,
@@ -137,11 +112,13 @@ var GridBrowser = /** @class */ (function () {
     };
     ;
     GridBrowser.prototype.nextPage = function () {
-        this.goToPage((this.getCurrentPage() + 1) % this.getNumOfPages());
+        if (this.getNumOfPages())
+            this.goToPage((this.currentPage + 1) % this.getNumOfPages());
     };
     ;
     GridBrowser.prototype.previousPage = function () {
-        this.goToPage((this.getCurrentPage() + this.getNumOfPages() - 1) % this.getNumOfPages());
+        if (this.getNumOfPages())
+            this.goToPage((this.currentPage + this.getNumOfPages() - 1) % this.getNumOfPages());
     };
     ;
     return GridBrowser;
