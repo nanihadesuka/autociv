@@ -4,7 +4,7 @@
  * @param {String} method
  * @param {Function} patch
  */
-function patchApplyN()
+function autociv_patchApplyN()
 {
     let prefix, method, patch;
     if (arguments.length < 2)
@@ -34,17 +34,6 @@ function patchApplyN()
         return;
     }
 
-
     prefix[method] = new Proxy(prefix[method], { apply: patch });
 
-    // if (!patchApplyN.entries.has(prefix))
-    //     patchApplyN.entries.set(prefix, new Map());
-
-    // if (!patchApplyN.entries.get(prefix).has(method))
-    //     patchApplyN.entries.get(prefix).set(method, []);
-
-    // patchApplyN.entries.get(prefix).get(method).push(patch);
 }
-
-
-patchApplyN.entries = new Map();

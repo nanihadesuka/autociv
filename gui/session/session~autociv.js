@@ -89,7 +89,7 @@ function autociv_saveStanzaSession()
 
 function autociv_patchSession()
 {
-	patchApplyN("addChatMessage", function (target, that, args)
+	autociv_patchApplyN("addChatMessage", function (target, that, args)
 	{
 		return botManager.react(args[0]) || target.apply(that, args);
 	})
@@ -97,13 +97,13 @@ function autociv_patchSession()
 	if (autociv_is24)
 		return;
 
-	patchApplyN("sendLobbyPlayerlistUpdate", function (target, that, args)
+	autociv_patchApplyN("sendLobbyPlayerlistUpdate", function (target, that, args)
 	{
 		autociv_saveStanzaSession();
 		return target.apply(that, args);
 	})
 }
-patchApplyN("init", function (target, that, args)
+autociv_patchApplyN("init", function (target, that, args)
 {
 	let result = target.apply(that, args);
 	autociv_initBots();

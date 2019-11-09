@@ -45,7 +45,7 @@ function autociv_initCheck()
     return state;
 };
 
-patchApplyN("init", function (target, that, args)
+autociv_patchApplyN("init", function (target, that, args)
 {
     let state = autociv_initCheck();
     if (state.needsRestart)

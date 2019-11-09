@@ -222,13 +222,13 @@ function autociv_reregister()
 	checkRegistration(500);
 }
 
-patchApplyN("addChatMessage", function (target, that, args)
+autociv_patchApplyN("addChatMessage", function (target, that, args)
 {
 	return botManager.react(args[0]) || autociv_addChatMessage.rate(target, that, args);
 })
 
 var g_Autociv_TickCount = 0;
-patchApplyN("onTick", function (target, that, args)
+autociv_patchApplyN("onTick", function (target, that, args)
 {
 	++g_Autociv_TickCount;
 	autociv_addChatMessage.updateAfterTickRenderOnce();
@@ -236,19 +236,19 @@ patchApplyN("onTick", function (target, that, args)
 })
 
 // Hack. This two should have their own pushGuiPage but they don't.
-patchApplyN("setLeaderboardVisibility", function (target, that, args)
+autociv_patchApplyN("setLeaderboardVisibility", function (target, that, args)
 {
 	resizeBar.disabled = args[0];
 	return target.apply(that, args)
 })
 
-patchApplyN("setUserProfileVisibility", function (target, that, args)
+autociv_patchApplyN("setUserProfileVisibility", function (target, that, args)
 {
 	resizeBar.disabled = args[0];
 	return target.apply(that, args);
 });
 
-patchApplyN("reconnectMessageBox", function (target, that, args)
+autociv_patchApplyN("reconnectMessageBox", function (target, that, args)
 {
 	messageBox(
 		400, 200,
@@ -258,7 +258,7 @@ patchApplyN("reconnectMessageBox", function (target, that, args)
 		[null, autociv_reconnect]);
 })
 
-patchApplyN("init", function (target, that, args)
+autociv_patchApplyN("init", function (target, that, args)
 {
 	autociv_InitBots();
 	target.apply(that, args);

@@ -12,7 +12,7 @@ function handleInputBeforeGui(ev)
     return false;
 }
 
-patchApplyN("init", function (target, that, args)
+autociv_patchApplyN("init", function (target, that, args)
 {
     Engine.GetGUIObjectByName("hostServerName").focus()
     return target.apply(that, args);

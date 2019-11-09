@@ -4,7 +4,7 @@ ProductionQueue.prototype.autociv_SetAutotrain = function (active)
 }
 
 
-patchApplyN(ProductionQueue.prototype, "SpawnUnits", function (target, that, args)
+autociv_patchApplyN(ProductionQueue.prototype, "SpawnUnits", function (target, that, args)
 {
 	let [templateName, count, metadata] = args;
 	if (that.autociv_autotrain)

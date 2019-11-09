@@ -249,7 +249,7 @@ var g_autociv_hotkeysPrefixes = {
 	}
 };
 
-patchApplyN("handleInputAfterGui", function (target, that, args)
+autociv_patchApplyN("handleInputAfterGui", function (target, that, args)
 {
 	let [ev] = args;
 	if ("hotkey" in ev && ev.type == "hotkeydown")
@@ -276,7 +276,7 @@ unitFilters.autociv_isNotWounded = entity =>
 		100 * entState.hitpoints > entState.maxHitpoints * Engine.ConfigDB_GetValue("user", "gui.session.woundedunithotkeythreshold");
 };
 
-patchApplyN("getPreferredEntities", function (target, that, args)
+autociv_patchApplyN("getPreferredEntities", function (target, that, args)
 {
 	let [ents] = args;
 	if (Engine.HotkeyIsPressed("autociv.selection.nowoundedonly"))

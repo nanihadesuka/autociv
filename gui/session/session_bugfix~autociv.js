@@ -74,7 +74,7 @@ function autociv_bugFix_openChat()
 	};
 
 	if (autociv_is24)
-		patchApplyN(g_Chat, "openPage", patchFn);
+		autociv_patchApplyN(g_Chat, "openPage", patchFn);
 	else
-		patchApplyN("openChat", patchFn);
+		autociv_patchApplyN("openChat", patchFn);
 }

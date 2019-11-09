@@ -48,7 +48,8 @@
 			sprite="color: 0 0 0 100"
 			>
 			<action on="Tick">
-				updateCounters();
+				if (!autociv_is24)
+					updateCounters();
 			</action>
 		</object>
 

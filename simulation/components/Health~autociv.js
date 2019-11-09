@@ -1,4 +1,4 @@
-patchApplyN(Health.prototype, "CreateCorpse", function (target, that, args)
+autociv_patchApplyN(Health.prototype, "CreateCorpse", function (target, that, args)
 {
     let [leaveResources] = args;
     let corpseEnt = target.apply(that, args);

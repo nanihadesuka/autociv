@@ -92,7 +92,7 @@ function autociv_InitBots()
 
 function autociv_patchModFilter()
 {
-	patchApplyN("addChatMessage", function (target, that, args)
+	autociv_patchApplyN("addChatMessage", function (target, that, args)
 	{
 		return botManager.react(args[0]) || target.apply(that, args);
 	})
@@ -101,13 +101,13 @@ function autociv_patchModFilter()
 		global["getFilteredMods"] = function () { return Engine.GetEngineInfo().mods };
 
 	// FGod sendRegisterGameStanzaImmediate dependency
-	patchApplyN("getFilteredMods", function (target, that, args)
+	autociv_patchApplyN("getFilteredMods", function (target, that, args)
 	{
 		let mod = ([name, version]) => !/^FGod.*/i.test(name);
 		return target.apply(that, args).filter(mod);
 	});
 
-	patchApplyN("getFilteredMods", function (target, that, args)
+	autociv_patchApplyN("getFilteredMods", function (target, that, args)
 	{
 		let mod = ([name, version]) => !/^AutoCiv.*/i.test(name);
 		return target.apply(that, args).filter(mod);
@@ -153,7 +153,7 @@ function autociv_patchModFilter()
 
 function autociv_hookOnStanzaChanges()
 {
-	patchApplyN("sendRegisterGameStanzaImmediate", function (target, that, args)
+	autociv_patchApplyN("sendRegisterGameStanzaImmediate", function (target, that, args)
 	{
 		let result = target.apply(that, args);
 		g_autociv_stanza.setValue("gamesetup", g_LastGameStanza);
@@ -161,7 +161,7 @@ function autociv_hookOnStanzaChanges()
 	})
 }
 
-patchApplyN("selectPanel", function (target, that, args)
+autociv_patchApplyN("selectPanel", function (target, that, args)
 {
 	let result = target.apply(that, args);
 	if (args[0] === undefined)
@@ -172,7 +172,7 @@ patchApplyN("selectPanel", function (target, that, args)
 	return result;
 })
 
-patchApplyN("init", function (target, that, args)
+autociv_patchApplyN("init", function (target, that, args)
 {
 	autociv_InitBots();
 	target.apply(that, args);

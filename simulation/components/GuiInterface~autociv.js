@@ -2,7 +2,7 @@ if (!GuiInterface.prototype.Init)
     GuiInterface.prototype.Init = function () { };
 
 
-patchApplyN(GuiInterface.prototype, "Init", function (target, that, args)
+autociv_patchApplyN(GuiInterface.prototype, "Init", function (target, that, args)
 {
     that.autociv_corpse = {
         "entities": new Set(),
@@ -151,7 +151,7 @@ let autociv_exposedFunctions = {
     "autociv_SetCorpsesMax": 1
 };
 
-patchApplyN(GuiInterface.prototype, "ScriptCall", function (target, that, args)
+autociv_patchApplyN(GuiInterface.prototype, "ScriptCall", function (target, that, args)
 {
     let [player, name, vargs] = args;
     return name in autociv_exposedFunctions ? that[name](player, vargs) :

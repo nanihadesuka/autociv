@@ -3,7 +3,7 @@
  * @param {String} method
  * @param {Function} patch
  */
-function patchApplyN()
+function autociv_patchApplyN()
 {
     let prefix, method, patch;
     if (arguments.length < 2)
@@ -36,4 +36,4 @@ function patchApplyN()
     prefix[method] = new Proxy(prefix[method], { apply: patch });
 }
 
-Engine.RegisterGlobal("patchApplyN",patchApplyN)
+Engine.RegisterGlobal("autociv_patchApplyN",autociv_patchApplyN)
