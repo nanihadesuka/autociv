@@ -51,6 +51,19 @@ AnimateGUIObjectManager.prototype.onTick = function ()
 };
 
 /**
+ * Ends animation as if had reached end time.
+ * onStart/onTick/onComplete called as usual.
+ */
+AnimateGUIObjectManager.prototype.complete = function ()
+{
+	this.GUIManagerInstance.setTicking(this);
+	for (let animation of this.running)
+		animation.complete(false);
+
+	return this;
+}
+
+/**
  * Ends animation as if had reached end time but without updating attributes.
  * onStart/onTick/onComplete called as usual.
  */

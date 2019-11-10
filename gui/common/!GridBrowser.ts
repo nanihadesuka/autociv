@@ -48,20 +48,17 @@ class GridBrowser {
 	}
 
 	goToPage(pageNumber: number): void {
-
 		this.currentPage = pageNumber;
 		this.pageCounter.caption = `${this.currentPage + 1}/${Math.max(1, this.getNumOfPages())}`;
 
 		let offset = this.currentPage * this.getBoxesPerPage();
-		let maxBoxes = this.getBoxesPerPage();
-		for (let i = 0; i < this.children.length; ++i) {
-			if (offset + i >= this.list.length || i >= maxBoxes) {
-				this.children[i].hidden = true;
-				continue;
-			}
+		let maxVisible = Math.max(Math.min(this.getBoxesPerPage(), this.list.length - offset), 0);
+		for (let i = 0; i < maxVisible; ++i) {
 			this.children[i].hidden = false;
 			this.childFunction(this.children[i], i, this.list[offset + i], offset + i);
 		}
+		for (let i = maxVisible; i < this.children.length; ++i)
+			this.children[i].hidden = true;
 	};
 
 	getPageOfIndex(index: number): number {
@@ -103,11 +100,11 @@ class GridBrowser {
 	generateGrid(animated: boolean = true): void {
 		// Update number of columns and rows
 		let rect = this.container.getComputedSize();
-		rect.width = rect.right - rect.left;
-		rect.height = rect.bottom - rect.top;
+		let width = rect.right - rect.left;
+		let height = rect.bottom - rect.top;
 
-		this.nColumns = Math.max(1, Math.floor(rect.width / this.childWidth));
-		this.nRows = Math.max(1, Math.floor(rect.height / this.childHeight));
+		this.nColumns = Math.max(1, Math.floor(width / this.childWidth));
+		this.nRows = Math.max(1, Math.floor(height / this.childHeight));
 		let xCenter = this.childWidth * this.nColumns / 2;
 		// let yCenter = this.childHeight * this.nRows / 2;
 

@@ -33,15 +33,13 @@ var GridBrowser = /** @class */ (function () {
         this.currentPage = pageNumber;
         this.pageCounter.caption = this.currentPage + 1 + "/" + Math.max(1, this.getNumOfPages());
         var offset = this.currentPage * this.getBoxesPerPage();
-        var maxBoxes = this.getBoxesPerPage();
-        for (var i = 0; i < this.children.length; ++i) {
-            if (offset + i >= this.list.length || i >= maxBoxes) {
-                this.children[i].hidden = true;
-                continue;
-            }
+        var maxVisible = Math.max(Math.min(this.getBoxesPerPage(), this.list.length - offset), 0);
+        for (var i = 0; i < maxVisible; ++i) {
             this.children[i].hidden = false;
             this.childFunction(this.children[i], i, this.list[offset + i], offset + i);
         }
+        for (var i = maxVisible; i < this.children.length; ++i)
+            this.children[i].hidden = true;
     };
     ;
     GridBrowser.prototype.getPageOfIndex = function (index) {
@@ -82,10 +80,10 @@ var GridBrowser = /** @class */ (function () {
         if (animated === void 0) { animated = true; }
         // Update number of columns and rows
         var rect = this.container.getComputedSize();
-        rect.width = rect.right - rect.left;
-        rect.height = rect.bottom - rect.top;
-        this.nColumns = Math.max(1, Math.floor(rect.width / this.childWidth));
-        this.nRows = Math.max(1, Math.floor(rect.height / this.childHeight));
+        var width = rect.right - rect.left;
+        var height = rect.bottom - rect.top;
+        this.nColumns = Math.max(1, Math.floor(width / this.childWidth));
+        this.nRows = Math.max(1, Math.floor(height / this.childHeight));
         var xCenter = this.childWidth * this.nColumns / 2;
         // let yCenter = this.childHeight * this.nRows / 2;
         // Update child position, dimensions

@@ -16,14 +16,48 @@
  *       "default" : [new MapData, ...],
  *       ....
  *   },
- *   "scenario": ....
+ *   "scenario": ....,
  * }
  */
 var g_Maps = {
 	"types": arrayToKeys(g_Settings_for_MapBrowser.MapTypes, "Name"),
 	"filters": arrayToKeys(g_Settings_for_MapBrowser.MapFilters, "id"),
-	"byType": {} // Filled in initData
+	"byTypeAndFilter": {}, // Lazy loaded
+	"byFilter": {}, // Lazy loaded
+	"getMaps": function (type, filter)
+	{
+		if (!(type in this.types) || !(filter in this.filters))
+			return [];
+
+		if (!(type in this.byTypeAndFilter))
+			this.byTypeAndFilter[type] = {
+				"all": listFiles(this.types[type].Path, this.types[type].Extension, false).
+					filter(fileName => !fileName.startsWith("_")).
+					map(fileName => new MapData(fileName, type))
+			};
+
+		if (!(filter in this.byTypeAndFilter[type]))
+			this.byTypeAndFilter[type][filter] = this.byTypeAndFilter[type].all.
+				filter(map => this.filters[filter].filter(map.filter));
+
+		return this.byTypeAndFilter[type][filter];
+	},
+	"getMapsByFilter": function (filter)
+	{
+		if (!(filter in this.filters))
+			return [];
+
+		if (!(filter in this.byFilter))
+		{
+			this.byFilter[filter] = [];
+			for (let type in g_Maps.types)
+				this.byFilter[filter].push(...this.getMaps(type, filter));
+		}
+
+		return this.byFilter[filter];
+	}
 };
+
 
 var g_AnimationSettings = {
 	"childButton":
@@ -121,7 +155,7 @@ var g_MapSelected = {
 		if (!map.file.path || !map.file.name || !map.type)
 			return;
 
-		this.filter = getFilter();
+		this.filter = currentFilter();
 		if (this.map == map)
 			return;
 
@@ -151,28 +185,19 @@ var g_MapSelected = {
  */
 var g_MapZoom = {
 	"originalSize": { "width": 400, "height": 300 },
-	"levels": [0.35, 0.40, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 2.0, 2.4, 2.9],
-	"levelsIndexSelected": 5,
+	"scale": 0.6,
+	"multiplier": 1.1,
 	"getSize": function ()
 	{
-		let level = this.levels[this.levelsIndexSelected];
 		return {
-			"width": this.originalSize.width * level,
-			"height": this.originalSize.height * level
+			"width": this.originalSize.width * this.scale,
+			"height": this.originalSize.height * this.scale
 		};
 	},
 	"zoom": function (step)
 	{
-		// step > 0 makes previews bigger
-		let newIndex = Math.min(
-			Math.max(this.levelsIndexSelected + step, 0),
-			this.levels.length - 1
-		);
-
-		if (newIndex == this.levelsIndexSelected)
-			return;
-
-		this.levelsIndexSelected = newIndex;
+		this.scale *= Math.pow(this.multiplier, step)
+		this.scale = Math.max(Math.min(this.scale, 2.0), 0.35);
 		let size = this.getSize();
 		g_MapBrowser.setChildDimensions(size.width, size.height);
 	}
@@ -251,21 +276,13 @@ var g_GUIObjects = {
 	{
 		"list": g_Settings_for_MapBrowser.MapTypes.map(type => type.Title),
 		"list_data": g_Settings_for_MapBrowser.MapTypes.map(type => type.Name),
-		"onSelectionChange": () =>
-		{
-			if (getType() && getFilter())
-				g_MapBrowser.setList(g_Maps.byType[getType()][getFilter()]);
-		}
+		"onSelectionChange": () => g_MapBrowser.setList(g_Maps.getMaps(currentType(), currentFilter()))
 	},
 	"mapFilterDropdown":
 	{
 		"list": Object.keys(g_Maps.filters).map(filter => g_Maps.filters[filter].name),
 		"list_data": Object.keys(g_Maps.filters),
-		"onSelectionChange": () =>
-		{
-			if (getType() && getFilter())
-				g_MapBrowser.setList(g_Maps.byType[getType()][getFilter()]);
-		}
+		"onSelectionChange": () => g_MapBrowser.setList(g_Maps.getMaps(currentType(), currentFilter()))
 	}
 };
 
@@ -277,19 +294,8 @@ function init(data)
 	// Sets map type, filter depending of data input
 	let type = data && data.map ? data.map.type : "random";
 	let filter = data && data.map ? data.map.filter : "default";
-	initData(type, filter);
-	initGUIObjects(data, type, filter);
-}
+	let mapList = g_Maps.getMaps(type, filter);
 
-function initData()
-{
-	for (let mapType in g_Maps.types)
-		g_Maps.byType[mapType] = getMapsByFilter(getMapsOfType(mapType));
-}
-
-function initGUIObjects(data, type, filter)
-{
-	let mapList = g_Maps.byType[type][filter];
 	//"random" is not a map. Map name from gamesetup has path included
 	let fullMapName = (data && data.map && data.map.name != "random") ?
 		data.map.name :
@@ -304,6 +310,7 @@ function initGUIObjects(data, type, filter)
 		size.height,
 		childFunction
 	);
+	g_MapBrowser.generateGrid();
 
 	for (let objectName in g_GUIObjects)
 		for (let parameter in g_GUIObjects[objectName])
@@ -312,8 +319,7 @@ function initGUIObjects(data, type, filter)
 	Engine.GetGUIObjectByName("mapTypeDropdown").selected = g_GUIObjects.mapTypeDropdown.list_data.indexOf(type);
 	Engine.GetGUIObjectByName("mapFilterDropdown").selected = g_GUIObjects.mapFilterDropdown.list_data.indexOf(filter);
 
-	// Simulates a click on the selected map
-	g_MapBrowser.generateGrid();
+	// Simulate a click for starting map if any
 	let selectedIndex = mapList.findIndex(map => map.file.path + map.file.name == fullMapName);
 	if (selectedIndex != -1)
 	{
@@ -336,12 +342,16 @@ function initGUIObjects(data, type, filter)
  */
 function childFunction(child, childIndex, map, mapIndex)
 {
-	let getObject = (name, index = childIndex) => Engine.GetGUIObjectByName(`${name}[${index}]`);
+	if (child.onUnselect)
+		child.onUnselect();
 
+	let getObject = (name, index = childIndex) => Engine.GetGUIObjectByName(`${name}[${index}]`);
 	let mapPreview = getObject("mapPreview");
 	let mapButton = getObject("mapButton");
 	let mapBox = getObject("mapBox");
 	let mapName = getObject("mapName");
+
+	let selected = false;
 
 	child.onMouseLeftPress = () =>
 	{
@@ -349,31 +359,30 @@ function childFunction(child, childIndex, map, mapIndex)
 			this.selectedChild.onUnselect();
 
 		g_MapSelected.select(map);
-		animate(mapButton).add(g_AnimationSettings.childButton.selected);
-		animate(mapPreview).add(g_AnimationSettings.childPreview.press);
-		this.selected = map;
+		animate(mapButton).complete().add(g_AnimationSettings.childButton.selected);
+		animate(mapPreview).complete().add(g_AnimationSettings.childPreview.press);
 		this.selectedChild = child;
 		this.setSelectedIndex(mapIndex);
+		selected = true;
 	};
+	child.onUnselect = () =>
+	{
+		if (!selected)
+			return;
 
+		animate(mapButton).complete().add(g_AnimationSettings.childButton.unselected);
+		selected = false;
+	};
 	child.onSelect = child.onMouseLeftPress;
-	child.onUnselect = () => animate(mapButton).add(g_AnimationSettings.childButton.unselected);
-
-	child.onMouseEnter = () => animate(mapBox).add(g_AnimationSettings.childMap.enter);
-	child.onMouseLeave = () => animate(mapBox).add(g_AnimationSettings.childMap.leave);
+	child.onMouseEnter = () => animate(mapBox).complete().add(g_AnimationSettings.childMap.enter);
+	child.onMouseLeave = () => animate(mapBox).complete().add(g_AnimationSettings.childMap.leave);
 	child.onMouseWheelUp = () => g_MapZoom.zoom(1);
 	child.onMouseWheelDown = () => g_MapZoom.zoom(-1);
-	child.onMouseLeftRelease = () => animate(mapPreview).add(g_AnimationSettings.childPreview.release);
-	child.onMouseLeftDoubleClick = () =>
-	{
-		g_MapSelected.select(map);
-		mapBrowserReturn(true);
-	};
+	child.onMouseLeftRelease = () => animate(mapPreview).complete().add(g_AnimationSettings.childPreview.release);
+	child.onMouseLeftDoubleClick = () => mapBrowserReturn(true);
 
-	animate(mapButton).add(map == this.selected ?
-		g_AnimationSettings.childButton.selected :
-		g_AnimationSettings.childButton.unselected
-	);
+	if (map == g_MapSelected.map)
+		child.onSelect();
 
 	mapName.caption = map.name;
 	mapPreview.sprite = map.preview;
@@ -433,31 +442,7 @@ MapData.prototype.load = function ()
 	this.filter = setting("Keywords", ["all"]);
 };
 
-/**
- * Returns a list of MapData objects of all maps of given type
- */
-function getMapsOfType(type)
-{
-	if (!g_Maps.types[type])
-		return [];
-	return listFiles(g_Maps.types[type].Path, g_Maps.types[type].Extension, false).
-		filter(fileName => !fileName.startsWith("_")).
-		map(fileName => new MapData(fileName, type));
-};
-
-/**
- * Returns a dictionary: each key is the filter with its corresponding map list
- * mapList is a list of MapData objects
- */
-function getMapsByFilter(mapList)
-{
-	let mapsFiltered = {};
-	for (let filter in g_Maps.filters)
-		mapsFiltered[filter] = mapList.filter(map => g_Maps.filters[filter].filter(map.filter));
-	return mapsFiltered;
-};
-
-function getType()
+function currentType()
 {
 	let mapTypeDropdown = Engine.GetGUIObjectByName("mapTypeDropdown");
 	if (mapTypeDropdown.selected == -1)
@@ -465,7 +450,7 @@ function getType()
 	return mapTypeDropdown.list_data[mapTypeDropdown.selected];
 }
 
-function getFilter()
+function currentFilter()
 {
 	let mapFilterDropdown = Engine.GetGUIObjectByName("mapFilterDropdown");
 	if (mapFilterDropdown.selected == -1)
@@ -476,7 +461,7 @@ function getFilter()
 function MapsSearchBoxInput(inputObjectName, inputObjectNameNotice)
 {
 	this.lastTime = Date.now();
-	this.refresh = 100;
+	this.waitTime = 100; // ms
 	this.lastCaption = "";
 	this.mapsSearchBox = Engine.GetGUIObjectByName(inputObjectName);
 	this.mapsSearchBox.caption = "";
@@ -486,39 +471,26 @@ function MapsSearchBoxInput(inputObjectName, inputObjectNameNotice)
 MapsSearchBoxInput.prototype.onTick = function ()
 {
 	let time = Date.now();
-	if (this.lastTime + this.refresh > time)
+	if (this.lastTime + this.waitTime > time)
 		return;
 
 	let caption = this.mapsSearchBox.caption.trim().toLowerCase();
 	if (caption == this.lastCaption)
 		return;
 
-	if ((this.lastCaption && !caption) || (!this.lastCaption && caption))
-		animate(this.mapsSearchBoxNotice).
-			add({ "textcolor": { "a": !caption ? "1" : "0" } });
+	if (!this.lastCaption != !caption)
+		animate(this.mapsSearchBoxNotice).add({
+			"textcolor": { "a": !caption ? "1" : "0" }
+		});
 
-	if (!caption)
-	{
-		// Normal map list filtered by type and filter
-		g_MapBrowser.setList(g_Maps.byType[getType()][getFilter()]);
-	}
-	else
-	{
-		let mapFilter = getFilter();
-		// List of all maps with current filter
-		let allListFilter = [];
-		for (let type in g_Maps.types)
-			if (g_Maps.byType[type][mapFilter] !== undefined)
-				allListFilter = [...allListFilter, ...g_Maps.byType[type][mapFilter]];
-
-		let mapsMatch = fuzzysort.go(caption, allListFilter, {
+	let list = !caption ? g_Maps.getMaps(currentType(), currentFilter()) :
+		fuzzysort.go(caption, g_Maps.getMapsByFilter(currentFilter()), {
 			key: 'name',
 			allowTypo: true,
 			threshold: -10000
 		}).map(result => result.obj);
 
-		g_MapBrowser.setList(mapsMatch);
-	}
+	g_MapBrowser.setList(list);
 	g_MapBrowser.goToPage(0);
 
 	this.lastCaption = caption;
