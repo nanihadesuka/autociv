@@ -37,7 +37,5 @@ declare class GUISize {
 
 declare function setTimeout(callback: Function, time: number): void
 declare function saveSettingAndWriteToUserConfig(key: string, value: string): void
-declare function warn(text: string): void
-declare function error(text: string): void
-
-
+declare function warn(text: string | number): void
+declare function error(text: string | number): void

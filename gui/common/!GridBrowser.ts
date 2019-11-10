@@ -2,24 +2,23 @@
  * Function that arranges a list of "boxed-like" GUI objects with width-centering
  * (currently) and page based way mode.
  *
- * Needs an object as container and a object to display the page numbering (if not
+ * Needs an object as container with childrens and a object to display the page numbering (if not
  * make hidden object and assign it to it).
  *
  * To add advanced, more detailed, objects inside each box add a custom childFunction:
  * childFunction(page_list_element, page_list_element_index, page_list,
  * global_list_element_index, global_list,child_object).
  *
- * For example look at mapbrowser.js / mapbrowser.xml implementation.
+ * For example look at mapbrowser.js and mapbrowser.xml implementation.
  */
 
-// initializer, list is each childen data
 class GridBrowser {
 
 	// GUI object container of the children
 	container: GUIObject;
 	// GUI object type="text" for the numbering of each page
 	pageCounter: GUIObject;
-	// list of direct GUI objects of the container
+	// GUI object childrens of the container
 	children: GUIObject[];
 	childFunction: Function;
 	childWidth: number;
@@ -42,8 +41,6 @@ class GridBrowser {
 		this.currentPage = 0;
 		this.nColumns = 0;
 		this.nRows = 0;
-
-		this._generateGrid(true);
 	}
 
 	goToPageOfSelected(): void {
@@ -68,11 +65,11 @@ class GridBrowser {
 	};
 
 	getPageOfIndex(index: number): number {
-		return Math.floor(index / this.getBoxesPerPage());
+		return Math.max(0, Math.floor(index / this.getBoxesPerPage()));
 	};
 
 	getBoxesPerPage(): number {
-		return Math.min(this.nColumns * this.nRows, this.children.length);
+		return Math.max(1, Math.min(this.nColumns * this.nRows, this.children.length));
 	};
 
 	getNumOfPages(): number {
@@ -84,25 +81,26 @@ class GridBrowser {
 		this.goToPage(0);
 	};
 
+	setSelectedIndex(index: number): void {
+		this.selectedIndex = index;
+	};
+
 	setChildDimensions(width: number, height: number): void {
 		let isSelectedInPage = this.selectedIndex != -1 &&
 			this.getPageOfIndex(this.selectedIndex) == this.currentPage;
 		let firstChildIndex = this.currentPage * this.getBoxesPerPage();
+
 		this.childWidth = width;
 		this.childHeight = height;
-		this._generateGrid(false);
+		this.generateGrid(false);
+
 		if (isSelectedInPage)
 			this.goToPageOfSelected();
 		else
 			this.goToPage(this.getPageOfIndex(firstChildIndex));
 	};
 
-	generateGrid(): void {
-		this._generateGrid(false);
-		this.goToPage(this.getPageOfIndex(this.selectedIndex));
-	};
-
-	_generateGrid(noAnimation: boolean): void {
+	generateGrid(animated: boolean = true): void {
 		// Update number of columns and rows
 		let rect = this.container.getComputedSize();
 		rect.width = rect.right - rect.left;
@@ -118,9 +116,8 @@ class GridBrowser {
 			let x = i % this.nColumns;
 			let y = Math.floor(i / this.nColumns);
 			//@ts-ignore
-			animate(this.children[i]).add({
-				"size":
-				{
+			GUIObjectSet(this.children[i], {
+				"size": {
 					"left": this.childWidth * x - xCenter,
 					"right": this.childWidth * (x + 1) - xCenter,
 					"top": this.childHeight * y,
@@ -129,8 +126,7 @@ class GridBrowser {
 					"rright": 50,
 					"rtop": 0,
 					"rbottom": 0
-				},
-				"duration": noAnimation ? 0 : 0
+				}
 			});
 		}
 	};

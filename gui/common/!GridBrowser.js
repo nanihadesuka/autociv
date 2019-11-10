@@ -3,16 +3,15 @@
  * Function that arranges a list of "boxed-like" GUI objects with width-centering
  * (currently) and page based way mode.
  *
- * Needs an object as container and a object to display the page numbering (if not
+ * Needs an object as container with childrens and a object to display the page numbering (if not
  * make hidden object and assign it to it).
  *
  * To add advanced, more detailed, objects inside each box add a custom childFunction:
  * childFunction(page_list_element, page_list_element_index, page_list,
  * global_list_element_index, global_list,child_object).
  *
- * For example look at mapbrowser.js / mapbrowser.xml implementation.
+ * For example look at mapbrowser.js and mapbrowser.xml implementation.
  */
-// initializer, list is each childen data
 var GridBrowser = /** @class */ (function () {
     function GridBrowser(containerName, pageCounterName, list, childWidth, childHeight, childFunction) {
         this.container = Engine.GetGUIObjectByName(containerName);
@@ -26,7 +25,6 @@ var GridBrowser = /** @class */ (function () {
         this.currentPage = 0;
         this.nColumns = 0;
         this.nRows = 0;
-        this._generateGrid(true);
     }
     GridBrowser.prototype.goToPageOfSelected = function () {
         this.goToPage(this.getPageOfIndex(this.selectedIndex));
@@ -47,11 +45,11 @@ var GridBrowser = /** @class */ (function () {
     };
     ;
     GridBrowser.prototype.getPageOfIndex = function (index) {
-        return Math.floor(index / this.getBoxesPerPage());
+        return Math.max(0, Math.floor(index / this.getBoxesPerPage()));
     };
     ;
     GridBrowser.prototype.getBoxesPerPage = function () {
-        return Math.min(this.nColumns * this.nRows, this.children.length);
+        return Math.max(1, Math.min(this.nColumns * this.nRows, this.children.length));
     };
     ;
     GridBrowser.prototype.getNumOfPages = function () {
@@ -63,25 +61,25 @@ var GridBrowser = /** @class */ (function () {
         this.goToPage(0);
     };
     ;
+    GridBrowser.prototype.setSelectedIndex = function (index) {
+        this.selectedIndex = index;
+    };
+    ;
     GridBrowser.prototype.setChildDimensions = function (width, height) {
         var isSelectedInPage = this.selectedIndex != -1 &&
             this.getPageOfIndex(this.selectedIndex) == this.currentPage;
         var firstChildIndex = this.currentPage * this.getBoxesPerPage();
         this.childWidth = width;
         this.childHeight = height;
-        this._generateGrid(false);
+        this.generateGrid(false);
         if (isSelectedInPage)
             this.goToPageOfSelected();
         else
             this.goToPage(this.getPageOfIndex(firstChildIndex));
     };
     ;
-    GridBrowser.prototype.generateGrid = function () {
-        this._generateGrid(false);
-        this.goToPage(this.getPageOfIndex(this.selectedIndex));
-    };
-    ;
-    GridBrowser.prototype._generateGrid = function (noAnimation) {
+    GridBrowser.prototype.generateGrid = function (animated) {
+        if (animated === void 0) { animated = true; }
         // Update number of columns and rows
         var rect = this.container.getComputedSize();
         rect.width = rect.right - rect.left;
@@ -95,7 +93,7 @@ var GridBrowser = /** @class */ (function () {
             var x = i % this.nColumns;
             var y = Math.floor(i / this.nColumns);
             //@ts-ignore
-            animate(this.children[i]).add({
+            GUIObjectSet(this.children[i], {
                 "size": {
                     "left": this.childWidth * x - xCenter,
                     "right": this.childWidth * (x + 1) - xCenter,
@@ -105,8 +103,7 @@ var GridBrowser = /** @class */ (function () {
                     "rright": 50,
                     "rtop": 0,
                     "rbottom": 0
-                },
-                "duration": noAnimation ? 0 : 0
+                }
             });
         }
     };
