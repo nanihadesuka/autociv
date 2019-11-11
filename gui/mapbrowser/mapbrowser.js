@@ -58,7 +58,6 @@ var g_Maps = {
 	}
 };
 
-
 var g_AnimationSettings = {
 	"childButton":
 	{
@@ -150,10 +149,12 @@ var g_MapsSearchBoxInput;
  * Stores what is the current selected map if any
  */
 var g_MapSelected = {
-	"select": function (map)
+	"select": function (map, child)
 	{
-		if (!map.file.path || !map.file.name || !map.type)
-			return;
+		if (this.selectedChild)
+			this.selectedChild.onUnselect();
+
+		this.selectedChild = child;
 
 		this.filter = currentFilter();
 		if (this.map == map)
@@ -172,11 +173,8 @@ var g_MapSelected = {
 			g_AnimationSettings.descriptionSelected.shared
 		);
 	},
-	"unselect": function ()
-	{
-		this.selected = false;
-	},
 	"selected": false,
+	"selectedChild": undefined,
 	"map": {}
 };
 
@@ -342,6 +340,9 @@ function init(data)
  */
 function childFunction(child, childIndex, map, mapIndex)
 {
+	if (!map.loaded)
+		map.load();
+
 	if (child.onUnselect)
 		child.onUnselect();
 
@@ -355,13 +356,9 @@ function childFunction(child, childIndex, map, mapIndex)
 
 	child.onMouseLeftPress = () =>
 	{
-		if (this.selectedChild)
-			this.selectedChild.onUnselect();
-
-		g_MapSelected.select(map);
+		g_MapSelected.select(map, child);
 		animate(mapButton).complete().add(g_AnimationSettings.childButton.selected);
 		animate(mapPreview).complete().add(g_AnimationSettings.childPreview.press);
-		this.selectedChild = child;
 		this.setSelectedIndex(mapIndex);
 		selected = true;
 	};
@@ -420,7 +417,6 @@ function MapData(fileName, type)
 		"name": fileName,
 		"extension": g_Maps.types[type].Extension
 	};
-	this.load();
 }
 
 /**
@@ -428,6 +424,7 @@ function MapData(fileName, type)
  */
 MapData.prototype.load = function ()
 {
+	this.loaded = true;
 	this.data = this.type == "random" ?
 		Engine.ReadJSONFile(this.file.path + this.file.name + this.file.extension) :
 		Engine.LoadMapSettings(this.file.path + this.file.name);

@@ -23,7 +23,11 @@ declare enum GUISizeSide {
     left = "left",
     right = "right",
     top = "top",
-    bottom = "bottom"
+    bottom = "bottom",
+    rleft = "rleft",
+    rright = "rright",
+    rtop = "rtop",
+    rbottom = "rbottom"
 }
 
 declare class GUISize {
@@ -31,6 +35,10 @@ declare class GUISize {
     [GUISizeSide.right]: number
     [GUISizeSide.top]: number
     [GUISizeSide.bottom]: number
+    [GUISizeSide.rleft]: number
+    [GUISizeSide.rright]: number
+    [GUISizeSide.rtop]: number
+    [GUISizeSide.rbottom]: number
     width: number
     height: number
 }

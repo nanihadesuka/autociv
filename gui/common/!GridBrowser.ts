@@ -89,7 +89,7 @@ class GridBrowser {
 
 		this.childWidth = width;
 		this.childHeight = height;
-		this.generateGrid(false);
+		this.generateGrid();
 
 		if (isSelectedInPage)
 			this.goToPageOfSelected();
@@ -97,7 +97,7 @@ class GridBrowser {
 			this.goToPage(this.getPageOfIndex(firstChildIndex));
 	};
 
-	generateGrid(animated: boolean = true): void {
+	generateGrid(): void {
 		// Update number of columns and rows
 		let rect = this.container.getComputedSize();
 		let width = rect.right - rect.left;
@@ -112,19 +112,16 @@ class GridBrowser {
 		for (let i = 0; i < this.children.length; ++i) {
 			let x = i % this.nColumns;
 			let y = Math.floor(i / this.nColumns);
-			//@ts-ignore
-			GUIObjectSet(this.children[i], {
-				"size": {
-					"left": this.childWidth * x - xCenter,
-					"right": this.childWidth * (x + 1) - xCenter,
-					"top": this.childHeight * y,
-					"bottom": this.childHeight * (y + 1),
-					"rleft": 50,
-					"rright": 50,
-					"rtop": 0,
-					"rbottom": 0
-				}
-			});
+			let sizeChild = this.children[i].size;
+			sizeChild.left = this.childWidth * x - xCenter;
+			sizeChild.right = this.childWidth * (x + 1) - xCenter;
+			sizeChild.top = this.childHeight * y;
+			sizeChild.bottom = this.childHeight * (y + 1);
+			sizeChild.rleft = 50;
+			sizeChild.rright = 50;
+			sizeChild.rtop = 0;
+			sizeChild.rbottom = 0;
+			this.children[i].size = sizeChild;
 		}
 	};
 

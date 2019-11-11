@@ -69,15 +69,14 @@ var GridBrowser = /** @class */ (function () {
         var firstChildIndex = this.currentPage * this.getBoxesPerPage();
         this.childWidth = width;
         this.childHeight = height;
-        this.generateGrid(false);
+        this.generateGrid();
         if (isSelectedInPage)
             this.goToPageOfSelected();
         else
             this.goToPage(this.getPageOfIndex(firstChildIndex));
     };
     ;
-    GridBrowser.prototype.generateGrid = function (animated) {
-        if (animated === void 0) { animated = true; }
+    GridBrowser.prototype.generateGrid = function () {
         // Update number of columns and rows
         var rect = this.container.getComputedSize();
         var width = rect.right - rect.left;
@@ -90,19 +89,16 @@ var GridBrowser = /** @class */ (function () {
         for (var i = 0; i < this.children.length; ++i) {
             var x = i % this.nColumns;
             var y = Math.floor(i / this.nColumns);
-            //@ts-ignore
-            GUIObjectSet(this.children[i], {
-                "size": {
-                    "left": this.childWidth * x - xCenter,
-                    "right": this.childWidth * (x + 1) - xCenter,
-                    "top": this.childHeight * y,
-                    "bottom": this.childHeight * (y + 1),
-                    "rleft": 50,
-                    "rright": 50,
-                    "rtop": 0,
-                    "rbottom": 0
-                }
-            });
+            var sizeChild = this.children[i].size;
+            sizeChild.left = this.childWidth * x - xCenter;
+            sizeChild.right = this.childWidth * (x + 1) - xCenter;
+            sizeChild.top = this.childHeight * y;
+            sizeChild.bottom = this.childHeight * (y + 1);
+            sizeChild.rleft = 50;
+            sizeChild.rright = 50;
+            sizeChild.rtop = 0;
+            sizeChild.rbottom = 0;
+            this.children[i].size = sizeChild;
         }
     };
     ;
