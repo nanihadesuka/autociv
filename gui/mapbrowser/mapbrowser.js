@@ -321,20 +321,21 @@ function childFunction(child, childIndex, map, mapIndex)
 	if (child.onUnselect)
 		child.onUnselect();
 
-	let getObject = (name, index = childIndex) => Engine.GetGUIObjectByName(`${name}[${index}]`);
-	let mapPreview = getObject("mapPreview");
-	let mapButton = getObject("mapButton");
-	let mapBox = getObject("mapBox");
-	let mapName = getObject("mapName");
-
+	let mapPreview = Engine.GetGUIObjectByName("mapPreview" + "[" + childIndex + "]");
+	let mapButton = Engine.GetGUIObjectByName("mapButton" + "[" + childIndex + "]");
+	let mapBox = Engine.GetGUIObjectByName("mapBox" + "[" + childIndex + "]");
+	let mapName = Engine.GetGUIObjectByName("mapName" + "[" + childIndex + "]");
 	let selected = false;
 
 	child.onMouseLeftPress = () =>
 	{
 		g_MapSelected.select(map, child);
+		this.setSelectedIndex(mapIndex);
+		if (selected)
+			return;
+
 		animate(mapButton).complete().add(g_AnimationSettings.childButton.selected);
 		animate(mapPreview).complete().add(g_AnimationSettings.childPreview.press);
-		this.setSelectedIndex(mapIndex);
 		selected = true;
 	};
 	child.onUnselect = () =>
@@ -356,9 +357,14 @@ function childFunction(child, childIndex, map, mapIndex)
 	if (map == g_MapSelected.map)
 		child.onSelect();
 
-	mapName.caption = map.name;
-	mapPreview.sprite = map.preview;
-	child.tooltip = map.description;
+	if (mapName.caption != map.name)
+		mapName.caption = map.name;
+
+	if (mapPreview.sprite != map.preview)
+		mapPreview.sprite = map.preview;
+
+	if (child.tooltip != map.description)
+		child.tooltip = map.description;
 };
 
 /**
@@ -380,6 +386,20 @@ function arrayToKeys(objectsArray, element)
 	return dict;
 }
 
+function currentType()
+{
+	let mapTypeDropdown = Engine.GetGUIObjectByName("mapTypeDropdown");
+	if (mapTypeDropdown.selected != -1)
+		return mapTypeDropdown.list_data[mapTypeDropdown.selected];
+}
+
+function currentFilter()
+{
+	let mapFilterDropdown = Engine.GetGUIObjectByName("mapFilterDropdown");
+	if (mapFilterDropdown.selected != -1)
+		return mapFilterDropdown.list_data[mapFilterDropdown.selected];
+}
+
 /**
  * Each map has all his data in this object
  */
@@ -396,7 +416,7 @@ function MapData(fileName, type)
 
 MapData.previewPrefix = "cropped:" + 400 / 512 + "," + 300 / 512 + ":session/icons/mappreview/"
 
-MapData.prototype.parseSetting = function (key, alternative)
+MapData.prototype.parseData = function (key, alternative)
 {
 	return this.data && this.data.settings && this.data.settings[key] || alternative;
 }
@@ -415,21 +435,21 @@ Object.defineProperty(MapData.prototype, "name", {
 	get()
 	{
 		return "_name" in this ? this._name :
-			this._name = translate(this.parseSetting("Name", "No map name."));
+			this._name = translate(this.parseData("Name", "No map name."));
 	}
 });
 Object.defineProperty(MapData.prototype, "description", {
 	get()
 	{
 		return "_description" in this ? this._description :
-			this._description = translate(this.parseSetting("Description", "No map description."));
+			this._description = translate(this.parseData("Description", "No map description."));
 	}
 });
 Object.defineProperty(MapData.prototype, "preview", {
 	get()
 	{
 		return "_preview" in this ? this._preview :
-			this._preview = MapData.previewPrefix + this.parseSetting("Preview", "nopreview.png");
+			this._preview = MapData.previewPrefix + this.parseData("Preview", "nopreview.png");
 	}
 });
 Object.defineProperty(MapData.prototype, "filter", {
@@ -438,63 +458,36 @@ Object.defineProperty(MapData.prototype, "filter", {
 		if ("_filter" in this)
 			return this._filter;
 
-		this._filter = this.parseSetting("Keywords", ["all"]);
+		this._filter = this.parseData("Keywords", ["all"]);
 		if (!Array.isArray(this._filter))
 			this._filter = [this._filter];
 		return this._filter;
 	}
 });
 
-function currentType()
+function MapsSearchBoxInput(name, nameNotice)
 {
-	let mapTypeDropdown = Engine.GetGUIObjectByName("mapTypeDropdown");
-	if (mapTypeDropdown.selected == -1)
-		return;
-	return mapTypeDropdown.list_data[mapTypeDropdown.selected];
-}
-
-function currentFilter()
-{
-	let mapFilterDropdown = Engine.GetGUIObjectByName("mapFilterDropdown");
-	if (mapFilterDropdown.selected == -1)
-		return;
-	return mapFilterDropdown.list_data[mapFilterDropdown.selected];
-}
-
-function MapsSearchBoxInput(inputObjectName, inputObjectNameNotice)
-{
-	this.mapsSearchBox = Engine.GetGUIObjectByName(inputObjectName);
-	this.mapsSearchBoxNotice = Engine.GetGUIObjectByName(inputObjectNameNotice);
-	this.lastCaption = this.mapsSearchBox.caption;
-
-	this.mapsSearchBox.onTab = () => g_MapBrowser.nextPage();
-	this.mapsSearchBox.onMouseLeftPress = () => this.updateSearch(true);
-	this.mapsSearchBox.onPress = () => this.selectFirstResult();
-	this.mapsSearchBox.onTextedit = () => this.updateSearch();
+	this.mapsSearchBoxNotice = Engine.GetGUIObjectByName(nameNotice);
+	this.mapsSearchBox = Engine.GetGUIObjectByName(name);
+	this.mapsSearchBox.onTab = g_MapBrowser.nextPage;
+	this.mapsSearchBox.onMouseLeftPress = this.updateSearch.bind(this);
+	this.mapsSearchBox.onPress = this.selectFirstResult.bind(this);
+	this.mapsSearchBox.onTextedit = this.updateSearch.bind(this);
 }
 
 MapsSearchBoxInput.prototype.selectFirstResult = function ()
 {
-	if (!g_MapBrowser.list.length ||
-		!this.mapsSearchBox.caption.trim() ||
-		!g_MapBrowser.children[0] ||
-		g_MapBrowser.children[0].hidden)
+	if (!g_MapBrowser.list.length)
 		return;
 
-	g_MapBrowser.children[0].onSelect();
+	g_MapSelected.select(g_MapBrowser.list.length[0]);
 	close(true);
 }
 
-MapsSearchBoxInput.prototype.updateSearch = function (force = false)
+MapsSearchBoxInput.prototype.updateSearch = function ()
 {
 	let caption = this.mapsSearchBox.caption.trim().toLowerCase();
-	if (caption == this.lastCaption && !force)
-		return;
-
-	if (!this.lastCaption != !caption)
-		animate(this.mapsSearchBoxNotice).add({
-			"textcolor": { "a": !caption ? "1" : "0" }
-		});
+	this.mapsSearchBoxNotice.hidden = !!caption;
 
 	let list = !caption ? g_Maps.getMaps(currentType(), currentFilter()) :
 		fuzzysort.go(caption, g_Maps.getMapsByFilter(currentFilter()), {
@@ -505,8 +498,6 @@ MapsSearchBoxInput.prototype.updateSearch = function (force = false)
 
 	g_MapBrowser.setList(list);
 	g_MapBrowser.goToPage(0);
-
-	this.lastCaption = caption;
 }
 
 function close(sendSelected)
