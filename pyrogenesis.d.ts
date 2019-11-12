@@ -2,6 +2,7 @@ declare namespace Engine {
     function GetGUIObjectByName(name: string): GUIObject
     function ConfigDB_GetValue(config: string, key: string): string
     function ConfigDB_RemoveValue(config: string, key: string): void
+    function GetMicroseconds(): number
     function OpenURL(url: string): string
 
     function FileExists(filePath: string): boolean;

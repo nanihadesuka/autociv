@@ -36,6 +36,7 @@ var g_Maps = {
 					map(fileName => new MapData(fileName, type))
 			};
 
+
 		if (!(filter in this.byTypeAndFilter[type]))
 			this.byTypeAndFilter[type][filter] = this.byTypeAndFilter[type].all.
 				filter(map => this.filters[filter].filter(map.filter));
@@ -151,10 +152,10 @@ var g_MapsSearchBoxInput;
 var g_MapSelected = {
 	"select": function (map, child)
 	{
-		if (this.selectedChild)
-			this.selectedChild.onUnselect();
+		if (this.lastSelectedChild)
+			this.lastSelectedChild.onUnselect();
 
-		this.selectedChild = child;
+		this.lastSelectedChild = child;
 
 		this.filter = currentFilter();
 		if (this.map == map)
@@ -172,9 +173,11 @@ var g_MapSelected = {
 			g_AnimationSettings.descriptionSelected.chain,
 			g_AnimationSettings.descriptionSelected.shared
 		);
+
+		Engine.GetGUIObjectByName("selectMapButton").enabled = true;
 	},
 	"selected": false,
-	"selectedChild": undefined,
+	"lastSelectedChild": undefined,
 	"map": {}
 };
 
@@ -225,12 +228,12 @@ var g_GUIObjects = {
 	"selectMapButton":
 	{
 		"tooltip": translate("Select map."),
-		"onPress": () => mapBrowserReturn(true)
+		"onPress": () => close(true)
 	},
 	"closeButton":
 	{
 		"tooltip": colorizeHotkey(translate("%(hotkey)s: Close map browser."), "cancel"),
-		"onPress": () => mapBrowserReturn(false)
+		"onPress": () => close(false)
 	},
 	"dialog":
 	{
@@ -239,32 +242,10 @@ var g_GUIObjects = {
 			g_MapBrowser.generateGrid();
 			g_MapBrowser.goToPageOfSelected();
 		},
-		"onTick": () => onTick(),
 		"onMouseWheelUp": () => g_MapZoom.zoom(1),
 		"onMouseWheelDown": () => g_MapZoom.zoom(-1)
 	},
-	"mapsSearchBox":
-	{
-		"onTab": () => g_MapBrowser.nextPage(),
-		"onMouseLeftPress": () =>
-		{
-			// Makes MapsSearchBoxInput.prototype.onTick process current caption as a new caption
-			// as type="input" doesn't have a onFocus event
-			if (g_MapsSearchBoxInput)
-				g_MapsSearchBoxInput.lastCaption = "";
-		},
-		"onPress": () =>
-		{
-			// Select first map if text inputed
-			if (!g_MapBrowser.list.length
-				|| !g_MapsSearchBoxInput
-				|| !g_MapsSearchBoxInput.mapsSearchBox.caption.trim())
-				return;
 
-			g_MapBrowser.children[0].onSelect();
-			mapBrowserReturn(true);
-		}
-	},
 	"MapBrowserContainer":
 	{
 		"onMouseWheelUp": () => g_MapZoom.zoom(1),
@@ -289,15 +270,9 @@ var g_GUIObjects = {
  */
 function init(data)
 {
-	// Sets map type, filter depending of data input
 	let type = data && data.map ? data.map.type : "random";
 	let filter = data && data.map ? data.map.filter : "default";
 	let mapList = g_Maps.getMaps(type, filter);
-
-	//"random" is not a map. Map name from gamesetup has path included
-	let fullMapName = (data && data.map && data.map.name != "random") ?
-		data.map.name :
-		mapList[0].file.path + mapList[0].file.name;
 
 	let size = g_MapZoom.getSize();
 	g_MapBrowser = new GridBrowser(
@@ -317,15 +292,18 @@ function init(data)
 	Engine.GetGUIObjectByName("mapTypeDropdown").selected = g_GUIObjects.mapTypeDropdown.list_data.indexOf(type);
 	Engine.GetGUIObjectByName("mapFilterDropdown").selected = g_GUIObjects.mapFilterDropdown.list_data.indexOf(filter);
 
-	// Simulate a click for starting map if any
-	let selectedIndex = mapList.findIndex(map => map.file.path + map.file.name == fullMapName);
-	if (selectedIndex != -1)
+	if (data && data.map && data.map.name != "random")
 	{
-		g_MapBrowser.setSelectedIndex(selectedIndex);
-		g_MapBrowser.goToPageOfSelected();
-		g_MapBrowser.children[selectedIndex % g_MapBrowser.getBoxesPerPage()].onSelect();
+		let mapIndex = mapList.findIndex(map => map.file.path + map.file.name == data.map.name);
+		if (mapIndex != -1)
+		{
+			g_MapBrowser.goToPage(g_MapBrowser.getPageOfIndex(mapIndex));
+			// Simulate a click for starting map
+			g_MapBrowser.getChildOfIndex(mapIndex).onSelect();
+		}
 	}
 
+	g_MapsSearchBoxInput = new MapsSearchBoxInput("mapsSearchBox", "mapsSearchBoxNotice");
 	Engine.GetGUIObjectByName("mapsSearchBox").focus();
 }
 
@@ -340,9 +318,6 @@ function init(data)
  */
 function childFunction(child, childIndex, map, mapIndex)
 {
-	if (!map.loaded)
-		map.load();
-
 	if (child.onUnselect)
 		child.onUnselect();
 
@@ -376,7 +351,7 @@ function childFunction(child, childIndex, map, mapIndex)
 	child.onMouseWheelUp = () => g_MapZoom.zoom(1);
 	child.onMouseWheelDown = () => g_MapZoom.zoom(-1);
 	child.onMouseLeftRelease = () => animate(mapPreview).complete().add(g_AnimationSettings.childPreview.release);
-	child.onMouseLeftDoubleClick = () => mapBrowserReturn(true);
+	child.onMouseLeftDoubleClick = () => close(true);
 
 	if (map == g_MapSelected.map)
 		child.onSelect();
@@ -410,34 +385,65 @@ function arrayToKeys(objectsArray, element)
  */
 function MapData(fileName, type)
 {
-	this.loaded = false;
 	this.type = type;
 	this.file = {
 		"path": g_Maps.types[type].Path,
 		"name": fileName,
 		"extension": g_Maps.types[type].Extension
 	};
+	// data, name, description, preview, filter are lazy loaded
 }
 
-/**
- * Load data from settings
- */
-MapData.prototype.load = function ()
+MapData.previewPrefix = "cropped:" + 400 / 512 + "," + 300 / 512 + ":session/icons/mappreview/"
+
+MapData.prototype.parseSetting = function (key, alternative)
 {
-	this.loaded = true;
-	this.data = this.type == "random" ?
-		Engine.ReadJSONFile(this.file.path + this.file.name + this.file.extension) :
-		Engine.LoadMapSettings(this.file.path + this.file.name);
+	return this.data && this.data.settings && this.data.settings[key] || alternative;
+}
 
-	let setting = (key, alternative) => this.data && this.data.settings && this.data.settings[key] || alternative;
+Object.defineProperty(MapData.prototype, "data", {
+	get()
+	{
+		return "_data" in this ? this._data :
+			this._data = this.type == "random" ?
+				Engine.ReadJSONFile(this.file.path + this.file.name + this.file.extension) :
+				Engine.LoadMapSettings(this.file.path + this.file.name);
+	}
+});
 
-	let imagePath = "cropped:" + 400 / 512 + "," + 300 / 512 + ":session/icons/mappreview/";
+Object.defineProperty(MapData.prototype, "name", {
+	get()
+	{
+		return "_name" in this ? this._name :
+			this._name = translate(this.parseSetting("Name", "No map name."));
+	}
+});
+Object.defineProperty(MapData.prototype, "description", {
+	get()
+	{
+		return "_description" in this ? this._description :
+			this._description = translate(this.parseSetting("Description", "No map description."));
+	}
+});
+Object.defineProperty(MapData.prototype, "preview", {
+	get()
+	{
+		return "_preview" in this ? this._preview :
+			this._preview = MapData.previewPrefix + this.parseSetting("Preview", "nopreview.png");
+	}
+});
+Object.defineProperty(MapData.prototype, "filter", {
+	get()
+	{
+		if ("_filter" in this)
+			return this._filter;
 
-	this.name = translate(setting("Name", "No map name."));
-	this.description = translate(setting("Description", "No map description."));
-	this.preview = imagePath + setting("Preview", "nopreview.png");
-	this.filter = setting("Keywords", ["all"]);
-};
+		this._filter = this.parseSetting("Keywords", ["all"]);
+		if (!Array.isArray(this._filter))
+			this._filter = [this._filter];
+		return this._filter;
+	}
+});
 
 function currentType()
 {
@@ -457,22 +463,32 @@ function currentFilter()
 
 function MapsSearchBoxInput(inputObjectName, inputObjectNameNotice)
 {
-	this.lastTime = Date.now();
-	this.waitTime = 100; // ms
-	this.lastCaption = "";
 	this.mapsSearchBox = Engine.GetGUIObjectByName(inputObjectName);
-	this.mapsSearchBox.caption = "";
 	this.mapsSearchBoxNotice = Engine.GetGUIObjectByName(inputObjectNameNotice);
+	this.lastCaption = this.mapsSearchBox.caption;
+
+	this.mapsSearchBox.onTab = () => g_MapBrowser.nextPage();
+	this.mapsSearchBox.onMouseLeftPress = () => this.updateSearch(true);
+	this.mapsSearchBox.onPress = () => this.selectFirstResult();
+	this.mapsSearchBox.onTextedit = () => this.updateSearch();
 }
 
-MapsSearchBoxInput.prototype.onTick = function ()
+MapsSearchBoxInput.prototype.selectFirstResult = function ()
 {
-	let time = Date.now();
-	if (this.lastTime + this.waitTime > time)
+	if (!g_MapBrowser.list.length ||
+		!this.mapsSearchBox.caption.trim() ||
+		!g_MapBrowser.children[0] ||
+		g_MapBrowser.children[0].hidden)
 		return;
 
+	g_MapBrowser.children[0].onSelect();
+	close(true);
+}
+
+MapsSearchBoxInput.prototype.updateSearch = function (force = false)
+{
 	let caption = this.mapsSearchBox.caption.trim().toLowerCase();
-	if (caption == this.lastCaption)
+	if (caption == this.lastCaption && !force)
 		return;
 
 	if (!this.lastCaption != !caption)
@@ -491,10 +507,9 @@ MapsSearchBoxInput.prototype.onTick = function ()
 	g_MapBrowser.goToPage(0);
 
 	this.lastCaption = caption;
-	this.lastTime = time;
 }
 
-function mapBrowserReturn(sendSelected)
+function close(sendSelected)
 {
 	if (sendSelected && g_MapSelected.selected)
 		autocivCL.Engine.PopGUIPage({
@@ -507,12 +522,4 @@ function mapBrowserReturn(sendSelected)
 		}, true);
 	else
 		autocivCL.Engine.PopGUIPage({}, true)
-}
-
-function onTick()
-{
-	if (!g_MapsSearchBoxInput)
-		g_MapsSearchBoxInput = new MapsSearchBoxInput("mapsSearchBox", "mapsSearchBoxNotice");
-	else
-		g_MapsSearchBoxInput.onTick();
 }

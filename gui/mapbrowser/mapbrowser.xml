@@ -104,7 +104,7 @@
 				<object name="descriptionSelected" type="text" style="ModernText" size="0%-4 70+330+10-30 100% 100%-30-10"/>
 
 				<object size="0% 100%-30 100% 100%">
-					<object name="selectMapButton" type="button" style="ModernButtonRed" size="0% 0% 50%-5 100%">
+					<object name="selectMapButton" type="button" style="ModernButtonRed" size="0% 0% 50%-5 100%" enabled="false">
 						<translatableAttribute id="caption">Select map</translatableAttribute>
 					</object>
 					<object name="closeButton" type="button" style="ModernButtonRed" size="50%+5 0% 100% 100%" hotkey="cancel">

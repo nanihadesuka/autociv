@@ -57,8 +57,11 @@ class GridBrowser {
 			this.children[i].hidden = false;
 			this.childFunction(this.children[i], i, this.list[offset + i], offset + i);
 		}
-		for (let i = maxVisible; i < this.children.length; ++i)
+		for (let i = maxVisible; i < this.children.length; ++i) {
+			if (this.children[i].hidden)
+				break;
 			this.children[i].hidden = true;
+		}
 	};
 
 	getPageOfIndex(index: number): number {
@@ -71,6 +74,10 @@ class GridBrowser {
 
 	getNumOfPages(): number {
 		return Math.ceil(this.list.length / this.getBoxesPerPage());
+	};
+
+	getChildOfIndex(index: number): GUIObject {
+		return this.children[index % this.getBoxesPerPage()];
 	};
 
 	setList(list: Array<any>): void {

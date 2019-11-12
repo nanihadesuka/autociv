@@ -38,8 +38,11 @@ var GridBrowser = /** @class */ (function () {
             this.children[i].hidden = false;
             this.childFunction(this.children[i], i, this.list[offset + i], offset + i);
         }
-        for (var i = maxVisible; i < this.children.length; ++i)
+        for (var i = maxVisible; i < this.children.length; ++i) {
+            if (this.children[i].hidden)
+                break;
             this.children[i].hidden = true;
+        }
     };
     ;
     GridBrowser.prototype.getPageOfIndex = function (index) {
@@ -52,6 +55,10 @@ var GridBrowser = /** @class */ (function () {
     ;
     GridBrowser.prototype.getNumOfPages = function () {
         return Math.ceil(this.list.length / this.getBoxesPerPage());
+    };
+    ;
+    GridBrowser.prototype.getChildOfIndex = function (index) {
+        return this.children[index % this.getBoxesPerPage()];
     };
     ;
     GridBrowser.prototype.setList = function (list) {
