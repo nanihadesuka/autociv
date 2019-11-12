@@ -15,7 +15,7 @@ function autociv_GetNameRatingText(text)
 	}
 };
 
-let autociv_SharedCommands = {
+let g_autociv_SharedCommands = {
 	"mute": {
 		"description": "Mute player.",
 		"handler": (player) =>
@@ -167,7 +167,7 @@ function autociv_InitSharedCommands()
 	if (!(botManager.messageInterface in autociv_InitSharedCommands.pipe))
 		return;
 
-	for (let key in autociv_SharedCommands)
+	for (let key in g_autociv_SharedCommands)
 		autociv_InitSharedCommands.pipe[botManager.messageInterface](key);
 }
 
@@ -175,20 +175,20 @@ autociv_InitSharedCommands.pipe = {
 	"lobby": key =>
 	{
 		g_ChatCommands[key] = {
-			"description": autociv_SharedCommands[key].description,
+			"description": g_autociv_SharedCommands[key].description,
 			"handler": args =>
 			{
 				let text = args.filter(a => a != "").join(" ");
-				autociv_SharedCommands[key].handler(text);
+				g_autociv_SharedCommands[key].handler(text);
 			}
 		}
 	},
 	"gamesetup": key =>
 	{
-		g_NetworkCommands["/" + key] = autociv_SharedCommands[key].handler;
+		g_NetworkCommands["/" + key] = g_autociv_SharedCommands[key].handler;
 	},
 	"ingame": key =>
 	{
-		g_NetworkCommands["/" + key] = autociv_SharedCommands[key].handler;
+		g_NetworkCommands["/" + key] = g_autociv_SharedCommands[key].handler;
 	}
 }

@@ -1,4 +1,4 @@
-var autociv_addChatMessage = {
+var g_autociv_addChatMessage = {
 	"addChatMessageNoRedraw": function (msg)
 	{
 		if (msg.from)
@@ -94,7 +94,7 @@ g_ChatCommands["pingall"] = {
 
 		let annoyList = Array.from(candidatesToAnnoy.difference(ignore)).join(", ");
 		Engine.LobbySendMessage(annoyList);
-		if (!!args[0].trim())
+		if (args[0].trim())
 			Engine.LobbySendMessage(args.join(" "))
 
 		return false;
@@ -124,7 +124,7 @@ var g_autociv_hotkeyActions = {
 	},
 	"autociv.lobby.openMapBrowser": function ()
 	{
-		openMapBrowser();
+		autociv_openMapBrowser();
 	},
 	"autociv.open.autociv_settings": function (ev)
 	{
@@ -142,11 +142,11 @@ function handleInputBeforeGui(ev)
 	return false;
 }
 
-function mapBrowserCallback() { }
+function autociv_mapBrowserCallback() { }
 
-function openMapBrowser()
+function autociv_openMapBrowser()
 {
-	autocivCL.Engine.PushGuiPage("page_mapbrowser.xml", {}, mapBrowserCallback);
+	autocivCL.Engine.PushGuiPage("page_mapbrowser.xml", {}, autociv_mapBrowserCallback);
 }
 
 function autociv_InitBots()
@@ -224,27 +224,31 @@ function autociv_reregister()
 
 autociv_patchApplyN("addChatMessage", function (target, that, args)
 {
-	return botManager.react(args[0]) || autociv_addChatMessage.rate(target, that, args);
+	let [msg] = args;
+	return botManager.react(msg) || g_autociv_addChatMessage.rate(target, that, args);
 })
 
 var g_Autociv_TickCount = 0;
 autociv_patchApplyN("onTick", function (target, that, args)
 {
 	++g_Autociv_TickCount;
-	autociv_addChatMessage.updateAfterTickRenderOnce();
+	g_autociv_addChatMessage.updateAfterTickRenderOnce();
 	return target.apply(that, args)
 })
 
 // Hack. This two should have their own pushGuiPage but they don't.
 autociv_patchApplyN("setLeaderboardVisibility", function (target, that, args)
 {
-	resizeBar.disabled = args[0];
+	let [open] = args;
+	resizeBar.disabled = open;
 	return target.apply(that, args)
 })
 
+// Hack. This two should have their own pushGuiPage but they don't.
 autociv_patchApplyN("setUserProfileVisibility", function (target, that, args)
 {
-	resizeBar.disabled = args[0];
+	let [open] = args;
+	resizeBar.disabled = open;
 	return target.apply(that, args);
 });
 
@@ -266,12 +270,12 @@ autociv_patchApplyN("init", function (target, that, args)
 	let hookList = [
 		["profilePanel", "right"],
 		["leftButtonPanel", "right"],
-		[autociv_isFGod ? "playerList" : "playersBox", "right"]
+		[g_autociv_isFGod ? "playerList" : "playersBox", "right"]
 	];
-	if (autociv_isFGod)
+	if (g_autociv_isFGod)
 		hookList.push(["presenceDropdown", "right"], ["playerGamesNumber", "right"])
 
-	resizeBar("chatPanel", "top", undefined, [[autociv_isFGod ? "gameList" : "gamesBox", "bottom"]])
+	resizeBar("chatPanel", "top", undefined, [[g_autociv_isFGod ? "gameList" : "gamesBox", "bottom"]])
 	resizeBar("middlePanel", "left", undefined, hookList);
 	resizeBar("rightPanel", "left", undefined, [["middlePanel", "right"]]);
 

@@ -28,6 +28,7 @@ var GridBrowser = /** @class */ (function () {
     }
     GridBrowser.prototype.goToPageOfSelected = function () {
         this.goToPage(this.getPageOfIndex(this.selectedIndex));
+        return this;
     };
     GridBrowser.prototype.goToPage = function (pageNumber) {
         this.currentPage = pageNumber;
@@ -43,6 +44,7 @@ var GridBrowser = /** @class */ (function () {
                 break;
             this.children[i].hidden = true;
         }
+        return this;
     };
     ;
     GridBrowser.prototype.getPageOfIndex = function (index) {
@@ -64,10 +66,12 @@ var GridBrowser = /** @class */ (function () {
     GridBrowser.prototype.setList = function (list) {
         this.list = list;
         this.goToPage(0);
+        return this;
     };
     ;
     GridBrowser.prototype.setSelectedIndex = function (index) {
         this.selectedIndex = index;
+        return this;
     };
     ;
     GridBrowser.prototype.setChildDimensions = function (width, height) {
@@ -81,6 +85,7 @@ var GridBrowser = /** @class */ (function () {
             this.goToPageOfSelected();
         else
             this.goToPage(this.getPageOfIndex(firstChildIndex));
+        return this;
     };
     ;
     GridBrowser.prototype.generateGrid = function () {
@@ -107,16 +112,19 @@ var GridBrowser = /** @class */ (function () {
             sizeChild.rbottom = 0;
             this.children[i].size = sizeChild;
         }
+        return this;
     };
     ;
     GridBrowser.prototype.nextPage = function () {
         if (this.getNumOfPages())
             this.goToPage((this.currentPage + 1) % this.getNumOfPages());
+        return this;
     };
     ;
     GridBrowser.prototype.previousPage = function () {
         if (this.getNumOfPages())
             this.goToPage((this.currentPage + this.getNumOfPages() - 1) % this.getNumOfPages());
+        return this;
     };
     ;
     return GridBrowser;

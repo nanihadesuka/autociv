@@ -94,7 +94,7 @@ function autociv_patchSession()
 		return botManager.react(args[0]) || target.apply(that, args);
 	})
 
-	if (autociv_is24)
+	if (g_autociv_is24)
 		return;
 
 	autociv_patchApplyN("sendLobbyPlayerlistUpdate", function (target, that, args)

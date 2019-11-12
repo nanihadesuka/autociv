@@ -43,11 +43,12 @@ class GridBrowser {
 		this.nRows = 0;
 	}
 
-	goToPageOfSelected(): void {
+	goToPageOfSelected(): this {
 		this.goToPage(this.getPageOfIndex(this.selectedIndex));
+		return this;
 	}
 
-	goToPage(pageNumber: number): void {
+	goToPage(pageNumber: number): this {
 		this.currentPage = pageNumber;
 		this.pageCounter.caption = `${this.currentPage + 1}/${Math.max(1, this.getNumOfPages())}`;
 
@@ -62,6 +63,7 @@ class GridBrowser {
 				break;
 			this.children[i].hidden = true;
 		}
+		return this;
 	};
 
 	getPageOfIndex(index: number): number {
@@ -80,16 +82,18 @@ class GridBrowser {
 		return this.children[index % this.getBoxesPerPage()];
 	};
 
-	setList(list: Array<any>): void {
+	setList(list: Array<any>): this {
 		this.list = list;
 		this.goToPage(0);
+		return this;
 	};
 
-	setSelectedIndex(index: number): void {
+	setSelectedIndex(index: number): this {
 		this.selectedIndex = index;
+		return this;
 	};
 
-	setChildDimensions(width: number, height: number): void {
+	setChildDimensions(width: number, height: number): this {
 		let isSelectedInPage = this.selectedIndex != -1 &&
 			this.getPageOfIndex(this.selectedIndex) == this.currentPage;
 		let firstChildIndex = this.currentPage * this.getBoxesPerPage();
@@ -102,9 +106,10 @@ class GridBrowser {
 			this.goToPageOfSelected();
 		else
 			this.goToPage(this.getPageOfIndex(firstChildIndex));
+		return this;
 	};
 
-	generateGrid(): void {
+	generateGrid(): this {
 		// Update number of columns and rows
 		let rect = this.container.getComputedSize();
 		let width = rect.right - rect.left;
@@ -130,15 +135,18 @@ class GridBrowser {
 			sizeChild.rbottom = 0;
 			this.children[i].size = sizeChild;
 		}
+		return this;
 	};
 
-	nextPage(): void {
+	nextPage(): this {
 		if (this.getNumOfPages())
 			this.goToPage((this.currentPage + 1) % this.getNumOfPages());
+		return this;
 	};
 
-	previousPage(): void {
+	previousPage(): this {
 		if (this.getNumOfPages())
 			this.goToPage((this.currentPage + this.getNumOfPages() - 1) % this.getNumOfPages());
+		return this;
 	};
 };

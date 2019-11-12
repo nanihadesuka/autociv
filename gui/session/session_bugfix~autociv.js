@@ -1,6 +1,6 @@
 function autociv_bugFix_entity_unkown_reason()
 {
-	if (autociv_is24)
+	if (g_autociv_is24)
 		return;
 
 	displayPanelEntities = function ()
@@ -73,7 +73,7 @@ function autociv_bugFix_openChat()
 		return result;
 	};
 
-	if (autociv_is24)
+	if (g_autociv_is24)
 		autociv_patchApplyN(g_Chat, "openPage", patchFn);
 	else
 		autociv_patchApplyN("openChat", patchFn);

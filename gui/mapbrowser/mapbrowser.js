@@ -22,40 +22,40 @@
 var g_Maps = {
 	"types": arrayToKeys(g_Settings_for_MapBrowser.MapTypes, "Name"),
 	"filters": arrayToKeys(g_Settings_for_MapBrowser.MapFilters, "id"),
-	"byTypeAndFilter": {}, // Lazy loaded
-	"byFilter": {}, // Lazy loaded
-	"getMaps": function (type, filter)
+	"ofTypeAndFilter": {}, // Lazy loaded
+	"ofFilter": {}, // Lazy loaded
+	"getMapsOfTypeAndFilter": function (type = currentType(), filter = currentFilter())
 	{
 		if (!(type in this.types) || !(filter in this.filters))
 			return [];
 
-		if (!(type in this.byTypeAndFilter))
-			this.byTypeAndFilter[type] = {
+		if (!(type in this.ofTypeAndFilter))
+			this.ofTypeAndFilter[type] = {
 				"all": listFiles(this.types[type].Path, this.types[type].Extension, false).
 					filter(fileName => !fileName.startsWith("_")).
 					map(fileName => new MapData(fileName, type))
 			};
 
 
-		if (!(filter in this.byTypeAndFilter[type]))
-			this.byTypeAndFilter[type][filter] = this.byTypeAndFilter[type].all.
+		if (!(filter in this.ofTypeAndFilter[type]))
+			this.ofTypeAndFilter[type][filter] = this.ofTypeAndFilter[type].all.
 				filter(map => this.filters[filter].filter(map.filter));
 
-		return this.byTypeAndFilter[type][filter];
+		return this.ofTypeAndFilter[type][filter];
 	},
-	"getMapsByFilter": function (filter)
+	"getMapsOfFilter": function (filter = currentFilter())
 	{
 		if (!(filter in this.filters))
 			return [];
 
-		if (!(filter in this.byFilter))
+		if (!(filter in this.ofFilter))
 		{
-			this.byFilter[filter] = [];
+			this.ofFilter[filter] = [];
 			for (let type in g_Maps.types)
-				this.byFilter[filter].push(...this.getMaps(type, filter));
+				this.ofFilter[filter].push(...this.getMapsOfTypeAndFilter(type, filter));
 		}
 
-		return this.byFilter[filter];
+		return this.ofFilter[filter];
 	}
 };
 
@@ -237,11 +237,7 @@ var g_GUIObjects = {
 	},
 	"dialog":
 	{
-		"onWindowResized": () =>
-		{
-			g_MapBrowser.generateGrid();
-			g_MapBrowser.goToPageOfSelected();
-		},
+		"onWindowResized": () => g_MapBrowser.generateGrid().goToPageOfSelected(),
 		"onMouseWheelUp": () => g_MapZoom.zoom(1),
 		"onMouseWheelDown": () => g_MapZoom.zoom(-1)
 	},
@@ -255,13 +251,13 @@ var g_GUIObjects = {
 	{
 		"list": g_Settings_for_MapBrowser.MapTypes.map(type => type.Title),
 		"list_data": g_Settings_for_MapBrowser.MapTypes.map(type => type.Name),
-		"onSelectionChange": () => g_MapBrowser.setList(g_Maps.getMaps(currentType(), currentFilter()))
+		"onSelectionChange": () => g_MapBrowser.setList(g_Maps.getMapsOfTypeAndFilter())
 	},
 	"mapFilterDropdown":
 	{
 		"list": Object.keys(g_Maps.filters).map(filter => g_Maps.filters[filter].name),
 		"list_data": Object.keys(g_Maps.filters),
-		"onSelectionChange": () => g_MapBrowser.setList(g_Maps.getMaps(currentType(), currentFilter()))
+		"onSelectionChange": () => g_MapBrowser.setList(g_Maps.getMapsOfTypeAndFilter())
 	}
 };
 
@@ -272,7 +268,7 @@ function init(data)
 {
 	let type = data && data.map ? data.map.type : "random";
 	let filter = data && data.map ? data.map.filter : "default";
-	let mapList = g_Maps.getMaps(type, filter);
+	let mapList = g_Maps.getMapsOfTypeAndFilter(type, filter);
 
 	let size = g_MapZoom.getSize();
 	g_MapBrowser = new GridBrowser(
@@ -282,8 +278,7 @@ function init(data)
 		size.width,
 		size.height,
 		childFunction
-	);
-	g_MapBrowser.generateGrid();
+	).generateGrid();
 
 	for (let objectName in g_GUIObjects)
 		for (let parameter in g_GUIObjects[objectName])
@@ -295,12 +290,9 @@ function init(data)
 	if (data && data.map && data.map.name != "random")
 	{
 		let mapIndex = mapList.findIndex(map => map.file.path + map.file.name == data.map.name);
-		if (mapIndex != -1)
-		{
-			g_MapBrowser.goToPage(g_MapBrowser.getPageOfIndex(mapIndex));
-			// Simulate a click for starting map
-			g_MapBrowser.getChildOfIndex(mapIndex).onSelect();
-		}
+		// Simulate a click on the map
+		g_MapBrowser.setSelectedIndex(mapIndex).goToPageOfSelected().
+			getChildOfIndex(mapIndex).onSelect();
 	}
 
 	g_MapsSearchBoxInput = new MapsSearchBoxInput("mapsSearchBox", "mapsSearchBoxNotice");
@@ -325,26 +317,26 @@ function childFunction(child, childIndex, map, mapIndex)
 	let mapButton = Engine.GetGUIObjectByName("mapButton" + "[" + childIndex + "]");
 	let mapBox = Engine.GetGUIObjectByName("mapBox" + "[" + childIndex + "]");
 	let mapName = Engine.GetGUIObjectByName("mapName" + "[" + childIndex + "]");
-	let selected = false;
+	let childSelected = false;
 
 	child.onMouseLeftPress = () =>
 	{
 		g_MapSelected.select(map, child);
 		this.setSelectedIndex(mapIndex);
-		if (selected)
+		if (childSelected)
 			return;
 
 		animate(mapButton).complete().add(g_AnimationSettings.childButton.selected);
 		animate(mapPreview).complete().add(g_AnimationSettings.childPreview.press);
-		selected = true;
+		childSelected = true;
 	};
 	child.onUnselect = () =>
 	{
-		if (!selected)
+		if (!childSelected)
 			return;
 
 		animate(mapButton).complete().add(g_AnimationSettings.childButton.unselected);
-		selected = false;
+		childSelected = false;
 	};
 	child.onSelect = child.onMouseLeftPress;
 	child.onMouseEnter = () => animate(mapBox).complete().add(g_AnimationSettings.childMap.enter);
@@ -489,15 +481,14 @@ MapsSearchBoxInput.prototype.updateSearch = function ()
 	let caption = this.mapsSearchBox.caption.trim().toLowerCase();
 	this.mapsSearchBoxNotice.hidden = !!caption;
 
-	let list = !caption ? g_Maps.getMaps(currentType(), currentFilter()) :
-		fuzzysort.go(caption, g_Maps.getMapsByFilter(currentFilter()), {
+	let list = !caption ? g_Maps.getMapsOfTypeAndFilter() :
+		fuzzysort.go(caption, g_Maps.getMapsOfFilter(), {
 			key: 'name',
 			allowTypo: true,
 			threshold: -10000
 		}).map(result => result.obj);
 
-	g_MapBrowser.setList(list);
-	g_MapBrowser.goToPage(0);
+	g_MapBrowser.setList(list).goToPage(0);
 }
 
 function close(sendSelected)
