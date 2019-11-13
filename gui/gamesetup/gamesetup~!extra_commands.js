@@ -5,8 +5,8 @@ let game = {
 		{
 			if (!g_IsController)
 				return;
-			let val = parseInt(quantity);
-			if (!Number.isInteger(val))
+			let val = +quantity;
+			if (quantity === "" || val === NaN)
 				return selfMessage('Invalid starting resources value (must be a number).');
 			g_GameAttributes.settings.StartingResources = val;
 			sendMessage(`Starting resources set to: ${val}`);
