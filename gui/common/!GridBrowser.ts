@@ -11,7 +11,6 @@
  *
  * For example look at mapbrowser.js and mapbrowser.xml implementation.
  */
-
 class GridBrowser {
 
 	// GUI object container of the children
@@ -43,8 +42,13 @@ class GridBrowser {
 		this.nRows = 0;
 	}
 
+	goToPageOfIndex(index: number): this {
+		this.goToPage(this.getPageOfIndex(index))
+		return this;
+	};
+
 	goToPageOfSelected(): this {
-		this.goToPage(this.getPageOfIndex(this.selectedIndex));
+		this.goToPageOfIndex(this.selectedIndex);
 		return this;
 	}
 
@@ -139,14 +143,12 @@ class GridBrowser {
 	};
 
 	nextPage(): this {
-		if (this.getNumOfPages())
-			this.goToPage((this.currentPage + 1) % this.getNumOfPages());
+		this.goToPage((this.currentPage + 1) % this.getNumOfPages());
 		return this;
 	};
 
 	previousPage(): this {
-		if (this.getNumOfPages())
-			this.goToPage((this.currentPage + this.getNumOfPages() - 1) % this.getNumOfPages());
+		this.goToPage((this.currentPage + this.getNumOfPages() - 1) % this.getNumOfPages());
 		return this;
 	};
 };

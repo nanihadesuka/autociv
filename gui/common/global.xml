@@ -51,6 +51,11 @@
 				if (!g_autociv_is24)
 					updateCounters();
 			</action>
+			<action on="Load">
+				// autociv: Should work but doesn't ??????????
+				if (g_autociv_is24)
+					g_OverlayCounterManager = new OverlayCounterManager(this);
+			</action>
 		</object>
 
 		<object name="fpsCounter"

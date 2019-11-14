@@ -26,8 +26,13 @@ var GridBrowser = /** @class */ (function () {
         this.nColumns = 0;
         this.nRows = 0;
     }
+    GridBrowser.prototype.goToPageOfIndex = function (index) {
+        this.goToPage(this.getPageOfIndex(index));
+        return this;
+    };
+    ;
     GridBrowser.prototype.goToPageOfSelected = function () {
-        this.goToPage(this.getPageOfIndex(this.selectedIndex));
+        this.goToPageOfIndex(this.selectedIndex);
         return this;
     };
     GridBrowser.prototype.goToPage = function (pageNumber) {
@@ -116,14 +121,12 @@ var GridBrowser = /** @class */ (function () {
     };
     ;
     GridBrowser.prototype.nextPage = function () {
-        if (this.getNumOfPages())
-            this.goToPage((this.currentPage + 1) % this.getNumOfPages());
+        this.goToPage((this.currentPage + 1) % this.getNumOfPages());
         return this;
     };
     ;
     GridBrowser.prototype.previousPage = function () {
-        if (this.getNumOfPages())
-            this.goToPage((this.currentPage + this.getNumOfPages() - 1) % this.getNumOfPages());
+        this.goToPage((this.currentPage + this.getNumOfPages() - 1) % this.getNumOfPages());
         return this;
     };
     ;

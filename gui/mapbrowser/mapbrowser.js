@@ -287,10 +287,7 @@ function init(data)
 	if (data && data.map && data.map.name != "random")
 	{
 		let index = g_MapBrowser.list.findIndex(map => map.file.path + map.file.name == data.map.name);
-		g_MapBrowser.setSelectedIndex(index).
-			goToPageOfSelected().
-			getChildOfIndex(index).
-			onSelect();
+		g_MapBrowser.goToPageOfIndex(index).getChildOfIndex(index).onSelect();
 	}
 
 	g_MapsSearchBox = new MapsSearchBox("mapsSearchBox", "mapsSearchBoxNotice");
@@ -298,8 +295,8 @@ function init(data)
 }
 
 /**
- * Handles the behaviour of each map preview in the map browser grid
- * All parameters are feeded to the each child that is is shown in the grid
+ * Handles the behaviour of each map preview in the map browser grid.
+ * All parameters are feeded to the each non hidden child that is is shown.
  * This function will be binded with the GridBrowser instance.
  * @param {GUIObject} child
  * @param {Number} childIndex
@@ -336,7 +333,7 @@ function childFunction(child, childIndex, map, mapIndex)
 		animate(mapButton).complete().add(g_AnimationSettings.childButton.unselected);
 		childSelected = false;
 	};
-	child.onSelect = child.onMouseLeftPress;
+	child.onSelect = child.onMouseLeftPress.bind(child);
 	child.onMouseEnter = () => animate(mapBox).complete().add(g_AnimationSettings.childMap.enter);
 	child.onMouseLeave = () => animate(mapBox).complete().add(g_AnimationSettings.childMap.leave);
 	child.onMouseWheelUp = () => g_MapZoom.zoom(1);
