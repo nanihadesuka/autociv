@@ -164,13 +164,12 @@ ResizeBar.prototype.tick = function ()
 	{
 		let position = ResizeBar.mouse[this.sideMouse()] - this.selectionOffset;
 		let absPos = this.object.getComputedSize();
-		GUIObjectSet(ResizeBar.bar, {
-			"size": {
-				[this.side]: position + this.sideSign() * this.halfWidth,
-				[this.sideComplementary()]: position - this.sideSign() * this.halfWidth,
-				[this.sideOpposite()]: absPos[this.sideOpposite()],
-				[this.sideCrossed()]: absPos[this.sideCrossed()]
-			}
+
+		ResizeBar.bar.size = Object.assign(ResizeBar.bar.size, {
+			[this.side]: position + this.sideSign() * this.halfWidth,
+			[this.sideComplementary()]: position - this.sideSign() * this.halfWidth,
+			[this.sideOpposite()]: absPos[this.sideOpposite()],
+			[this.sideCrossed()]: absPos[this.sideCrossed()]
 		});
 		return true;
 	}

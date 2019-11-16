@@ -78,7 +78,7 @@ autociv_patchApplyN("init", function (target, that, args)
     return target.apply(that, args);
 })
 
-var g_autociv_hotkeyActions = {
+var g_autociv_hotkeys = {
     "autociv.open.autociv_settings": function (ev)
     {
         autocivCL.Engine.PushGuiPage("page_autociv_settings.xml");
@@ -91,8 +91,8 @@ var g_autociv_hotkeyActions = {
 
 function handleInputBeforeGui(ev)
 {
-    if (ev.hotkey && g_autociv_hotkeyActions[ev.hotkey])
-        g_autociv_hotkeyActions[ev.hotkey](ev);
+    if ("hotkey" in ev && ev.hotkey in g_autociv_hotkeys && ev.type == "hotkeydown")
+        return !!g_autociv_hotkeys[ev.hotkey](ev);
 
     return false;
 }

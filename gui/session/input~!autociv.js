@@ -159,13 +159,12 @@ function autociv_selectFromList(entities, selectAll, accumulateSelection)
 			return true;
 		}
 	}
-
-	return;
 }
 
 function autociv_setFormation(formation = "null")
 {
-	if (!autociv_setFormation.validFormations.includes(formation))
+	let that = autociv_setFormation;
+	if (!that.validFormations.includes(formation))
 		return;
 
 	let formationTemplate = `special/formations/${formation}`;
@@ -180,7 +179,14 @@ function autociv_setFormation(formation = "null")
 
 	return true;
 }
-autociv_setFormation.validFormations = [];
+
+Object.defineProperty(autociv_setFormation, "validFormations", {
+	get()
+	{
+		return "_validFormations" in this ? this._validFormations :
+			this._validFormations = autociv_getValidFormations();
+	}
+})
 
 function autociv_SetCorpsesMax(value)
 {
@@ -248,6 +254,13 @@ var g_autociv_hotkeysPrefixes = {
 		return true;
 	}
 };
+
+autociv_patchApplyN("handleInputBeforeGui", function (target, that, args)
+{
+	let [ev] = args;
+	autociv_APM.add(ev);
+	return target.apply(that, args);
+})
 
 autociv_patchApplyN("handleInputAfterGui", function (target, that, args)
 {

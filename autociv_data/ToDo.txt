@@ -1,1 +1,0 @@
-+ hotkey: select units with hp higher than x (defined in the default lower hp selection setting)

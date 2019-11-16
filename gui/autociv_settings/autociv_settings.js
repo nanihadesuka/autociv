@@ -49,7 +49,7 @@ let g_container = {
 	}
 };
 
-let scrollBarThumb = {
+let g_scrollBarThumb = {
 	"init": () =>
 	{
 		let scrollBarTrack = Engine.GetGUIObjectByName("scrollBarTrack");
@@ -128,7 +128,7 @@ let scrollBarThumb = {
 	}
 }
 
-var scrollBox = {
+var g_scrollBox = {
 	"assignedGUIObjectName": "scrollBox",
 	"updateAbsBBox": function ()
 	{
@@ -138,8 +138,8 @@ var scrollBox = {
 	{
 		let scrollBoxDisplace = Engine.GetGUIObjectByName("scrollBoxDisplace");
 		let scrolleeSize = scrollBoxDisplace.size;
-		scrolleeSize.top = -scrollBarThumb.view.displacement;
-		scrolleeSize.bottom = -scrollBarThumb.view.displacement;
+		scrolleeSize.top = -g_scrollBarThumb.view.displacement;
+		scrolleeSize.bottom = -g_scrollBarThumb.view.displacement;
 		scrollBoxDisplace.size = scrolleeSize;
 		this.updateAbsBBox();
 	},
@@ -198,9 +198,9 @@ var scrollBox = {
 	{
 		this.updateAbsBBox();
 		let absBBoxHeight = this.absBBox.bottom - this.absBBox.top;
-		let yScrollVisibleHeight = Math.min(absBBoxHeight, scrollBarThumb.view.displacementMax);
+		let yScrollVisibleHeight = Math.min(absBBoxHeight, g_scrollBarThumb.view.displacementMax);
 
-		if (scrollBarThumb.controling)
+		if (g_scrollBarThumb.controling)
 		{
 			let containerBackgroundSize = Engine.GetGUIObjectByName("dialogBackground").getComputedSize();
 			let windowHeight = containerBackgroundSize.bottom - containerBackgroundSize.top;
@@ -209,29 +209,29 @@ var scrollBox = {
 			let scroller_barHeight = scroller_barSize.bottom - scroller_barSize.top;
 
 			let sizeRatio = windowHeight / scroller_barHeight;
-			let dirLen = (g_mouse.y - scrollBarThumb.whenPressed.mouse.y) * sizeRatio;
+			let dirLen = (g_mouse.y - g_scrollBarThumb.whenPressed.mouse.y) * sizeRatio;
 
-			let clamp = v => Math.min(Math.max(v, 0), scrollBarThumb.view.displacementMax - yScrollVisibleHeight)
-			scrollBarThumb.view.displacement = clamp(scrollBarThumb.whenPressed.displacement + dirLen);
+			let clamp = v => Math.min(Math.max(v, 0), g_scrollBarThumb.view.displacementMax - yScrollVisibleHeight)
+			g_scrollBarThumb.view.displacement = clamp(g_scrollBarThumb.whenPressed.displacement + dirLen);
 
 			this.onUpdate();
 			GUIReact.emit("scrollBarThumb", "onUpdate");
-			scrollBarThumb.view.displacementVel = 0;
+			g_scrollBarThumb.view.displacementVel = 0;
 			return;
 		}
 
-		scrollBarThumb.view.displacementVel *= 0.92
-		scrollBarThumb.view.displacementVel = Math.abs(scrollBarThumb.view.displacementVel) < 1 ? 0 : scrollBarThumb.view.displacementVel;
+		g_scrollBarThumb.view.displacementVel *= 0.92
+		g_scrollBarThumb.view.displacementVel = Math.abs(g_scrollBarThumb.view.displacementVel) < 1 ? 0 : g_scrollBarThumb.view.displacementVel;
 
-		if (!scrollBarThumb.view.displacementVel)
+		if (!g_scrollBarThumb.view.displacementVel)
 			return;
 
-		if (scrollBarThumb.view.displacementVel > 0 && scrollBarThumb.view.displacement + yScrollVisibleHeight > scrollBarThumb.view.displacementMax)
-			scrollBarThumb.view.displacement = scrollBarThumb.view.displacementMax - yScrollVisibleHeight + Math.exp(Math.log(Math.abs(scrollBarThumb.view.displacementVel)));
-		if (scrollBarThumb.view.displacementVel < 0 && scrollBarThumb.view.displacement < 0)
-			scrollBarThumb.view.displacement = 0 - Math.exp(Math.log(Math.abs(scrollBarThumb.view.displacementVel)));
+		if (g_scrollBarThumb.view.displacementVel > 0 && g_scrollBarThumb.view.displacement + yScrollVisibleHeight > g_scrollBarThumb.view.displacementMax)
+			g_scrollBarThumb.view.displacement = g_scrollBarThumb.view.displacementMax - yScrollVisibleHeight + Math.exp(Math.log(Math.abs(g_scrollBarThumb.view.displacementVel)));
+		if (g_scrollBarThumb.view.displacementVel < 0 && g_scrollBarThumb.view.displacement < 0)
+			g_scrollBarThumb.view.displacement = 0 - Math.exp(Math.log(Math.abs(g_scrollBarThumb.view.displacementVel)));
 		else
-			scrollBarThumb.view.displacement += scrollBarThumb.view.displacementVel;
+			g_scrollBarThumb.view.displacement += g_scrollBarThumb.view.displacementVel;
 
 		this.onUpdate();
 		GUIReact.emit("scrollBarThumb", "onUpdate");
@@ -268,13 +268,13 @@ function saveHotkeyCombo(i, comboValueString)
 	if (comboValueString == "")
 		comboValueString = "unused";
 
-	if (userConfig.dataByIndex[i].value === comboValueString)
+	if (g_userConfig.dataByIndex[i].value === comboValueString)
 		return false;
 
-	userConfig.dataByIndex[i].value = comboValueString;
+	g_userConfig.dataByIndex[i].value = comboValueString;
 
-	let key = userConfig.dataByIndex[i].list.join(".");
-	let value = userConfig.dataByIndex[i].value;
+	let key = g_userConfig.dataByIndex[i].list.join(".");
+	let value = g_userConfig.dataByIndex[i].value;
 
 	Engine.ConfigDB_CreateValue("user", key, value);
 	Engine.ConfigDB_WriteValueToFile("user", key, value, "config/user.cfg");
@@ -285,7 +285,7 @@ function saveHotkeyCombo(i, comboValueString)
 
 function comboGenerator(i)
 {
-	let data = userConfig.dataByIndex[i];
+	let data = g_userConfig.dataByIndex[i];
 
 	let children = Engine.GetGUIObjectByName(`setting_value_text[${i}]`).children;
 	let combo = data.value.
@@ -346,7 +346,7 @@ let g_mouse = {
 	"set": function (coord) { this.x = coord.x; this.y = coord.y; }
 };
 
-let userConfig = {
+let g_userConfig = {
 	"assignedGUIObjectName": "userConfig",
 	"init": function ()
 	{
@@ -485,12 +485,11 @@ let userConfig = {
 				"i": __generatorCounter++
 			}
 
-			keys.sort();
-			for (let key of keys)
+			for (let key of keys.sort())
 			{
 				if (noMerge)
 					yield* _generator(data[key], [...list, key]);
-				else if (list.length == 0)
+				else if (!list.length)
 					yield* _generator(data[key], [key]);
 				else
 				{
@@ -510,19 +509,18 @@ let userConfig = {
 
 		let setting = Engine.GetGUIObjectByName(`setting[${i}]`);
 		let yPos = (i, s) => 10 + 5 * i + 25 * (i + s);
-		scrollBarThumb.view.displacementMax = yPos(i + 0.5, 1);
+		g_scrollBarThumb.view.displacementMax = yPos(i + 0.5, 1);
 		GUIReact.emit("scrollBarThumb", "onUpdate");
 		verticalScroller.hookOnMouseWheelEventsFor(setting);
-		GUIObjectSet(setting, {
-			"size": {
-				"top": yPos(i, 0),
-				"bottom": yPos(i, 1),
-				"left": 10,
-				"right": -10
-			}
+
+		setting.size = Object.assign(setting.size, {
+			"top": yPos(i, 0),
+			"bottom": yPos(i, 1),
+			"left": 10,
+			"right": -10,
 		});
 
-		scrollBox.updateChild(setting);
+		g_scrollBox.updateChild(setting);
 
 		// #####################################################################
 
@@ -570,7 +568,7 @@ let userConfig = {
 		let setting_value_text = Engine.GetGUIObjectByName(`setting_value_text[${i}]`);
 		setting_value_text.onPress = () =>
 		{
-			scrollBarThumb.view.displacementVel = 0;
+			g_scrollBarThumb.view.displacementVel = 0;
 			autocivCL.Engine.PushGuiPage("autociv_settings/page_key_assign_dialog.xml", {
 				"absoluteSize": setting_value_text.getComputedSize(),
 				"data": data
@@ -742,31 +740,31 @@ let verticalScroller = {
 
 function init()
 {
-	GUIReact.register("scrollBox", scrollBox);
-	GUIReact.register("scrollBarThumb", scrollBarThumb);
-	GUIReact.register("userConfig", userConfig);
+	GUIReact.register("scrollBox", g_scrollBox);
+	GUIReact.register("scrollBarThumb", g_scrollBarThumb);
+	GUIReact.register("userConfig", g_userConfig);
 	GUIReact.register("restartMessage", restartMessage);
 
 	Object.assign(Engine.GetGUIObjectByName("dialog"), {
 		onMouseWheelUp: () => GUIReact.emit("scrollBarThumb", "onMouseWheelUp"),
 		onMouseWheelDown: () => GUIReact.emit("scrollBarThumb", "onMouseWheelDown"),
-		onWindowResized: () => scrollBox.onUpdate()
+		onWindowResized: () => g_scrollBox.onUpdate()
 	});
 
-	scrollBox.updateScrollee();
+	g_scrollBox.updateScrollee();
 	g_containerBackground.fadeIn();
 	g_container.fadeIn();
 
-	scrollBox.init();
-	scrollBarThumb.init();
-	userConfig.init();
+	g_scrollBox.init();
+	g_scrollBarThumb.init();
+	g_userConfig.init();
 
 	GUIReact.emit("userConfig", "onLoadChunk");
 }
 
 function onTick()
 {
-	scrollBox.onTick();
+	g_scrollBox.onTick();
 	updateTimers();
 }
 

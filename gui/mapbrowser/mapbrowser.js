@@ -334,8 +334,14 @@ function childFunction(child, childIndex, map, mapIndex)
 		childSelected = false;
 	};
 	child.onSelect = child.onMouseLeftPress.bind(child);
-	child.onMouseEnter = () => animate(mapBox).complete().add(g_AnimationSettings.childMap.enter);
-	child.onMouseLeave = () => animate(mapBox).complete().add(g_AnimationSettings.childMap.leave);
+	child.onMouseEnter = () =>
+	{
+		animate(mapBox).complete().add(g_AnimationSettings.childMap.enter)
+	};
+	child.onMouseLeave = () =>
+	{
+		animate(mapBox).complete().add(g_AnimationSettings.childMap.leave)
+	};
 	child.onMouseWheelUp = () => g_MapZoom.zoom(1);
 	child.onMouseWheelDown = () => g_MapZoom.zoom(-1);
 	child.onMouseLeftRelease = () => animate(mapPreview).complete().add(g_AnimationSettings.childPreview.release);
@@ -344,14 +350,9 @@ function childFunction(child, childIndex, map, mapIndex)
 	if (map == g_MapSelected.map)
 		child.onSelect();
 
-	if (mapName.caption != map.name)
-		mapName.caption = map.name;
-
-	if (mapPreview.sprite != map.preview)
-		mapPreview.sprite = map.preview;
-
-	if (child.tooltip != map.description)
-		child.tooltip = map.description;
+	mapName.caption = map.name;
+	mapPreview.sprite = map.preview;
+	child.tooltip = map.description;
 };
 
 /**
@@ -394,9 +395,9 @@ function Map(fileName, type)
 {
 	this.type = type;
 	this.file = {
-		"path": g_Maps.types[type].Path,
+		get path() { return g_Maps.types[type].Path },
 		"name": fileName,
-		"extension": g_Maps.types[type].Extension
+		get extension() { return g_Maps.types[type].Extension },
 	};
 	// data, name, description, preview, filter are lazy loaded
 }
@@ -408,50 +409,48 @@ Map.prototype.parseData = function (key, alternative)
 	return this.data && this.data.settings && this.data.settings[key] || alternative;
 }
 
-Object.defineProperty(Map.prototype, "data", {
-	get()
-	{
-		return "_data" in this ? this._data :
-			this._data = this.type == "random" ?
-				Engine.ReadJSONFile(this.file.path + this.file.name + this.file.extension) :
-				Engine.LoadMapSettings(this.file.path + this.file.name);
-	}
-});
+Object.defineProperties(Map.prototype, {
+	"data": {
+		get()
+		{
+			return "_data" in this ? this._data :
+				this._data = this.type == "random" ?
+					Engine.ReadJSONFile(this.file.path + this.file.name + this.file.extension) :
+					Engine.LoadMapSettings(this.file.path + this.file.name);
+		}
+	},
+	"name": {
+		get()
+		{
+			return "_name" in this ? this._name :
+				this._name = translate(this.parseData("Name", "No map name."));
+		}
+	},
+	"description": {
+		get()
+		{
+			return "_description" in this ? this._description :
+				this._description = translate(this.parseData("Description", "No map description."));
+		}
+	},
+	"preview": {
+		get()
+		{
+			return "_preview" in this ? this._preview :
+				this._preview = Map.previewPrefix + this.parseData("Preview", "nopreview.png");
+		}
+	},
+	"filter": {
+		get()
+		{
+			if ("_filter" in this)
+				return this._filter;
 
-Object.defineProperty(Map.prototype, "name", {
-	get()
-	{
-		return "_name" in this ? this._name :
-			this._name = translate(this.parseData("Name", "No map name."));
-	}
-});
-
-Object.defineProperty(Map.prototype, "description", {
-	get()
-	{
-		return "_description" in this ? this._description :
-			this._description = translate(this.parseData("Description", "No map description."));
-	}
-});
-
-Object.defineProperty(Map.prototype, "preview", {
-	get()
-	{
-		return "_preview" in this ? this._preview :
-			this._preview = Map.previewPrefix + this.parseData("Preview", "nopreview.png");
-	}
-});
-
-Object.defineProperty(Map.prototype, "filter", {
-	get()
-	{
-		if ("_filter" in this)
+			this._filter = this.parseData("Keywords", ["all"]);
+			if (!Array.isArray(this._filter))
+				this._filter = [this._filter];
 			return this._filter;
-
-		this._filter = this.parseData("Keywords", ["all"]);
-		if (!Array.isArray(this._filter))
-			this._filter = [this._filter];
-		return this._filter;
+		}
 	}
 });
 

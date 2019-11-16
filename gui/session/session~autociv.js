@@ -103,15 +103,105 @@ function autociv_patchSession()
 		return target.apply(that, args);
 	})
 }
+
+
+// "actions" per minute counter, time in microseconds
+var autociv_APM = {
+	"init": function ()
+	{
+		this.toggle(Engine.ConfigDB_GetValue("user", "autociv.session.AMP.enabled") == "true");
+	},
+	"active": false,
+	"toggle": function (activate)
+	{
+		this.active = activate === undefined ? !this.active : activate;
+		this.GUICounter.hidden = !this.active;
+	},
+	"total": {
+		"start": Engine.GetMicroseconds(),
+		"count": 0
+	},
+	"time": Engine.GetMicroseconds(),
+	"count": 0,
+	get GUICounter()
+	{
+		return "_GUICounter" in this ? this._GUICounter :
+			this._GUICounter = Engine.GetGUIObjectByName("gl_autocivSessionAMP");
+	},
+	"add": function (ev)
+	{
+		if (!this.active)
+			return;
+
+		if ("type" in ev)
+		{
+			if (ev.type == "(unknown)")
+				return;
+			if (ev.type == "windowevent")
+				return;
+			if (ev.type == "mousebuttonup")
+				return;
+			if (ev.type == "mousemotion")
+				return;
+			if (ev.type == "keyup")
+				return;
+			if (ev.type == "hotkeyup")
+				return;
+			if (ev.hotkey && ev.hotkey.startsWith("camera.zoom.wheel"))
+				return;
+			if (ev.hotkey && ev.hotkey.startsWith("camera."))
+			{
+				--this.count;
+				--this.total.count;
+				return;
+			}
+		}
+
+		++this.count;
+		++this.total.count;
+		if (this.count > 1)
+		{
+			let time = Engine.GetMicroseconds();
+			this.GUICounter.caption = "APM:" + this.format(this.count, (time - this.time) / 1000000);
+			this.GUICounter.tooltip = "Game APM:" + this.format(this.total.count, (time - this.total.start) / 1000000);
+		}
+	},
+	"format": function (count, diff)
+	{
+		return (count / diff * 60).toFixed(1).padStart(5, " ");
+	},
+	"onTick": function ()
+	{
+		if (!this.active)
+			return;
+
+		let time = Engine.GetMicroseconds();
+		let diff = (time - this.time) / 1000000;
+		if (diff > 5)
+		{
+			this.GUICounter.caption = "APM:" + this.format(this.count, diff);
+			this.GUICounter.tooltip = "Game APM:" + this.format(this.total.count, (time - this.total.start) / 1000000);
+			this.time = time;
+			this.count = 0;
+		}
+	},
+}
+
+autociv_patchApplyN("onTick", function (target, that, args)
+{
+	autociv_APM.onTick();
+	return target.apply(that, args);
+})
+
 autociv_patchApplyN("init", function (target, that, args)
 {
 	let result = target.apply(that, args);
 	autociv_initBots();
 	autociv_patchSession();
-	autociv_setFormation.validFormations = autociv_getValidFormations();
 	autociv_bugFix_openChat();
 	autociv_bugFix_entity_unkown_reason();
 	autociv_addVersionLabel();
+	autociv_APM.init();
 
 	autociv_SetCorpsesMax(Engine.ConfigDB_GetValue("user", "autociv.session.graphics.corpses.max"));
 	return result;

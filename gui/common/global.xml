@@ -158,6 +158,22 @@
 			<translatableAttribute id="caption">Map Browser</translatableAttribute>
 		</object>
 
+		<object name="gl_autocivSessionAMP"
+			type="button"
+			z="799"
+			textcolor="white"
+			sprite="color: 0 0 0 100"
+			ghost="false"
+			hidden="true"
+			size="100%-100 82 100%-5 97"
+			font="mono-10"
+			text_align="right"
+			text_valign="top"
+			buffer_zone="4"
+		>
+			<translatableAttribute id="caption">AMP:    0</translatableAttribute>
+		</object>
+
 	</object>
 
 </objects>

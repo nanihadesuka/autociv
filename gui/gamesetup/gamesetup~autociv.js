@@ -1,10 +1,10 @@
 var g_autociv_stanza = new ConfigJSON("stanza", false);
 g_autociv_stanza.removeAllValues();
 
-var g_autociv_hotkeyActions = {
+var g_autociv_hotkeys = {
 	"autociv.gamesetup.openMapBrowser": function (ev)
 	{
-		openMapBrowser();
+		autociv_openMapBrowser();
 	},
 	"autociv.open.autociv_settings": function (ev)
 	{
@@ -13,7 +13,7 @@ var g_autociv_hotkeyActions = {
 };
 
 
-function openMapBrowser()
+function autociv_openMapBrowser()
 {
 	autocivCL.Engine.PushGuiPage("page_mapbrowser.xml", {
 		"map": {
@@ -21,10 +21,10 @@ function openMapBrowser()
 			"filter": g_GameAttributes.mapFilter,
 			"name": g_GameAttributes.map // includes the map path
 		}
-	}, mapBrowserCallback);
+	}, autociv_mapBrowserCallback);
 }
 
-function mapBrowserCallback(data)
+function autociv_mapBrowserCallback(data)
 {
 	if (!g_IsController ||
 		!data ||
@@ -62,7 +62,7 @@ g_MiscControls["glMapBrowser"] = {
 		let hotkey = colorizeHotkey("%(hotkey)s", "autociv.gamesetup.openMapBrowser");
 		return sprintf(translate("%(hotkey)s : Open map browser."), { "hotkey": hotkey });
 	},
-	"onMouseLeftRelease": () => openMapBrowser,
+	"onMouseLeftRelease": () => autociv_openMapBrowser,
 	"onMouseLeftPress": () => () => animate("glMapBrowser").add({ "color": "160 160 160", }),
 	"onMouseEnter": () => () => animate("glMapBrowser").add({ "color": "120 120 120", }),
 	"onMouseLeave": () => () => animate("glMapBrowser").add({ "color": "90 90 90" }),
@@ -73,8 +73,8 @@ function handleInputBeforeGui(ev)
 {
 	resizeBar.onEvent(ev);
 
-	if (ev.hotkey && g_autociv_hotkeyActions[ev.hotkey])
-		g_autociv_hotkeyActions[ev.hotkey](ev);
+    if ("hotkey" in ev && ev.hotkey in g_autociv_hotkeys && ev.type == "hotkeydown")
+        return !!g_autociv_hotkeys[ev.hotkey](ev);
 
 	return false;
 }

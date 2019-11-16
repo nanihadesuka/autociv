@@ -1,4 +1,3 @@
-
 /**
  * @param {Object} [prefix]
  * @param {String} method
@@ -35,5 +34,4 @@ function autociv_patchApplyN()
     }
 
     prefix[method] = new Proxy(prefix[method], { apply: patch });
-
 }
