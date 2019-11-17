@@ -164,7 +164,7 @@ function autociv_selectFromList(entities, selectAll, accumulateSelection)
 function autociv_setFormation(formation = "null")
 {
 	let that = autociv_setFormation;
-	if (!that.validFormations.includes(formation))
+	if (that.validFormations.indexOf(formation) == -1)
 		return;
 
 	let formationTemplate = `special/formations/${formation}`;

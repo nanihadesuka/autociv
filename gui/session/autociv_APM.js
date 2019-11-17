@@ -87,7 +87,8 @@ var autociv_APM = {
     },
     "format": function (count, diff, pad = 5)
     {
-        return (count / diff * 60).toFixed(0).padStart(pad, " ");
+        let text = (count / diff * 60).toFixed(0);
+        return " ".repeat(Math.max(0, pad - text.length)) + text;
     },
     "interval": 10,
     "updateChart": function ()
@@ -95,7 +96,7 @@ var autociv_APM = {
         if (!this.activeChart)
             return;
         this.GUIChart.series = [this.list];
-        this.GUITotalGameAverage.caption = "Game avg APM : " + this.format(this.total.count, this.getRealTime() - this.total.start, 0);
+        this.GUITotalGameAverage.caption = "Game avg APM: " + this.format(this.total.count, this.getRealTime() - this.total.start, 0);
     },
     "onTick": function ()
     {

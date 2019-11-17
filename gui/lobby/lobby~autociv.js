@@ -92,7 +92,10 @@ g_ChatCommands["pingall"] = {
 			if (player.presence == "available")
 				candidatesToAnnoy.add(player.name);
 
-		let annoyList = Array.from(candidatesToAnnoy.difference(ignore)).join(", ");
+		for (let v of ignore)
+			candidatesToAnnoy.delete(v);
+
+		let annoyList = Array.from(candidatesToAnnoy).join(", ");
 		Engine.LobbySendMessage(annoyList);
 		if (args[0].trim())
 			Engine.LobbySendMessage(args.join(" "))

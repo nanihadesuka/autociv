@@ -84,7 +84,7 @@ GuiInterface.prototype.autociv_FindEntitiesWithGenericName = function (player, g
 GuiInterface.prototype.autociv_FindEntitiesWithClasses = function (player, classesList)
 {
     let rangeMan = Engine.QueryInterface(SYSTEM_ENTITY, IID_RangeManager);
-    let includesAll = list => classesList.every(v => list.includes(v));
+    let includesAll = list => classesList.every(v => list.indexOf(v) != -1);
 
     return rangeMan.GetEntitiesByPlayer(player).filter(function (e)
     {

@@ -20,7 +20,7 @@ function clearCombo()
     g_combo = [];
     g_changes = true;
     comboGeneratorTrans({ "value": g_combo.join("+") });
-    animate("options_clear").add({ "color": { "b": 70 / 255 } })
+    animate("options_clear").complete().add({ "color": { "b": 70 / 255 } })
 }
 
 function init(data)
@@ -28,7 +28,7 @@ function init(data)
     g_data = data;
     Engine.GetGUIObjectByName("dialogBackground").onMouseLeftPress = () => close(false);
 
-    animate("dialog").add({
+    animate("dialog").complete().add({
         "start": {
             "size": {
                 "left": -7.5,
@@ -40,11 +40,11 @@ function init(data)
         "color": "40 40 40 255"
     });
 
-    animate("setting_value_border").add({ "color": "60 60 60 255", });
-    animate("setting_value_text").add({ "color": "20 20 20 255" });
-    animate("options").add({ "size": { "bottom": 30 }, "color": "60 60 60 255" });
+    animate("setting_value_border").complete().add({ "color": "60 60 60 255", });
+    animate("setting_value_text").complete().add({ "color": "20 20 20 255" });
+    animate("options").complete().add({ "size": { "bottom": 30 }, "color": "60 60 60 255" });
 
-    let color = (btn, t, v) => btn.add({ "color": { [t]: v / 255 } });
+    let color = (btn, t, v) => btn.complete().add({ "color": { [t]: v / 255 } });
 
     // Save button
     let options_save = Engine.GetGUIObjectByName("options_save");
@@ -91,7 +91,7 @@ function calcKeyWidth(text)
 
 // In : [1,3,1,4,2]   Out: [0,1,4,5,9,11]
 let accumulateArray = list => list.reduce((acum, value, i) => [...acum, value + acum[i]], [0]);
-let getComboFromText = text => text.split("+").filter(t => !["unused", ""].includes(t));
+let getComboFromText = text => text.split("+").filter(t => ["unused", ""].indexOf(t) == -1);
 
 function comboGenerator(data)
 {
@@ -104,7 +104,7 @@ function comboGenerator(data)
         let hidden = combo[i] == undefined;
         child.hidden = hidden;
         if (hidden)
-            animate(child).add({
+            animate(child).complete().add({
                 "start": {
                     "size": {
                         "left": 4 + comboLenAcum[comboLenAcum.length - 1],
@@ -116,7 +116,7 @@ function comboGenerator(data)
                 "textcolor": "150 150 150 0",
             });
         else
-            animate(child).add({
+            animate(child).complete().add({
                 "start": {
                     "size": {
                         "left": 4 + comboLenAcum[i],
@@ -141,13 +141,13 @@ function comboGeneratorTrans(data)
         let hidden = combo[i] == undefined;
         child.hidden = hidden;
         if (hidden)
-            animate(child).add({
+            animate(child).complete().add({
                 "onComplete": object => object.caption = "",
                 "color": "40 40 40 0",
                 "textcolor": "150 150 150 0",
             });
         else
-            animate(child).add({
+            animate(child).complete().add({
                 "onStart": object => object.caption = combo[i],
                 "size": {
                     "left": 4 + comboLenAcum[i],
@@ -173,7 +173,7 @@ function keyPriority(key)
 
 function comboBreaker(newEntry)
 {
-    if (g_combo.length >= 4 || g_combo.includes(newEntry) || !newEntry)
+    if (g_combo.length >= 4 || (g_combo.indexOf(newEntry) != -1) || !newEntry)
         return;
 
     g_changes = true;
