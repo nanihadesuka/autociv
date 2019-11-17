@@ -4,6 +4,9 @@ var autociv_APM = {
     "init": function ()
     {
         this.GUIOverlay.caption = "AMP:" + this.format(0, 1);
+        this.GUIChart.series_color = ["red"];
+        this.GUIChart.axis_width = 0;
+        this.GUIChart.axis_color = "120 120 120";
         this.toggle(Engine.ConfigDB_GetValue("user", "autociv.session.AMP.enabled") == "true");
         this.toggleChart(Engine.ConfigDB_GetValue("user", "autociv.session.AMP.chart.enabled") == "true")
         this.GUIOverlay.onMouseLeftPress = () => this.toggleChart();
@@ -12,7 +15,7 @@ var autociv_APM = {
     "toggle": function (activate)
     {
         let active = activate === undefined ? !this.active : activate;
-        this.GUIOverlay.hidden = !this.active;
+        this.GUI.hidden = !active;
     },
     get activeChart() { return !this.GUIChartBackground.hidden && this.active },
     "toggleChart": function (activate)
