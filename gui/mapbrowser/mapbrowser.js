@@ -478,12 +478,26 @@ MapsSearchBox.prototype.updateSearch = function ()
 	let caption = this.mapsSearchBox.caption.trim().toLowerCase();
 	this.mapsSearchBoxNotice.hidden = !!caption;
 
-	let list = !caption ? g_Maps.getFromTypeAndFilter() :
-		fuzzysort.go(caption, g_Maps.getFromFilter(), {
+	let list = g_Maps.getFromTypeAndFilter();
+	if (caption)
+	{
+		// Search all maps with current type and filter
+		list = fuzzysort.go(caption, list, {
 			key: 'name',
 			allowTypo: true,
 			threshold: -10000
-		}).map(result => result.obj);
+		});
+
+		// Search all maps with current filter
+		if (!list.length)
+			list = fuzzysort.go(caption, g_Maps.getFromFilter(), {
+				key: 'name',
+				allowTypo: true,
+				threshold: -10000
+			});
+
+		list = list.map(result => result.obj);
+	}
 
 	g_MapBrowser.setList(list).goToPage(0);
 }

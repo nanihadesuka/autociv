@@ -1,6 +1,10 @@
 
 // "actions" per minute counter, time in microseconds
 var autociv_APM = {
+    "total": { "start": Engine.GetMicroseconds() / 1000000, "count": 0 },
+    "last": { "time": Engine.GetMicroseconds() / 1000000, "count": 0 },
+    "list": [],
+    "interval": 10,
     "init": function ()
     {
         this.GUI = Engine.GetGUIObjectByName("gl_autocivSessionAMP");
@@ -10,12 +14,13 @@ var autociv_APM = {
         this.GUITotalGameAverage = Engine.GetGUIObjectByName("gl_autocivSessionAMPTotalGameAverage");
 
         this.GUIOverlay.caption = "AMP:" + this.format(0, 1);
+        this.GUIOverlay.onMouseLeftPress = () => this.toggleChart();
+        this.toggle(Engine.ConfigDB_GetValue("user", "autociv.session.AMP.enabled") == "true");
+
         this.GUIChart.series_color = ["red"];
         this.GUIChart.axis_width = 0;
         this.GUIChart.axis_color = "120 120 120";
-        this.toggle(Engine.ConfigDB_GetValue("user", "autociv.session.AMP.enabled") == "true");
         this.toggleChart(Engine.ConfigDB_GetValue("user", "autociv.session.AMP.chart.enabled") == "true")
-        this.GUIOverlay.onMouseLeftPress = () => this.toggleChart();
     },
     get active() { return !this.GUI.hidden },
     "toggle": function (activate)
@@ -34,13 +39,6 @@ var autociv_APM = {
         if (active)
             this.updateChart();
     },
-    "total": {
-        "start": Engine.GetMicroseconds() / 1000000,
-        "count": 0
-    },
-    "time": Engine.GetMicroseconds() / 1000000,
-    "count": 0,
-    "list": [],
     "getGameTime": function () { return GetSimState().timeElapsed / 1000; },
     "getRealTime": function () { return Engine.GetMicroseconds() / 1000000; },
     "add": function (ev)
@@ -54,21 +52,18 @@ var autociv_APM = {
         if (!(isMouseButtonUp || isKeySymUp))
             return;
 
-        ++this.count;
+        ++this.last.count;
         ++this.total.count;
-        if (this.count && this.count % 5 == 0)
-            this.GUIOverlay.caption = "APM:" + this.format(this.count, this.getRealTime() - this.time);
+        if (this.last.count && this.last.count % 5 == 0)
+            this.GUIOverlay.caption = "APM:" + this.format(this.last.count, this.getRealTime() - this.last.time);
     },
     "format": function (count, diff, pad = 5)
     {
         let text = (count / diff * 60).toFixed(0);
         return " ".repeat(Math.max(0, pad - text.length)) + text;
     },
-    "interval": 10,
     "updateChart": function ()
     {
-        if (!this.activeChart)
-            return;
         this.GUIChart.series = [this.list];
         this.GUITotalGameAverage.caption = "Game avg APM: " + this.format(this.total.count, this.getRealTime() - this.total.start, 0);
     },
@@ -78,19 +73,20 @@ var autociv_APM = {
             return;
 
         let time = this.getRealTime();
-        let diff = time - this.time;
+        let diff = time - this.last.time;
         if (diff < this.interval)
             return;
 
-        this.GUIOverlay.caption = "APM:" + this.format(this.count, diff);
+        this.GUIOverlay.caption = "APM:" + this.format(this.last.count, diff);
 
-        this.list.push([this.getGameTime(), this.count / diff * 60]);
+        this.list.push([this.getGameTime(), this.last.count / diff * 60]);
         if (this.list.length > 20)
             this.list.shift();
 
-        this.updateChart();
+        if (this.activeChart)
+            this.updateChart();
 
-        this.time = time;
-        this.count = 0;
+        this.last.time = time;
+        this.last.count = 0;
     }
 }
