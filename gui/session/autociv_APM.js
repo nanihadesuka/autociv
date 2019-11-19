@@ -3,6 +3,12 @@
 var autociv_APM = {
     "init": function ()
     {
+        this.GUI = Engine.GetGUIObjectByName("gl_autocivSessionAMP");
+        this.GUIOverlay = Engine.GetGUIObjectByName("gl_autocivSessionAMPOverlay");
+        this.GUIChart = Engine.GetGUIObjectByName("gl_autocivSessionAMPChart");
+        this.GUIChartBackground = Engine.GetGUIObjectByName("gl_autocivSessionAMPChartBackground");
+        this.GUITotalGameAverage = Engine.GetGUIObjectByName("gl_autocivSessionAMPTotalGameAverage");
+
         this.GUIOverlay.caption = "AMP:" + this.format(0, 1);
         this.GUIChart.series_color = ["red"];
         this.GUIChart.axis_width = 0;
@@ -28,31 +34,6 @@ var autociv_APM = {
         if (active)
             this.updateChart();
     },
-    get GUI()
-    {
-        return "_GUI" in this ? this._GUI :
-            this._GUI = Engine.GetGUIObjectByName("gl_autocivSessionAMP");
-    },
-    get GUIOverlay()
-    {
-        return "_GUIOverlay" in this ? this._GUIOverlay :
-            this._GUIOverlay = Engine.GetGUIObjectByName("gl_autocivSessionAMPOverlay");
-    },
-    get GUIChart()
-    {
-        return "_GUIChart" in this ? this._GUIChart :
-            this._GUIChart = Engine.GetGUIObjectByName("gl_autocivSessionAMPChart");
-    },
-    get GUIChartBackground()
-    {
-        return "_GUIChartBackground" in this ? this._GUIChartBackground :
-            this._GUIChartBackground = Engine.GetGUIObjectByName("gl_autocivSessionAMPChartBackground");
-    },
-    get GUITotalGameAverage()
-    {
-        return "_GUITotalGameAverage" in this ? this._GUITotalGameAverage :
-            this._GUITotalGameAverage = Engine.GetGUIObjectByName("gl_autocivSessionAMPTotalGameAverage");
-    },
     "total": {
         "start": Engine.GetMicroseconds() / 1000000,
         "count": 0
@@ -60,15 +41,8 @@ var autociv_APM = {
     "time": Engine.GetMicroseconds() / 1000000,
     "count": 0,
     "list": [],
-    "getGameTime": function ()
-    {
-        return GetSimState().timeElapsed / 1000;
-    },
-    "getRealTime": function ()
-    {
-        return Engine.GetMicroseconds() / 1000000;
-    },
-    "last": 0,
+    "getGameTime": function () { return GetSimState().timeElapsed / 1000; },
+    "getRealTime": function () { return Engine.GetMicroseconds() / 1000000; },
     "add": function (ev)
     {
         if (!this.active)

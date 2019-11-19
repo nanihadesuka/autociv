@@ -124,6 +124,7 @@ var g_autociv_hotkeys = {
 	"autociv.lobby.openMapBrowser": autociv_openMapBrowser,
 	"autociv.lobby.focus.chatInput": autociv_focus_chatInput,
 	"autociv.lobby.focus.gameList": autociv_focus_gameList,
+	"autociv.lobby.gameList.selected.join": joinButton,
 	"autociv.open.autociv_settings": ev => autocivCL.Engine.PushGuiPage("page_autociv_settings.xml")
 };
 
