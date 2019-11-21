@@ -13,6 +13,7 @@
 	"hotkey.autociv.lobby.focus.gameList": "Alt+W",
 	"hotkey.autociv.lobby.gameList.selected.join": "Alt+E",
 	"hotkey.autociv.selection.nowoundedonly": "I",
+	"hotkey.autociv.session.minimap.expand.toggle": "Shift+Tab",
 	"hotkey.autociv.session.building.place.City_Wall": "Space+W",
 	"hotkey.autociv.session.building.place.Wooden_Wall": "Space+E",
 	"hotkey.autociv.session.building.place.Temple": "Space+T",

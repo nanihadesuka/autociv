@@ -221,6 +221,11 @@ var g_autociv_hotkeys = {
 	{
 		autociv_clearSelectedProductionQueues();
 		return true;
+	},
+	"autociv.session.minimap.expand.toggle": function (ev)
+	{
+		autociv_minimapExpand.toggle();
+		return true;
 	}
 }
 

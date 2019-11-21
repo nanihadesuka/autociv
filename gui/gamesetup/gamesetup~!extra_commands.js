@@ -124,5 +124,12 @@ g_NetworkCommands['/autociv'] = () =>
 	selfMessage(`${bot.name} ${bot.active ? 'activated' : 'deactivated'}.`);
 };
 
-g_NetworkCommands['/ready'] = () => { if (!g_IsController) toggleReady(); toggleReady(); };
+g_NetworkCommands['/ready'] = () =>
+{
+	if (g_IsController)
+		return;
+
+	toggleReady();
+	toggleReady();
+};
 g_NetworkCommands['/start'] = () => { if (g_IsController) launchGame(); };
