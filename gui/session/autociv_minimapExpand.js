@@ -1,13 +1,10 @@
 let autociv_minimapExpand = {
     "toggle": function ()
     {
-        if (!this.GUIObject)
-            this.GUIObject = Engine.GetGUIObjectByName("minimapPanel");
-
         if (!this.defaultSize)
-            this.defaultSize = this.GUIObject.size;
+            this.defaultSize = this.GUI.size;
 
-        this.GUIObject.size = this.expanded ? this.defaultSize : this.getExpandedSize();
+        this.GUI.size = this.expanded ? this.defaultSize : this.getExpandedSize();
         this.expanded = !this.expanded;
     },
     "getExpandedSize": function ()
@@ -18,5 +15,10 @@ let autociv_minimapExpand = {
     },
     "expanded": false,
     "GUIObject": undefined,
-    "defaultSize": undefined
+    "defaultSize": undefined,
+    get GUI()
+    {
+        return "_GUIObject" in this._GUIObject ? this._GUIObject :
+            this._GUIObject = Engine.GetGUIObjectByName("minimapPanel");
+    }
 };

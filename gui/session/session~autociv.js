@@ -1,4 +1,3 @@
-var g_autociv_validFormations = [];
 var g_autociv_stanza = new ConfigJSON("stanza", false);
 
 function autociv_initBots()
@@ -20,13 +19,6 @@ function autociv_addVersionLabel()
 	let modInfo = Engine.GetEngineInfo().mods.find(mod);
 	let version = modInfo && modInfo[1] && modInfo[1].split(".").slice(1).join(".") || "";
 	label.caption = `${label.caption} [color="255 255 255 127"]${version}[/color]`;
-}
-
-function autociv_getValidFormations()
-{
-	let folder = "simulation/templates/special/formations/";
-	return Engine.ListDirectoryFiles(folder, "*.xml", false).
-		map(text => (text.match(/^.*\/(.+)\.xml$/) || [])[1]).filter(v => !!v);
 }
 
 function autociv_saveStanzaSession()

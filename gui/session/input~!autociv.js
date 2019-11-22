@@ -45,23 +45,23 @@ function autociv_showBuildingPlacementTerrainSnap(mousePosX, mousePosY)
  */
 function autociv_placeBuildingByGenericName(genericName)
 {
-	let translatedGenericName = translate(genericName);
-	let playerState = GetSimState().players[Engine.GetPlayerID()];
-	let selection = g_Selection.toList();
-
-	if (!playerState || !selection.length || Engine.GetGUIObjectByName("unitConstructionPanel").hidden)
+	// Hack: fast check
+	if (Engine.GetGUIObjectByName("unitConstructionPanel").hidden)
 		return;
 
-	let index = g_SelectionPanels.Construction.getItems().
-		map(item => GetTemplateData(item).name.generic).
-		indexOf(translatedGenericName);
+	let translatedGenericName = translate(genericName);
+	let index = g_SelectionPanels.Construction.getItems().findIndex(item =>
+		GetTemplateData(item).name.generic == translatedGenericName);
 
 	if (index == -1)
 		return;
 
-	let unitConstructionButton = Engine.GetGUIObjectByName("unitConstructionButton[" + index + "]");
+	let unitConstructionButton = Engine.GetGUIObjectByName(`unitConstructionButton[${index}]`);
 
-	if (!unitConstructionButton || unitConstructionButton.hidden || !unitConstructionButton.enabled || !unitConstructionButton.onPress)
+	if (!unitConstructionButton ||
+		unitConstructionButton.hidden ||
+		!unitConstructionButton.enabled ||
+		!unitConstructionButton.onPress)
 		return;
 
 	unitConstructionButton.onPress();
@@ -72,121 +72,24 @@ function autociv_placeBuildingByGenericName(genericName)
 
 function autociv_clearSelectedProductionQueues()
 {
-	let playerState = GetSimState().players[Engine.GetPlayerID()];
-	if (!playerState || Engine.GetGUIObjectByName("unitQueuePanel").hidden)
+	// Hack: fast check
+	if (Engine.GetGUIObjectByName("unitQueuePanel").hidden)
 		return;
 
-	g_Selection.toList().map(GetEntityState).filter(v => !!v).forEach(entity =>
+	g_Selection.toList().map(GetEntityState).forEach(entity =>
 	{
-		if (!entity.production || !entity.production.queue || entity.id === undefined)
+		if (!entity.production)
 			return;
 
-		for (let queueItem of entity.production.queue)
-			if (queueItem.id !== undefined)
-				Engine.PostNetworkCommand({
-					"type": "stop-production",
-					"entity": entity.id,
-					"id": queueItem.id
-				});
+		for (let item of entity.production.queue)
+			Engine.PostNetworkCommand({
+				"type": "stop-production",
+				"entity": entity.id,
+				"id": item.id
+			});
 	});
 	return true;
 }
-
-function autociv_selectEntityWithGenericName(genericName, selectAll, accumulateSelection)
-{
-	let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithGenericName", genericName);
-	return autociv_selectFromList(entities, selectAll, accumulateSelection);
-}
-
-function autociv_selectEntityWithClassesExpression(classesExpression, selectAll, accumulateSelection)
-{
-	let p = autociv_selectEntityWithClassesExpression;
-	if (Engine.GetMicroseconds() - p.lastCall < p.rateLimit &&
-		p.lastParameter === classesExpression)
-		return;
-	p.lastCall = Engine.GetMicroseconds();
-	p.lastParameter = classesExpression;
-
-	let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithClassesExpression", classesExpression);
-	return autociv_selectFromList(entities, selectAll, accumulateSelection);
-}
-autociv_selectEntityWithClassesExpression.rateLimit = 1000 * 1000;
-autociv_selectEntityWithClassesExpression.lastCall = Engine.GetMicroseconds();
-autociv_selectEntityWithClassesExpression.lastParameter = "";
-
-function autociv_selectFromList(entities, selectAll, accumulateSelection)
-{
-	if (selectAll === undefined)
-		selectAll = Engine.HotkeyIsPressed("selection.offscreen");
-
-	if (accumulateSelection === undefined)
-		accumulateSelection = Engine.HotkeyIsPressed("selection.add");
-
-	if (entities.length === undefined || !entities.length)
-		return;
-
-	// CASE 1: wants to select all entities of the same type.
-	if (selectAll)
-	{
-		// CASE 1 + 3: doesn't want to keep current selection.
-		if (!accumulateSelection)
-			g_Selection.reset();
-
-		g_Selection.addList(entities);
-		return true;
-	}
-
-	// CASE 2: cycle between entities of the same type one at a time.
-	let entityIsCurrentlySelected = (entity) => g_Selection.selected[entity] !== undefined;
-
-	// Find the index in entities of the first entity inside current selection.
-	let entityIndex = 0;
-	for (; entityIndex < entities.length; ++entityIndex)
-		if (entityIsCurrentlySelected(entities[entityIndex]))
-			break;
-
-	// Find the first entity not in the current selection
-	for (let index = 0; index < entities.length; ++index)
-	{
-		let entity = entities[(index + entityIndex) % entities.length];
-		if (!entityIsCurrentlySelected(entity))
-		{
-			// CASE 2 + 3: doesn't want to keep current selection.
-			if (!accumulateSelection)
-				g_Selection.reset();
-
-			g_Selection.addList([entity]);
-			return true;
-		}
-	}
-}
-
-function autociv_setFormation(formation = "null")
-{
-	let that = autociv_setFormation;
-	if (that.validFormations.indexOf(formation) == -1)
-		return;
-
-	let formationTemplate = `special/formations/${formation}`;
-	if (!canMoveSelectionIntoFormation(formationTemplate))
-		return;
-
-	Engine.PostNetworkCommand({
-		"type": "formation",
-		"entities": g_Selection.toList(),
-		"name": formationTemplate
-	});
-
-	return true;
-}
-
-Object.defineProperty(autociv_setFormation, "validFormations", {
-	get()
-	{
-		return "_validFormations" in this ? this._validFormations :
-			this._validFormations = autociv_getValidFormations();
-	}
-})
 
 function autociv_SetCorpsesMax(value)
 {
@@ -230,32 +133,28 @@ var g_autociv_hotkeys = {
 }
 
 var g_autociv_hotkeysPrefixes = {
-	// Hotkeys for building placement
 	"autociv.session.building.place.": function (ev, hotkeyPrefix)
 	{
 		let buildingGenericName = ev.hotkey.split(hotkeyPrefix)[1].replace(/_/g, " ");
 		autociv_placeBuildingByGenericName(buildingGenericName);
 		return true;
 	},
-	// Hotkeys for unit or buildings selection by generic name
 	"autociv.session.entity.select.": function (ev, hotkeyPrefix)
 	{
 		let entityGenericName = ev.hotkey.split(hotkeyPrefix)[1].replace(/_/g, " ");
-		autociv_selectEntityWithGenericName(entityGenericName);
+		autociv_select.entityWithGenericName(entityGenericName);
 		return true;
 	},
-	// Hotkeys for unit or buildings selection by classes
 	"autociv.session.entity.by.class.select.": function (ev, hotkeyPrefix)
 	{
-		let enitytClassesExpression = ev.hotkey.split(hotkeyPrefix)[1];
-		autociv_selectEntityWithClassesExpression(enitytClassesExpression, true);
+		let entityClassesExpression = ev.hotkey.split(hotkeyPrefix)[1];
+		autociv_select.entityWithClassesExpression(entityClassesExpression, true);
 		return true;
 	},
-	// Hotkeys for formations
 	"autociv.session.formation.set.": function (ev, hotkeyPrefix)
 	{
-		let formation = ev.hotkey.split(hotkeyPrefix)[1];
-		autociv_setFormation(formation);
+		let formationName = ev.hotkey.split(hotkeyPrefix)[1];
+		autociv_formation.set(formationName);
 		return true;
 	}
 };
@@ -283,7 +182,6 @@ autociv_patchApplyN("handleInputAfterGui", function (target, that, args)
 	}
 	return target.apply(that, args);
 })
-
 
 unitFilters.autociv_isNotWounded = entity =>
 {
