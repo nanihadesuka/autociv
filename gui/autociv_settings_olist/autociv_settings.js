@@ -16,7 +16,7 @@ let g_containerBackground = {
 			return;
 		animate("dialogBackground").add({
 			"color": { "a": 0.0 },
-			"onComplete": () => autocivCL.Engine.PopGUIPage({}),
+			"onComplete": () => autocivCL.Engine.PopGuiPage({}),
 			"duration": 500
 		});
 		this.done = true;

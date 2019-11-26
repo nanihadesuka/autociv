@@ -34,6 +34,16 @@ let game = {
 			sendMessage(`Map size set to: ${val}`);
 			updateGameAttributes();
 		},
+		"numberOfSlots": (num) =>
+		{
+			let d = g_GameAttributes.settings.PlayerData;
+			g_GameAttributes.settings.PlayerData =
+				num > d.length ?
+					d.concat(clone(g_DefaultPlayerData.slice(d.length, num))) :
+					d.slice(0, num);
+			unassignInvalidPlayers(num);
+			sanitizePlayerData(g_GameAttributes.settings.PlayerData);
+		},
 		'player':
 		{
 			'civ': (playerName, playerCivCode) =>
@@ -57,6 +67,48 @@ let game = {
 					return;
 				Engine.AssignNetworkPlayer(playerPos, '');
 			}
+		},
+		/**
+		 * @param {string} text E.g : "1v1v3"
+		 */
+		"teams": (text) =>
+		{
+			if (!g_IsController)
+				return;
+
+			if (g_GameAttributes.mapType == "scenario")
+				return selfMessage("Can't set teams with map type scenario.");
+
+			let teams = text.trim().toLowerCase();
+			if ("ffa" == teams)
+			{
+				for (let i in g_GameAttributes.settings.PlayerData)
+					g_GameAttributes.settings.PlayerData[i].Team = -1;
+				updateGameAttributes();
+				return;
+			}
+
+			teams = text.match(/(\d+)/g);
+			if (teams == null)
+				return selfMessage("Invalid input.");
+
+			// Transform string to number discarding 0 size teams
+			teams = teams.map(v => +v).filter(v => v != 0);
+
+			if (teams.length < 1 || teams.length > 4)
+				return selfMessage("Invalid number of teams (min 1 max 4).");
+
+			let numOfSlots = teams.reduce((v, a) => a += v, 0);
+			if (numOfSlots < 1 || numOfSlots > 8)
+				return selfMessage("Invalid number of players (max 8).");
+
+			game.set.numberOfSlots(numOfSlots)
+
+			for (let team = 0, slot = 0; team < teams.length; ++team)
+				for (let i = 0; i < teams[team]; ++i)
+					g_GameAttributes.settings.PlayerData[slot++].Team = team;
+
+			updateGameAttributes();
 		}
 	},
 	'get':
@@ -105,7 +157,8 @@ g_NetworkCommands['/help'] = () =>
 		let noSlashCommand = command.slice(1);
 		const nc = g_NetworkCommands[command];
 		const asc = g_autociv_SharedCommands[noSlashCommand]
-		text += "\n" + sprintf(translate("%(command)s - %(description)s"), {
+		text += "\n";
+		text += sprintf(translate("%(command)s - %(description)s"), {
 			"command": "/" + coloredText(noSlashCommand, g_ChatCommandColor),
 			"description": nc.description || asc && asc.description || ""
 		});
@@ -123,7 +176,6 @@ g_NetworkCommands['/autociv'] = () =>
 	bot.toggle();
 	selfMessage(`${bot.name} ${bot.active ? 'activated' : 'deactivated'}.`);
 };
-
 g_NetworkCommands['/ready'] = () =>
 {
 	if (g_IsController)
@@ -132,4 +184,17 @@ g_NetworkCommands['/ready'] = () =>
 	toggleReady();
 	toggleReady();
 };
-g_NetworkCommands['/start'] = () => { if (g_IsController) launchGame(); };
+g_NetworkCommands['/start'] = () =>
+{
+	if (!g_IsController)
+		return;
+
+	for (let playerName of game.get.players.name())
+		if (game.get.player.status(playerName) == "blank")
+			return selfMessage("Can't start game. Some players not ready.")
+
+	launchGame();
+};
+
+
+g_NetworkCommands['/team'] = text => game.set.teams(text);

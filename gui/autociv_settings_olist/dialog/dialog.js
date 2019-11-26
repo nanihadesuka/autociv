@@ -3,7 +3,7 @@ var g_currentCombo = [];
 var g_noChanges = true;
 var g_data = {};
 
-function closeNoSave() { autocivCL.Engine.PopGUIPage(); }
+function closeNoSave() { autocivCL.Engine.PopGuiPage(); }
 function init(data)
 {
     g_data = data;
@@ -29,7 +29,7 @@ function init(data)
             else
             {
                 g_currentCombo = g_currentCombo.length ? g_currentCombo : ["unused"];
-                autocivCL.Engine.PopGUIPage({
+                autocivCL.Engine.PopGuiPage({
                     "hotkey": g_data.hotkey,
                     "value": g_currentCombo.join("+"),
                 }, true);

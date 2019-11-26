@@ -1,6 +1,6 @@
 function close()
 {
-	autocivCL.Engine.PopGUIPage({}, false);
+	autocivCL.Engine.PopGuiPage({}, false);
 }
 
 

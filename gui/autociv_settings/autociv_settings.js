@@ -41,7 +41,7 @@ let g_container = {
 				Engine.GetGUIObjectByName("scrollBarTrack").hidden = true;
 				GUIReact.emit("restartMessage", "onClose");
 			},
-			"onComplete": () => autocivCL.Engine.PopGUIPage({}),
+			"onComplete": () => autocivCL.Engine.PopGuiPage({}),
 			"size": "50%-300 0%+50 50%+300 100%-50",
 			"color": "40 40 40 0"
 		});

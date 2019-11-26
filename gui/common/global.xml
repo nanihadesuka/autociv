@@ -134,15 +134,17 @@
 		</object>
 
 		<object name="gl_autocivSessionAMP"
-			size="100%-100 100 100%-5 100"
+			size="100%-100 0 100%-5 0"
 			hidden="true">
 
 			<object name="gl_autocivSessionAMPOverlay"
 				type="button"
-				size="0 11 100% 0%+11+14"
+				size="0 0 100% 0%+14"
 				z="799"
 				textcolor="white"
 				sprite="color: 0 0 0 100"
+				sprite_over="color: 0 0 0 150"
+				sprite_pressed="color: 0 0 0 220"
 				font="mono-10"
 				text_align="right"
 				text_valign="center"
@@ -154,7 +156,7 @@
 				sprite="color: 0 0 0 150"
 				ghost="true"
 				hidden="true"
-				size="-100 11+14 100% 0%+11+14+100">
+				size="-100 14 100% 0%+14+100">
 				<object name="gl_autocivSessionAMPChart"
 					type="chart"
 					style="ModernChart"

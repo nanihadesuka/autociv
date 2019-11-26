@@ -14,11 +14,10 @@ let autociv_minimapExpand = {
         return `50%-${halfHeight - 75} 50%-${halfHeight} 50%+${halfHeight - 75} 50%+${halfHeight - 150}`;
     },
     "expanded": false,
-    "GUIObject": undefined,
     "defaultSize": undefined,
     get GUI()
     {
-        return "_GUIObject" in this._GUIObject ? this._GUIObject :
+        return "_GUIObject" in this ? this._GUIObject :
             this._GUIObject = Engine.GetGUIObjectByName("minimapPanel");
     }
 };

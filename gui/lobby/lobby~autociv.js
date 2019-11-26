@@ -41,7 +41,7 @@ var g_autociv_addChatMessage = {
 	},
 	"rate": function (target, that, args)
 	{
-		let msg = args[0];
+		let [msg] = args;
 		let oldLength = g_ChatMessages.length;
 		let noRedraw = g_Autociv_TickCount <= this.updateAfterTick;
 		if (noRedraw) this.addChatMessageNoRedraw(msg);
@@ -120,10 +120,25 @@ g_NetMessageTypes["chat"]["subject"] = msg =>
 	return false;
 };
 
+var autociv_focus = {
+	"gameList": function ()
+	{
+		let GUIobject = Engine.GetGUIObjectByName(g_autociv_isFGod ? "gameList" : "gamesBox");
+		GUIobject.blur();
+		GUIobject.focus();
+	},
+	"chatInput"()
+	{
+		let GUIobject = Engine.GetGUIObjectByName("chatInput");
+		GUIobject.blur();
+		GUIobject.focus();
+	}
+}
+
 var g_autociv_hotkeys = {
 	"autociv.lobby.openMapBrowser": autociv_openMapBrowser,
-	"autociv.lobby.focus.chatInput": autociv_focus_chatInput,
-	"autociv.lobby.focus.gameList": autociv_focus_gameList,
+	"autociv.lobby.focus.chatInput": autociv_focus.chatInput,
+	"autociv.lobby.focus.gameList": autociv_focus.gameList,
 	"autociv.lobby.gameList.selected.join": joinButton,
 	"autociv.open.autociv_settings": ev => autocivCL.Engine.PushGuiPage("page_autociv_settings.xml")
 };
@@ -218,21 +233,6 @@ function autociv_reregister()
 	checkRegistration(500);
 }
 
-
-function autociv_focus_gameList()
-{
-	let GUIobject = Engine.GetGUIObjectByName(g_autociv_isFGod ? "gameList" : "gamesBox");
-	GUIobject.blur();
-	GUIobject.focus();
-}
-
-function autociv_focus_chatInput()
-{
-	let GUIobject = Engine.GetGUIObjectByName("chatInput");
-	GUIobject.blur();
-	GUIobject.focus();
-}
-
 autociv_patchApplyN("addChatMessage", function (target, that, args)
 {
 	let [msg] = args;
@@ -295,5 +295,5 @@ autociv_patchApplyN("init", function (target, that, args)
 	let gameInfoDescription = gameInfo.children[gameInfo.children.length - 2];
 	resizeBar(gameInfoUsers, "top", undefined, [[gameInfoDescription, "bottom"]], () => !gameInfo.hidden);
 
-	autociv_focus_chatInput();
+	autociv_focus.chatInput();
 });

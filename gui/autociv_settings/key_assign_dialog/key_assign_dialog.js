@@ -6,13 +6,13 @@ var g_data = {};
 function close(save = false)
 {
     if (save && g_changes)
-        autocivCL.Engine.PopGUIPage({
+        autocivCL.Engine.PopGuiPage({
             "saveNewCombo": true,
             "value": g_combo.join("+"),
             "i": g_data.data.i
         }, true);
     else
-        autocivCL.Engine.PopGUIPage();
+        autocivCL.Engine.PopGuiPage();
 }
 
 function clearCombo()

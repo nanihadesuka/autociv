@@ -5,12 +5,7 @@
 	<script directory="gui/common/" />
 	<script directory="gui/mapbrowser/" />
 
-	<object hotkey="tab.prev">
-		<action on="Press">g_MapBrowser.previousPage();</action>
-	</object>
-	<object hotkey="tab.next">
-		<action on="Press">g_MapBrowser.nextPage();</action>
-	</object>
+
 
 	<!-- Add a translucent black background to fade out the menu page -->
 	<object type="image" sprite="ModernFade" />
@@ -34,14 +29,9 @@
 			<!-- Grid full of maps previews -->
 			<object name="MapBrowserContainer" size="0% 35 100% 100%">
 				<repeat count="100" var="n">
-					<object name="map[n]" type="button">
-						<object name="mapBox[n]" ghost="true">
-							<object type="image" sprite="ModernDarkBoxGold" size="8 8 100%-8 100%-8">
-								<object name="mapName[n]" type="text" style="ModernLabelText" text_valign="bottom" buffer_zone="10" />
-								<object name="mapPreview[n]" type="image" size="1 1 100%-1 100%-1"/>
-							</object>
-							<object name="mapButton[n]" type="button" sprite="color: 255 0 0 0" size="4 4 100%-4 100%-4">
-							</object>
+					<object name="map[n]" type="button" sprite_over="color: 255 0 0 100" sprite_pressed="color: 255 0 0 150">
+						<object ghost="true" type="image" sprite="ModernDarkBoxGold" size="6 6 100%-6 100%-6">
+							<object name="mapPreview[n]" style="ModernLabelText" type="button" size="1 1 100%-1 100%-1" text_align="center" text_valign="bottom" buffer_zone="10" />
 						</object>
 					</object>
 				</repeat>
@@ -58,7 +48,7 @@
 							<translatableAttribute id="caption">Page:</translatableAttribute>
 						</object>
 						<!-- Page number text -->
-						<object name="currentPageNum" type="text" style="ModernLeftLabelText" size="15% 0% 40% 100%"/>
+						<object name="MapBrowserContainerCurrentPage" type="text" style="ModernLeftLabelText" size="15% 0% 40% 100%" />
 						<!-- Previous button -->
 						<object name="prevButton" type="button" style="ModernButtonRed" size="30% 0% 65% 100%">
 							<translatableAttribute id="caption">Previous</translatableAttribute>
