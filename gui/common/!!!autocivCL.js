@@ -16,7 +16,7 @@ let autocivCL = {
                 );
             }
         },
-        "PopGUIPage": (data, hasCallback = false) =>
+        "PopGuiPage": (data, hasCallback = false) =>
         {
             if (g_autociv_is24)
                 Engine.PopGuiPage(data);
