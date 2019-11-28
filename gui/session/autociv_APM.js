@@ -5,22 +5,23 @@ var autociv_APM = {
     "last": { "time": Engine.GetMicroseconds() / 1000000, "count": 0 },
     "list": [],
     "interval": 10,
+    "nIntervalsChart": 20,
     "init": function ()
     {
-        this.GUI = Engine.GetGUIObjectByName("gl_autocivSessionAMP");
-        this.GUIOverlay = Engine.GetGUIObjectByName("gl_autocivSessionAMPOverlay");
-        this.GUIChart = Engine.GetGUIObjectByName("gl_autocivSessionAMPChart");
-        this.GUIChartBackground = Engine.GetGUIObjectByName("gl_autocivSessionAMPChartBackground");
-        this.GUITotalGameAverage = Engine.GetGUIObjectByName("gl_autocivSessionAMPTotalGameAverage");
+        this.GUI = Engine.GetGUIObjectByName("gl_autocivSessionAPM");
+        this.GUIOverlay = Engine.GetGUIObjectByName("gl_autocivSessionAPMOverlay");
+        this.GUIChart = Engine.GetGUIObjectByName("gl_autocivSessionAPMChart");
+        this.GUIChartBackground = Engine.GetGUIObjectByName("gl_autocivSessionAPMChartBackground");
+        this.GUITotalGameAverage = Engine.GetGUIObjectByName("gl_autocivSessionAPMTotalGameAverage");
 
-        this.GUIOverlay.caption = "AMP:" + this.format(0, 1);
+        this.GUIOverlay.caption = "APM:" + this.format(0, 1);
         this.GUIOverlay.onMouseLeftPress = () => this.toggleChart();
-        this.toggle(Engine.ConfigDB_GetValue("user", "autociv.session.AMP.enabled") == "true");
+        this.toggle(Engine.ConfigDB_GetValue("user", "autociv.session.APM.enabled") == "true");
 
         this.GUIChart.series_color = ["red"];
         this.GUIChart.axis_width = 0;
         this.GUIChart.axis_color = "120 120 120";
-        this.toggleChart(Engine.ConfigDB_GetValue("user", "autociv.session.AMP.chart.enabled") == "true");
+        this.toggleChart(Engine.ConfigDB_GetValue("user", "autociv.session.APM.chart.enabled") == "true");
 
         // Hack: Update bounding objects data so it wont overlap
         autociv_patchApplyN("appendSessionCounters", (target, that, args) =>
@@ -39,6 +40,14 @@ var autociv_APM = {
 
             return result;
         });
+
+        // Fill the chart list
+        for (let i = 0; i < this.nIntervalsChart; ++i)
+        {
+            let gameTime = this.getGameTime() - this.interval * (this.nIntervalsChart - i);
+            this.list.push([gameTime, 0]);
+            this.list.push([gameTime, 0]);
+        }
     },
     get active() { return !this.GUI.hidden },
     "toggle": function (activate)
@@ -101,9 +110,18 @@ var autociv_APM = {
 
         this.updateOverlay();
 
-        this.list.push([this.getGameTime(), this.last.count / diff * 60]);
-        if (this.list.length > 20)
+        {
+            let nextTime = this.getGameTime();
+            let lastTime = this.list[this.list.length - 1][0];
+            let nextAPM = this.last.count / diff * 60;
+            this.list.push([lastTime, nextAPM]);
+            this.list.push([nextTime, nextAPM]);
+        }
+        if (this.list.length > this.nIntervalsChart * 2)
+        {
             this.list.shift();
+            this.list.shift();
+        }
 
         if (this.activeChart)
             this.updateChart();

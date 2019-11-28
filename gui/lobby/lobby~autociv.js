@@ -178,41 +178,23 @@ function autociv_reconnect()
 
 function autociv_reregister()
 {
-	if (!Engine.HasNetServer())
-		return;
-
 	let autociv_stanza = new ConfigJSON("stanza", false);
+
 	if (!autociv_stanza.hasValue("gamesetup"))
 		return;
-
 	let gamesetup = autociv_stanza.getValue("gamesetup");
-	let getGame = () => g_GameList.find(entry =>
+
+	let registered = () => g_GameList.findIndex(entry => entry.hostUsername == gamesetup.hostUsername) != -1;
+
+	setTimeout(() =>
 	{
-		return entry.stunIP == gamesetup.stunIP &&
-			entry.stunPort == gamesetup.stunPort &&
-			entry.hostUsername == gamesetup.hostUsername;
-	});
-	let checkRegistration = (delay) =>
-	{
-		setTimeout(() =>
-		{
-			if (!Engine.HasNetServer())
-				return;
+		if (!Engine.HasNetServer() ||
+			!Engine.IsXmppClientConnected())
+			return;
 
-			if (!Engine.IsXmppClientConnected())
-				return checkRegistration(500);
+		warn("Autociv: Reregistering game to lobby")
+		Engine.SendRegisterGame(gamesetup);
 
-			let game = getGame();
-			if (game !== undefined)
-				return checkGameState(0);
-
-			Engine.SendRegisterGame(gamesetup);
-			return checkRegistration(Math.min(10000, delay + 500));
-		}, delay)
-	};
-
-	let checkGameState = (delay) =>
-	{
 		setTimeout(() =>
 		{
 			if (!Engine.HasNetServer() ||
@@ -220,17 +202,17 @@ function autociv_reregister()
 				!autociv_stanza.hasValue("session"))
 				return;
 
-			let game = getGame();
-			if (game === undefined || game.state != "init")
+			if (!registered())
 				return;
 
+			warn("Autociv: Sending last game changes")
 			let session = autociv_stanza.getValue("session");
 			Engine.SendChangeStateGame(session.connectedPlayers, session.minPlayerData);
-			return checkGameState(Math.min(10000, delay + 500));
-		}, delay)
-	};
 
-	checkRegistration(500);
+		}, 2500)
+
+	}, 2500)
+
 }
 
 autociv_patchApplyN("addChatMessage", function (target, that, args)

@@ -1,5 +1,4 @@
 var g_autociv_stanza = new ConfigJSON("stanza", false);
-g_autociv_stanza.removeAllValues();
 
 var g_autociv_hotkeys = {
 	"autociv.gamesetup.openMapBrowser": function (ev)
@@ -73,8 +72,8 @@ function handleInputBeforeGui(ev)
 {
 	resizeBar.onEvent(ev);
 
-    if ("hotkey" in ev && ev.hotkey in g_autociv_hotkeys && ev.type == "hotkeydown")
-        return !!g_autociv_hotkeys[ev.hotkey](ev);
+	if ("hotkey" in ev && ev.hotkey in g_autociv_hotkeys && ev.type == "hotkeydown")
+		return !!g_autociv_hotkeys[ev.hotkey](ev);
 
 	return false;
 }
@@ -149,10 +148,7 @@ function autociv_patchModFilter()
 		g_LastGameStanza = stanza;
 		Engine.SendRegisterGame(stanza);
 	};
-}
 
-function autociv_hookOnStanzaChanges()
-{
 	autociv_patchApplyN("sendRegisterGameStanzaImmediate", function (target, that, args)
 	{
 		let result = target.apply(that, args);
@@ -176,8 +172,8 @@ autociv_patchApplyN("init", function (target, that, args)
 {
 	autociv_InitBots();
 	target.apply(that, args);
-	autociv_hookOnStanzaChanges();
 	autociv_patchModFilter();
+	g_autociv_stanza.setValue("gamesetup", g_LastGameStanza);
 
 	// FGod command not working
 	delete g_NetworkCommands['/showip'];

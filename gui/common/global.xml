@@ -133,11 +133,11 @@
 			<translatableAttribute id="caption">Map Browser</translatableAttribute>
 		</object>
 
-		<object name="gl_autocivSessionAMP"
+		<object name="gl_autocivSessionAPM"
 			size="100%-100 0 100%-5 0"
 			hidden="true">
 
-			<object name="gl_autocivSessionAMPOverlay"
+			<object name="gl_autocivSessionAPMOverlay"
 				type="button"
 				size="0 0 100% 0%+14"
 				z="799"
@@ -151,21 +151,22 @@
 				buffer_zone="0">
 			</object>
 
-			<object name="gl_autocivSessionAMPChartBackground"
+			<object name="gl_autocivSessionAPMChartBackground"
 				type="image"
 				sprite="color: 0 0 0 150"
 				ghost="true"
 				hidden="true"
 				size="-100 14 100% 0%+14+100">
-				<object name="gl_autocivSessionAMPChart"
+				<object name="gl_autocivSessionAPMChart"
 					type="chart"
 					style="ModernChart"
+					text_align="right"
 					format_x="DURATION_SHORT"
 					format_y="INTEGER">
 				</object>
-				<object name="gl_autocivSessionAMPTotalGameAverage"
+				<object name="gl_autocivSessionAPMTotalGameAverage"
 					type="text"
-					size="0% 5 100% 0%+30"
+					size="0% 40 100% 0%+40+30"
 					text_align="center"
 					font="mono-10"
 					textcolor="250 250 250 220" />
