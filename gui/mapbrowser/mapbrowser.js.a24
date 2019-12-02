@@ -122,7 +122,8 @@ var g_MatchSort = {
 					result.push([score, obj])
 			}
 
-		return result.sort().map(v => v[1]);
+		result.sort((a, b) => a[0] - b[0]);
+		return result.map(v => v[1]);
 	}
 }
 

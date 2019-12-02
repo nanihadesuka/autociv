@@ -48,23 +48,23 @@ let game = {
 		{
 			'civ': (playerName, playerCivCode) =>
 			{
-				let playerId, playerPos, civCodeIndex;
-				if ((playerId = game.get.player.id(playerName)) == undefined)
+				let playerPos = game.get.player.pos(playerName);
+				if (playerPos === undefined || playerPos == -1)
 					return;
-				if ((playerPos = game.get.player.pos(playerId)) == -1)
+
+				let civCodeIndex = g_PlayerCivList.code.indexOf(playerCivCode);
+				if (civCodeIndex == -1)
 					return;
-				if ((civCodeIndex = g_PlayerCivList.code.indexOf(playerCivCode)) == -1)
-					return;
+
 				g_PlayerDropdowns.playerCiv.select(civCodeIndex, playerPos - 1);
 				updateGameAttributes();
 			},
 			'observer': (playerName) =>
 			{
-				let playerId, playerPos;
-				if ((playerId = game.get.player.id(playerName)) == undefined)
+				let playerPos = game.get.player.pos(playerName);
+				if (playerPos === undefined || playerPos == -1)
 					return;
-				if ((playerPos = game.get.player.pos(playerId)) == -1)
-					return;
+
 				Engine.AssignNetworkPlayer(playerPos, '');
 			}
 		},
@@ -117,8 +117,15 @@ let game = {
 		{
 			// Returns undefined if no player with that name
 			'id': playerName => Object.keys(g_PlayerAssignments).find(id => g_PlayerAssignments[id].name == playerName),
-			// Returns -1 in case of observer, undefined if Id does not exist
-			'pos': playerId => g_PlayerAssignments[playerId].player,
+			// Returns -1 in case of observer  and undefined if player doesn't exist
+			'pos': playerName =>
+			{
+				let playerId = game.get.player.id(playerName);
+				if (playerId === undefined)
+					return undefined;
+
+				return g_PlayerAssignments[playerId].player
+			},
 			'selfName': () => g_PlayerAssignments[Engine.GetPlayerGUID()].name,
 			"status": function (playerName)
 			{
@@ -139,11 +146,7 @@ let game = {
 	{
 		'player':
 		{
-			'assigned': playerName =>
-			{
-				return game.get.player.id(playerName) === undefined ?
-					false : this.pos(this.id(playerName)) >= 0;
-			}
+			'assigned': playerName => game.get.player.pos(playerName) >= 0
 		}
 	}
 }
@@ -190,7 +193,8 @@ g_NetworkCommands['/start'] = () =>
 		return;
 
 	for (let playerName of game.get.players.name())
-		if (game.get.player.status(playerName) == "blank")
+		if (game.is.player.assigned(playerName) &&
+			game.get.player.status(playerName) == "blank")
 			return selfMessage("Can't start game. Some players not ready.")
 
 	launchGame();

@@ -160,7 +160,7 @@
 				<object name="gl_autocivSessionAPMChart"
 					type="chart"
 					style="ModernChart"
-					text_align="right"
+					text_align="left"
 					format_x="DURATION_SHORT"
 					format_y="INTEGER">
 				</object>

@@ -1,10 +1,9 @@
-
 // "actions" per minute counter, time in microseconds
 var autociv_APM = {
     "total": { "start": Engine.GetMicroseconds() / 1000000, "count": 0 },
     "last": { "time": Engine.GetMicroseconds() / 1000000, "count": 0 },
-    "list": [],
-    "interval": 10,
+    "queue": [], // FIFO behaviour
+    "interval": 10, // seconds
     "nIntervalsChart": 20,
     "init": function ()
     {
@@ -15,6 +14,7 @@ var autociv_APM = {
         this.GUITotalGameAverage = Engine.GetGUIObjectByName("gl_autocivSessionAPMTotalGameAverage");
 
         this.GUIOverlay.caption = "APM:" + this.format(0, 1);
+        this.GUIOverlay.tooltip = "Click to toggle APM chart";
         this.GUIOverlay.onMouseLeftPress = () => this.toggleChart();
         this.toggle(Engine.ConfigDB_GetValue("user", "autociv.session.APM.enabled") == "true");
 
@@ -23,7 +23,15 @@ var autociv_APM = {
         this.GUIChart.axis_color = "120 120 120";
         this.toggleChart(Engine.ConfigDB_GetValue("user", "autociv.session.APM.chart.enabled") == "true");
 
-        // Hack: Update bounding objects data so it wont overlap
+        // Fill the chart list
+        for (let i = 0; i < this.nIntervalsChart; ++i)
+        {
+            let gameTime = this.getGameTime() - this.interval * (this.nIntervalsChart - i);
+            this.queue.push([gameTime, 0]);
+            this.queue.push([gameTime, 0]);
+        }
+
+        // Hack: Update bounding objects size so it wont overlap
         autociv_patchApplyN("appendSessionCounters", (target, that, args) =>
         {
             let result = target.apply(that, args);
@@ -40,14 +48,6 @@ var autociv_APM = {
 
             return result;
         });
-
-        // Fill the chart list
-        for (let i = 0; i < this.nIntervalsChart; ++i)
-        {
-            let gameTime = this.getGameTime() - this.interval * (this.nIntervalsChart - i);
-            this.list.push([gameTime, 0]);
-            this.list.push([gameTime, 0]);
-        }
     },
     get active() { return !this.GUI.hidden },
     "toggle": function (activate)
@@ -95,14 +95,30 @@ var autociv_APM = {
     },
     "updateChart": function ()
     {
-        this.GUIChart.series = [this.list];
+        this.GUIChart.series = [this.queue];
         this.GUITotalGameAverage.caption = "Game avg APM:" + this.format(this.total.count, this.getRealTime() - this.total.start, 0);
+    },
+    "queueAdd": function (value)
+    {
+        let nextTime = this.getGameTime();
+        let lastTime = this.queue[this.queue.length - 1][0];
+
+        this.queue.push([lastTime, value]);
+        this.queue.push([nextTime, value]);
+
+        // Here, we simulate a queue
+        if (this.queue.length <= this.nIntervalsChart * 2)
+            return;
+
+        this.queue.shift();
+        this.queue.shift();
     },
     "onTick": function ()
     {
         if (!this.active)
             return;
 
+        // Dilemma: use real time or sim time ? (late game lag)
         let time = this.getRealTime();
         let diff = time - this.last.time;
         if (diff < this.interval)
@@ -110,18 +126,8 @@ var autociv_APM = {
 
         this.updateOverlay();
 
-        {
-            let nextTime = this.getGameTime();
-            let lastTime = this.list[this.list.length - 1][0];
-            let nextAPM = this.last.count / diff * 60;
-            this.list.push([lastTime, nextAPM]);
-            this.list.push([nextTime, nextAPM]);
-        }
-        if (this.list.length > this.nIntervalsChart * 2)
-        {
-            this.list.shift();
-            this.list.shift();
-        }
+        let nextAPM = this.last.count / diff * 60;
+        this.queueAdd(nextAPM);
 
         if (this.activeChart)
             this.updateChart();
