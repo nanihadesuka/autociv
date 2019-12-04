@@ -2,7 +2,7 @@
 var ConfigJSON = /** @class */ (function () {
     /**
      * @param identifier Must not contain spaces
-     * @param saveToDisk If true that data will not be saved to disk
+     * @param saveToDisk If true that data will not be saved to disk (at least not by itself)
      */
     function ConfigJSON(identifier, saveToDisk) {
         if (saveToDisk === void 0) { saveToDisk = true; }

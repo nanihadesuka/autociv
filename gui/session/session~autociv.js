@@ -24,7 +24,8 @@ function autociv_patchSession()
 {
 	autociv_patchApplyN("addChatMessage", function (target, that, args)
 	{
-		return botManager.react(args[0]) || target.apply(that, args);
+		let [msg] = args;
+		return botManager.react(msg) || target.apply(that, args);
 	})
 
 	if (g_autociv_is24)

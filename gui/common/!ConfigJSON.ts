@@ -6,7 +6,7 @@ class ConfigJSON {
 
     /**
      * @param identifier Must not contain spaces
-     * @param saveToDisk If true that data will not be saved to disk
+     * @param saveToDisk If true that data will not be saved to disk (at least not by itself)
      */
     constructor(identifier: string, saveToDisk: boolean = true) {
         this.identifier = identifier;

@@ -93,7 +93,8 @@ function autociv_patchModFilter()
 {
 	autociv_patchApplyN("addChatMessage", function (target, that, args)
 	{
-		return botManager.react(args[0]) || target.apply(that, args);
+		let [msg] = args;
+		return botManager.react(msg) || target.apply(that, args);
 	})
 
 	if (!global["getFilteredMods"])
@@ -173,6 +174,7 @@ autociv_patchApplyN("init", function (target, that, args)
 	autociv_InitBots();
 	target.apply(that, args);
 	autociv_patchModFilter();
+	g_autociv_stanza.removeAllValues();
 	g_autociv_stanza.setValue("gamesetup", g_LastGameStanza);
 
 	// FGod command not working
