@@ -7,6 +7,7 @@ uniform float height;
 
 varying vec2 v_tex;
 
+// Crude implementation, 1 pass interpolation (aka no interpolation)
 vec3 radial_chromatic_aberration(vec2 v_tex)
 {
 	vec3 color = texture2D(renderedTex,v_tex).rgb;
