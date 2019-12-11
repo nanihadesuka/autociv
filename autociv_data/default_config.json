@@ -119,5 +119,10 @@
 	"hotkey.autociv.session.formation.set.anti_cavalry": "unused",
 	"hotkey.autociv.session.formation.set.phalanx": "unused",
 	"hotkey.autociv.session.formation.set.scatter": "unused",
-	"hotkey.autociv.session.formation.set.testudo": "unused"
+	"hotkey.autociv.session.formation.set.testudo": "unused",
+	"hotkey.autociv.session.stance.set.violent": "Alt+1",
+	"hotkey.autociv.session.stance.set.aggressive": "Alt+2",
+	"hotkey.autociv.session.stance.set.defensive": "Alt+3",
+	"hotkey.autociv.session.stance.set.passive": "Alt+4",
+	"hotkey.autociv.session.stance.set.standground": "Alt+5"
 }

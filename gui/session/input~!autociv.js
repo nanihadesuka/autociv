@@ -156,6 +156,12 @@ var g_autociv_hotkeysPrefixes = {
 		let formationName = ev.hotkey.split(hotkeyPrefix)[1];
 		autociv_formation.set(formationName);
 		return true;
+	},
+	"autociv.session.stance.set.": function (ev, hotkeyPrefix)
+	{
+		let stanceName = ev.hotkey.split(hotkeyPrefix)[1];
+		autociv_stance.set(stanceName);
+		return true;
 	}
 };
 
