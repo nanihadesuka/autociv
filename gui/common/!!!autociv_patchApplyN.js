@@ -5,13 +5,15 @@
  */
 function autociv_patchApplyN()
 {
-    let prefix, method, patch;
     if (arguments.length < 2)
     {
-        let error = new Error("Insufficient arguments to patch: " + method);
+        let error = new Error("Insufficient arguments to patch: " + arguments[0]);
         warn(error.message)
         warn(error.stack)
+        return;
     }
+
+    let prefix, method, patch;
     if (arguments.length == 2)
     {
         prefix = global;
