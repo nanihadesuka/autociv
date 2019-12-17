@@ -2,12 +2,12 @@
 <program type="glsl">
 
     <vertex file="glsl/radial_chromatic_aberration~autociv.vs">
-        <stream name="pos"/>
-        <stream name="uv0"/>
-        <attrib name="a_vertex" semantics="gl_Vertex"/>
-        <attrib name="a_uv0" semantics="gl_MultiTexCoord0"/>
+        <stream name="pos" />
+        <stream name="uv0" />
+        <attrib name="a_vertex" semantics="gl_Vertex" />
+        <attrib name="a_uv0" semantics="gl_MultiTexCoord0" />
     </vertex>
 
-    <fragment file="glsl/radial_chromatic_aberration~autociv.fs"/>
+    <fragment file="glsl/radial_chromatic_aberration~autociv.fs" />
 
 </program>
