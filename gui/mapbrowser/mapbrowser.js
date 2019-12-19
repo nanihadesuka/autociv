@@ -455,64 +455,32 @@ function Map(fileName, type)
 {
 	this.type = type;
 	this.file = {
-		get path() { return g_Maps.types[type].Path },
+		"path": g_Maps.types[type].Path,
 		"name": fileName,
-		get extension() { return g_Maps.types[type].Extension },
+		"extension": g_Maps.types[type].Extension,
 	};
-	// data, name, description, preview, filter are lazy loaded
+
+	this.data = this.type == "random" ?
+		Engine.ReadJSONFile(this.file.path + this.file.name + this.file.extension) :
+		Engine.LoadMapSettings(this.file.path + this.file.name);
+
+	let settings = this.data && this.data.settings;
+
+	this.name = settings && settings["Name"] ?
+		translate(settings["Name"]) : translate("No map name.");
+
+	this.description = settings && settings["Description"] ?
+		translate(settings["Description"]) : translate("No map description.");
+
+	let previewPrefix = "cropped:" + 400 / 512 + "," + 300 / 512 + ":session/icons/mappreview/";
+	let imageFile = settings && settings["Preview"] || "nopreview.png";
+	this.preview = previewPrefix + imageFile;
+
+	this.filter = settings && settings["Keywords"] || ["all"];
+	if (!Array.isArray(this.filter))
+		this.filter = [this.filter];
 }
 
-Map.previewPrefix = "cropped:" + 400 / 512 + "," + 300 / 512 + ":session/icons/mappreview/";
-
-Map.prototype.parseData = function (key, alternative)
-{
-	return this.data && this.data.settings && this.data.settings[key] || alternative;
-}
-
-Object.defineProperties(Map.prototype, {
-	"data": {
-		get()
-		{
-			return "_data" in this ? this._data :
-				this._data = this.type == "random" ?
-					Engine.ReadJSONFile(this.file.path + this.file.name + this.file.extension) :
-					Engine.LoadMapSettings(this.file.path + this.file.name);
-		}
-	},
-	"name": {
-		get()
-		{
-			return "_name" in this ? this._name :
-				this._name = translate(this.parseData("Name", "No map name."));
-		}
-	},
-	"description": {
-		get()
-		{
-			return "_description" in this ? this._description :
-				this._description = translate(this.parseData("Description", "No map description."));
-		}
-	},
-	"preview": {
-		get()
-		{
-			return "_preview" in this ? this._preview :
-				this._preview = Map.previewPrefix + this.parseData("Preview", "nopreview.png");
-		}
-	},
-	"filter": {
-		get()
-		{
-			if ("_filter" in this)
-				return this._filter;
-
-			this._filter = this.parseData("Keywords", ["all"]);
-			if (!Array.isArray(this._filter))
-				this._filter = [this._filter];
-			return this._filter;
-		}
-	}
-});
 
 function MapsSearchBox(GUIObjectName)
 {
