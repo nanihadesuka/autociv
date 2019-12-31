@@ -62,9 +62,6 @@ g_MiscControls["glMapBrowser"] = {
 		return sprintf(translate("%(hotkey)s : Open map browser."), { "hotkey": hotkey });
 	},
 	"onMouseLeftRelease": () => autociv_openMapBrowser,
-	"onMouseLeftPress": () => () => animate("glMapBrowser").add({ "color": "160 160 160", }),
-	"onMouseEnter": () => () => animate("glMapBrowser").add({ "color": "120 120 120", }),
-	"onMouseLeave": () => () => animate("glMapBrowser").add({ "color": "90 90 90" }),
 	"hidden": () => false
 };
 

@@ -123,8 +123,12 @@
 
 		<object name="glMapBrowser"
 			type="button"
-			sprite="color: 90 90 90"
+			sprite="stretched:autociv_mapbrowser/map_button.png"
+			sprite_over="stretched:color:255 255 255 50:textureAsMask:autociv_mapbrowser/map_button.png"
+			sprite_pressed="stretched:color:255 255 255 100:textureAsMask:autociv_mapbrowser/map_button.png"
+			sprite_disabled="stretched:grayscale:autociv_mapbrowser/map_button.png"
 			hidden="true"
+			font="sans-bold-stroke-13"
 			size="100%-45-60 0%+320-60 100%-45-0 0%+320+0"
 			z="799"
 			textcolor="200 200 200"
@@ -132,6 +136,10 @@
 			text_valign="center">
 			<translatableAttribute id="caption">Map Browser</translatableAttribute>
 		</object>
+
+		<!-- ==========================================
+		- APM STATS AREA - USED IN SESSION TO SHOW APM STATS ==========================================
+		-->
 
 		<object name="gl_autocivSessionAPM"
 			size="100%-100 0 100%-5 0"

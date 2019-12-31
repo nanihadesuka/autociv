@@ -15,16 +15,13 @@ BotManager.prototype.addBot = function (name, object)
 	if (!("load" in object))
 		object.load = function () { };
 
-	object.load = ((originalFunction) =>
+	autociv_patchApplyN(object, "load", function (target, that, args)
 	{
-		return function (active)
-		{
-			this.loaded = true;
-			this.active = active;
-			return originalFunction.apply(this, arguments);
-		}
-	}
-	)(object.load);
+		let [active] = args;
+		that.loaded = true;
+		that.active = active;
+		return target.apply(that, args);
+	});
 
 	this.list.set(name, object);
 }
@@ -263,7 +260,6 @@ botManager.addBot("playerReminder", {
 			return;
 
 		selfMessage(`playerReminder => ${data.sender} : ${this.instance.getValue(data.sender)}`);
-		return true;
 	},
 	"load": function (active)
 	{
