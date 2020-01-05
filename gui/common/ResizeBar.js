@@ -4,12 +4,10 @@ function ResizeBar(object, side, width = 14, objectsHooked = [], isVisibleCondit
 	this.object = this.parseObject(object);
 	this.side = side;
 	this.halfWidth = width / 2;
-	this.objectsHooked = objectsHooked;
+	this.objectsHooked = objectsHooked.map(object => [this.parseObject(object[0]), object[1]]);
 	this.isVisibleCondition = isVisibleCondition;
 	this.wasMouseInside = false;
 	this.selectionOffset = 0;
-	for (let i = 0; i < this.objectsHooked.length; ++i)
-		this.objectsHooked[i][0] = this.parseObject(this.objectsHooked[i][0]);
 }
 
 ResizeBar.mouse = {
@@ -227,6 +225,16 @@ ResizeBar.prototype.drop = function ()
 	return true;
 };
 
+Object.defineProperty(ResizeBar, "bar", {
+	get: function ()
+	{
+		return ResizeBar._bar !== undefined ? ResizeBar._bar :
+			ResizeBar._bar = Engine.GetGUIObjectByName("glResizeBar");
+	},
+	enumerable: true,
+	configurable: true
+});
+
 /**
  * Creates a resize bar for an GUIObject.
  *
@@ -297,11 +305,6 @@ resizeBar.onTick = function ()
 	if (resizeBar.disabled)
 		return;
 
-	if (!ResizeBar.bar)
-	{
-		ResizeBar.bar = Engine.GetGUIObjectByName("glResizeBar");
-		return;
-	}
 
 	if (!ResizeBar.ghostMode)
 		for (let bar of resizeBar.list)

@@ -59,7 +59,7 @@ var g_Maps = {
 };
 
 
-var g_MatchSort = {
+var g_MatchSortMB = {
 	// The lower the score the better the match
 	"scoreText": function (input, text)
 	{
@@ -511,11 +511,11 @@ MapsSearchBox.prototype.updateSearch = function ()
 	if (caption)
 	{
 		// Search all maps with current type and filter
-		list = g_MatchSort.search(caption, list, "name");
+		list = g_MatchSortMB.search(caption, list, "name");
 
 		// Search all maps with current filter
 		if (!list.length)
-			list = g_MatchSort.search(caption, g_Maps.getFromFilter(), "name");
+			list = g_MatchSortMB.search(caption, g_Maps.getFromFilter(), "name");
 	}
 
 	g_MapBrowser.setList(list).goToPage(0);

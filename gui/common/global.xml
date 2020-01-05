@@ -182,5 +182,57 @@
 
 		</object>
 
+		<!-- ==========================================
+		- CLI DATA INFO ==========================================
+		-->
+
+		<object name="gl_autocivCLI"
+			size="50%-350 30% 50%+350 30%"
+			hidden="true"
+			z="201"
+			hotkey="autociv.CLI.toggle">
+			<action on="Press">
+				autociv_CLI.toggle(this);
+			</action>
+
+			<object size="0% 0% 100% 100%+18"
+				type="input"
+				sprite="color:90 90 90"
+				textcolor="255 255 255"
+				textcolor_selected="255 255 255"
+				sprite_selectarea="color:69 106 161"
+				multiline="false"
+				font="mono-stroke-10">
+
+				<action on="textedit">
+					autociv_CLI.input(this);
+				</action>
+
+				<action on="tab">
+					autociv_CLI.tab(this);
+				</action>
+
+				<object size="0% 100% 100% 100%+18"
+					style="ModernList"
+					scrollbar="true"
+					sprite="color: 0 0 0"
+					type="list"
+					textcolor="255 255 255"
+					font="mono-stroke-10">
+
+					<object size="0% 100% 100% 100%+18"
+						type="text"
+						textcolor="255 255 255"
+						sprite="color: 80 80 80"
+						font="mono-stroke-10"
+
+
+						scrollbar ="true"
+						scrollbar_style="ModernScrollBar">
+					</object>
+				</object>
+			</object>
+		</object>
+
 	</object>
 </objects>

@@ -56,7 +56,7 @@ BotManager.prototype.pipe = function (msg)
 {
 	if (!msg)
 		return;
-	return this.pipeWith[this.messageInterface].pipe(deepfreeze(Object.assign({}, msg)));
+	return this.pipeWith[this.messageInterface].pipe(msg);
 }
 
 BotManager.prototype.pipeWith = {
