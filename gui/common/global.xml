@@ -187,45 +187,37 @@
 		-->
 
 		<object name="gl_autocivCLI"
-			size="50%-350 30% 50%+350 30%"
+			size="50%-350 28% 50%+350 28%"
 			hidden="true"
 			z="201"
 			hotkey="autociv.CLI.toggle">
-			<action on="Press">
-				autociv_CLI.toggle(this);
+			<action on="Load">
+				new autociv_CLI(this);
 			</action>
 
 			<object size="0% 0% 100% 100%+18"
 				type="input"
 				sprite="color:90 90 90"
-				textcolor="255 255 255"
+				textcolor="245 245 245"
 				textcolor_selected="255 255 255"
-				sprite_selectarea="color:69 106 161"
+				sprite_selectarea="color:69 200 161"
 				multiline="false"
+				tooltip="Press Enter to eval expression"
 				font="mono-stroke-10">
-
-				<action on="textedit">
-					autociv_CLI.input(this);
-				</action>
-
-				<action on="tab">
-					autociv_CLI.tab(this);
-				</action>
 
 				<object size="0% 100% 100% 100%+18"
 					style="ModernList"
 					scrollbar="true"
 					sprite="color: 0 0 0"
 					type="list"
-					textcolor="255 255 255"
+					textcolor="220 220 220"
 					font="mono-stroke-10">
 
 					<object size="0% 100% 100% 100%+18"
 						type="text"
-						textcolor="255 255 255"
-						sprite="color: 80 80 80"
+						textcolor="230 230 230"
+						sprite="color: 45 45 45"
 						font="mono-stroke-10"
-
 
 						scrollbar ="true"
 						scrollbar_style="ModernScrollBar">
