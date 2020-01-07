@@ -42,9 +42,9 @@ Autociv_CLI.prototype.toggle = function ()
 	{
 		this.GUIInput.blur();
 		this.GUIInput.focus();
+		this.GUIInput.buffer_position = this.GUIInput.caption.length;
 		if (!this.initiated)
 		{
-			this.GUIInput.buffer_position = this.GUIInput.caption.length;
 			this.updateList();
 			this.initiated = true;
 		}
@@ -79,12 +79,27 @@ Autociv_CLI.prototype.getObject = function (input = this.GUIInput.caption)
 		{
 			let t = {};
 			t["access"] = "bracket";
-			t["hasValue"] = i + 1 in lex;
-			t["value"] = t.hasValue ? lex[i + 1] : "";
-			t["hasEndBracket"] = i + 2 in lex ? lex[i + 2].endsWith("]") : false;
+			let hasValue = false;
+			let value = "";
+			let hasEndBracket = false;
+			let k = 1;
+			while (i + k < lex.length)
+			{
+				if (lex[i + k].endsWith("]"))
+				{
+					hasEndBracket = true;
+					break;
+				}
+				hasValue = true;
+				value += lex[i + k];
+				++k;
+			}
+			t["hasValue"] = hasValue;
+			t["value"] = value;
+			t["hasEndBracket"] = hasEndBracket;
 			t["valid"] = t.hasValue && t.hasEndBracket;
 			chain.push(t);
-			i += 2;
+			i += k;
 		}
 		else if (lex[i] == ".")
 		{
@@ -106,7 +121,6 @@ Autociv_CLI.prototype.getObject = function (input = this.GUIInput.caption)
 			chain.push(t);
 		}
 	}
-
 
 	let object = global;
 	let prefix = "";
