@@ -35,7 +35,15 @@ autociv_matchsort.scoreText = function (input, text)
     if (!input || !text)
         return undefined;
 
+    // Exact match
+    if (input == text)
+        return -16000;
+
     text = text.toLowerCase();
+
+    // Exact match lowercased (relaxed)
+    if (input == text)
+        return -8000;
 
     let score = 0;
     let offset = -1;
@@ -53,5 +61,7 @@ autociv_matchsort.scoreText = function (input, text)
         score += offsetNext + isConsecutive * offsetNext;
         offset = offsetNext;
     }
+    if (input.length < text.length)
+        score += text.length - input.length;
     return score;
 };

@@ -19,6 +19,7 @@ function Autociv_CLI(GUI)
 	this.list_data = [];
 	this.prefix = "";
 	this.showDepth = 4;
+	this.previewLength = 90;
 
 	this.initiated = false;
 }
@@ -173,7 +174,7 @@ Autociv_CLI.prototype.updateList = function ()
 	if (obj.empty)
 		return;
 
-	let results = []
+	let results = [];
 
 	if (obj.key.access == "dot")
 	{
@@ -217,7 +218,7 @@ Autociv_CLI.prototype.updateList = function ()
 	if (results.length == 1 && results[0] == obj.key.value)
 		results = [];
 
-	let truncate = text => text.length > 60 ? text.slice(0, 17) + "..." : text;
+	let truncate = text => text.length > this.previewLength ? text.slice(0, this.previewLength - 3) + "..." : text;
 
 	this.GUIList.list = results.map(v =>
 	{
@@ -226,9 +227,9 @@ Autociv_CLI.prototype.updateList = function ()
 		text += escapeText(this.accessFormat(v, obj.key.access, this.getType(obj.parent) == "array"));
 		text += " " + this.typeFormat(type)
 		if (type == "boolean" || type == "number" || type == "bigint")
-			text += " " + truncate(this.escapeText(`${obj.parent[v]}`));
+			text += " " + truncate(escapeText(`${obj.parent[v]}`));
 		else if (type == "string")
-			text += " " + truncate(this.escapeText(`"${obj.parent[v]}"`));
+			text += " " + truncate(escapeText(`"${obj.parent[v]}"`));
 
 		return text;
 	});
@@ -241,6 +242,8 @@ Autociv_CLI.prototype.updateList = function ()
 
 	if (obj.key.value in obj.parent)
 		this.show(obj.parent[obj.key.value]);
+	else
+		this.show("", "", true);
 };
 
 Autociv_CLI.prototype.tab = function ()
@@ -278,7 +281,7 @@ Autociv_CLI.prototype.getType = function (val)
 	}
 }
 
-Autociv_CLI.prototype.escapeText = function (t) { return t.replace(/([\\\[|\]])/g, "\\$1"); };
+// Autociv_CLI.prototype.escapeText = function (t) { return t.replace(/([\\\[|\]])/g, "\\$1"); };
 
 Autociv_CLI.prototype.typeFormat = function (t) { return `[color="159 118 148"]\\[${t}\\][/color]`; };
 
@@ -297,12 +300,12 @@ Autociv_CLI.prototype.represent = function (obj, depth = this.showDepth, prefix 
 	switch (type)
 	{
 		case "undefined": return `undefined` + typeText;
-		case "boolean": return this.escapeText(`${obj}`) + typeText;
-		case "number": return this.escapeText(`${obj}`) + typeText;
-		case "bigint": return this.escapeText(`${obj}`) + typeText;
-		case "string": return "\"" + this.escapeText(`${obj}`) + "\"" + typeText;
+		case "boolean": return escapeText(`${obj}`) + typeText;
+		case "number": return escapeText(`${obj}`) + typeText;
+		case "bigint": return escapeText(`${obj}`) + typeText;
+		case "string": return "\"" + escapeText(`${obj}`) + "\"" + typeText;
 		case "symbol": return typeText;
-		case "function": return prefix ? typeText : this.escapeText(obj.toSource().replace(/	/g, this.spacing));
+		case "function": return prefix ? typeText : escapeText(obj.toSource().replace(/	/g, this.spacing));
 		case "null": return "null" + typeText;
 		case "array": {
 			let output = obj.map((val, index) =>
@@ -319,7 +322,7 @@ Autociv_CLI.prototype.represent = function (obj, depth = this.showDepth, prefix 
 		case "object": {
 			let output = Object.keys(obj).map(key =>
 			{
-				let keyText = `[color="202 177 55"]${this.escapeText(key)}[/color] : `
+				let keyText = `[color="202 177 55"]${escapeText(key)}[/color] : `
 
 				return prefix + this.spacing + keyText +
 					this.represent(
@@ -334,18 +337,28 @@ Autociv_CLI.prototype.represent = function (obj, depth = this.showDepth, prefix 
 	}
 }
 
-Autociv_CLI.prototype.show = function (object, text = this.GUIInput.caption)
+Autociv_CLI.prototype.show = function (object, text = this.GUIInput.caption, clear = false)
 {
-	let result = `${this.escapeText(text.split("=")[0].trim())} : ${this.represent(object)}`;
+	if (clear)
+	{
+		this.GUIText.caption = "";
+		this.GUIText.size = Object.assign(this.GUIText.size, { "bottom": 1 * 16 });
+		return;
+	}
+
+	let result = `${escapeText(text.split("=")[0].trim())} : ${this.represent(object)}`;
 	this.GUIText.caption = result;
-	let nLines = (result.match(/\n/g) || '').length + 1;
+	// Number of linebreaks
+	let nLines1 = Math.min((result.match(/\n/g) || '').length + 1, this.inspectVisibleSize);
+	// Font is mono
+	let nLines2 = Math.min(Math.floor(result.length / 90) + 1, this.inspectVisibleSize);
 	this.GUIText.size = Object.assign(this.GUIText.size, {
-		"bottom": Math.min(nLines, this.inspectVisibleSize) * 16
+		"bottom": Math.max(nLines1, nLines2) * 16
 	});
 };
 
 
 function autociv_CLI_load(that)
 {
-	var autociv_CLI = new Autociv_CLI(that);
+	global["g_autociv_CLI"] = new Autociv_CLI(that);
 };

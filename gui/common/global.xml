@@ -208,6 +208,7 @@
 				<object size="0% 100% 100% 100%+18"
 					style="ModernList"
 					scrollbar="true"
+					scrollbar_style="ModernScrollBar"
 					sprite="color: 0 0 0"
 					type="list"
 					textcolor="220 220 220"
@@ -218,8 +219,6 @@
 						textcolor="230 230 230"
 						sprite="color: 45 45 45"
 						font="mono-stroke-10"
-
-
 
 						scrollbar ="true"
 						scrollbar_style="ModernScrollBar">
