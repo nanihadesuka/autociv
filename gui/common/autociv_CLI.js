@@ -20,18 +20,18 @@ function Autociv_CLI(GUI)
 	this.prefix = "";
 	this.showDepth = 4;
 
-	this.toggle()
+	this.initiated = false;
 }
 
 Autociv_CLI.prototype.showFromList = function ()
 {
-	let caption = this.list_data[this.GUIList.selected];
-	this.eval(caption)
+	let caption = this.prefix + this.list_data[this.GUIList.selected];
+	this.eval(null, caption)
 }
 
 Autociv_CLI.prototype.setFromList = function ()
 {
-	this.GUIInput.caption = this.list_data[this.GUIList.selected];
+	this.GUIInput.caption = this.prefix + this.list_data[this.GUIList.selected];
 	this.updateList()
 }
 
@@ -42,8 +42,12 @@ Autociv_CLI.prototype.toggle = function ()
 	{
 		this.GUIInput.blur();
 		this.GUIInput.focus();
-		this.GUIInput.buffer_position = this.GUIInput.caption.length;
-		this.updateList();
+		if (!this.initiated)
+		{
+			this.GUIInput.buffer_position = this.GUIInput.caption.length;
+			this.updateList();
+			this.initiated = true;
+		}
 	}
 	else
 		this.GUIInput.blur();
@@ -52,53 +56,177 @@ Autociv_CLI.prototype.toggle = function ()
 Autociv_CLI.prototype.eval = function (ev, text = this.GUIInput.caption)
 {
 	eval(text);
-	let [prefix, key, parent] = this.getObject(text);
-	if (typeof parent == "object" && key in parent)
-		this.show(parent[key], text);
+	text = text.split("=")[0];
+	let obj = this.getObject(text);
+	if (obj.empty)
+		return;
+
+	if (obj.key.value in obj.parent)
+		this.show(obj.parent[obj.key.value], text);
 };
 
 /**
  * Pitfall: can only work with keys that are valid with dot syntax
  */
-Autociv_CLI.prototype.getObject = function (objectChain = this.GUIInput.caption)
+Autociv_CLI.prototype.getObject = function (input = this.GUIInput.caption)
 {
-	objectChain = objectChain.trim().split(" ")[0].split(".");
-	let object = global;
-	let prefix = "";
-	for (let i = 0; i < objectChain.length - 1; ++i)
+	let lex = input.trim().split(/(\["?)|("?\])|(\.)/g).filter(v => v);
+
+	let chain = [];
+	for (let i = 0; i < lex.length; ++i)
 	{
-		object = object[objectChain[i]];
-		let type = this.getType(object);
-		if (type == "array" || type == "object")
-			prefix += objectChain[i] + ".";
+		if (lex[i].startsWith("["))
+		{
+			let t = {};
+			t["access"] = "bracket";
+			t["hasValue"] = i + 1 in lex;
+			t["value"] = t.hasValue ? lex[i + 1] : "";
+			t["hasEndBracket"] = i + 2 in lex ? lex[i + 2].endsWith("]") : false;
+			t["valid"] = t.hasValue && t.hasEndBracket;
+			chain.push(t);
+			i += 2;
+		}
+		else if (lex[i] == ".")
+		{
+			let t = {};
+			t["access"] = "dot";
+			t["hasValue"] = i + 1 in lex;
+			t["value"] = t.hasValue ? lex[i + 1] : "";
+			t["valid"] = t.hasValue;
+			chain.push(t)
+			i += 1;
+		}
 		else
-			return [""];
+		{
+			let t = {};
+			t["access"] = "word";
+			t["hasValue"] = i in lex;
+			t["value"] = lex[i];
+			t["valid"] = t.hasValue;
+			chain.push(t);
+		}
 	}
 
-	let key = objectChain[objectChain.length - 1];
 
-	return [prefix, key, object];
+	let object = global;
+	let prefix = "";
+
+	if (!chain.length)
+		return {
+			"prefix": prefix,
+			"key": {
+				"access": "global",
+				"hasValue": true,
+				"value": "",
+				"valid": true,
+			},
+			"parent": object
+		};
+
+	let valid = t => (this.getType(t) == "array" || this.getType(t) == "object");
+
+	for (let entry of chain.slice(0, -1))
+	{
+		if (!entry.valid || !valid(object[entry.value]))
+			return { "empty": true };
+		let parentArray = this.getType(object) == "array";
+		object = object[entry.value];
+		entry.type = this.getType(object);
+		prefix += this.accessFormat(entry.value, entry.access, parentArray);
+	}
+
+	return {
+		"prefix": prefix,
+		"key": chain[chain.length - 1],
+		"parent": object
+	};
 };
+
+Autociv_CLI.prototype.accessFormat = function (value, access, arrayNumber = false)
+{
+	switch (access)
+	{
+		case "dot": return `.${value}`;
+		case "bracket": return arrayNumber ? `[${value}]` : `["${value}"]`;
+		case "word": return value;
+		default: return value;
+	}
+}
+
 Autociv_CLI.prototype.updateList = function ()
 {
-	let [prefix, key, parent] = this.getObject();
+	let obj = this.getObject();
+	if (obj.empty)
+		return;
 
-	let key_candidates = parent ? Object.keys(parent) : [];
-	let results = key ? autociv_matchsort(key, key_candidates) : key_candidates;
+	let results = []
 
-	if (results.length == 1 && results[0] == key)
+	if (obj.key.access == "dot")
+	{
+		if (this.getType(obj.parent) != "object")
+			return;
+
+		let key_candidates = Object.keys(obj.parent);
+		results = obj.key.hasValue ? autociv_matchsort(obj.key.value, key_candidates) : key_candidates;
+	}
+	else if (obj.key.access == "bracket")
+	{
+		let type = this.getType(obj.parent);
+		if (type == "object")
+		{
+			let key_candidates = Object.keys(obj.parent);
+			results = obj.key.hasValue ? autociv_matchsort(obj.key.value, key_candidates) : key_candidates;
+		}
+		else if (type == "array")
+		{
+			let key_candidates = Object.keys(obj.parent);
+			results = obj.key.hasValue ? autociv_matchsort(obj.key.value, key_candidates) : key_candidates;
+		}
+		else
+			return;
+	}
+	else if (obj.key.access == "word")
+	{
+		if (this.getType(obj.parent) != "object")
+			return;
+
+		let key_candidates = Object.keys(obj.parent);
+		results = obj.key.hasValue ? autociv_matchsort(obj.key.value, key_candidates) : key_candidates;
+	}
+	else if (obj.key.access == "global")
+	{
+		results = Object.keys(obj.parent);
+	}
+	else
+		return;
+
+	if (results.length == 1 && results[0] == obj.key.value)
 		results = [];
 
-	this.GUIList.list = results.map(v => prefix + v + " " + this.typeFormat(this.getType(parent[v])));
-	this.list_data = results;
-	this.prefix = prefix;
+	let truncate = text => text.length > 60 ? text.slice(0, 17) + "..." : text;
+
+	this.GUIList.list = results.map(v =>
+	{
+		let text = escapeText(obj.prefix);
+		let type = this.getType(obj.parent[v]);
+		text += escapeText(this.accessFormat(v, obj.key.access, this.getType(obj.parent) == "array"));
+		text += " " + this.typeFormat(type)
+		if (type == "boolean" || type == "number" || type == "bigint")
+			text += " " + truncate(this.escapeText(`${obj.parent[v]}`));
+		else if (type == "string")
+			text += " " + truncate(this.escapeText(`"${obj.parent[v]}"`));
+
+		return text;
+	});
+	this.list_data = results.map(v => this.accessFormat(v, obj.key.access, this.getType(obj.parent) == "array"));
+	this.prefix = obj.prefix;
 
 	this.GUIList.size = Object.assign(this.GUIList.size, {
 		"bottom": Math.min(results.length, this.suggestionsVisibleSize) * 18
 	});
 
-	if (typeof parent == "object" && key in parent)
-		this.show(parent[key]);
+	if (obj.key.value in obj.parent)
+		this.show(obj.parent[obj.key.value]);
 };
 
 Autociv_CLI.prototype.tab = function ()
@@ -110,6 +238,7 @@ Autociv_CLI.prototype.tab = function ()
 	}
 	this.updateList();
 };
+
 Autociv_CLI.prototype.getType = function (val)
 {
 	let type = typeof val;
@@ -135,7 +264,6 @@ Autociv_CLI.prototype.getType = function (val)
 	}
 }
 
-
 Autociv_CLI.prototype.escapeText = function (t) { return t.replace(/([\\\[|\]])/g, "\\$1"); };
 
 Autociv_CLI.prototype.typeFormat = function (t) { return `[color="159 118 148"]\\[${t}\\][/color]`; };
@@ -147,7 +275,7 @@ Autociv_CLI.prototype.represent = function (obj, depth = this.showDepth, prefix 
 	const typeText = " " + this.typeFormat(type);
 
 	if (!depth && (type == "array" || type == "object"))
-		return "... " + typeText;
+		return "..." + typeText;
 
 	if (obj == global)
 		depth = 1;
@@ -194,10 +322,16 @@ Autociv_CLI.prototype.represent = function (obj, depth = this.showDepth, prefix 
 
 Autociv_CLI.prototype.show = function (object, text = this.GUIInput.caption)
 {
-	let result = `${this.escapeText(text.split(" ")[0])} : ${this.represent(object)}`;
+	let result = `${this.escapeText(text.split("=")[0].trim())} : ${this.represent(object)}`;
 	this.GUIText.caption = result;
 	let nLines = (result.match(/\n/g) || '').length + 1;
 	this.GUIText.size = Object.assign(this.GUIText.size, {
 		"bottom": Math.min(nLines, this.inspectVisibleSize) * 16
 	});
+};
+
+
+function autociv_CLI_load(that)
+{
+	var autociv_CLI = new Autociv_CLI(that);
 };

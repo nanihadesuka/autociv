@@ -192,7 +192,7 @@
 			z="201"
 			hotkey="autociv.CLI.toggle">
 			<action on="Load">
-				new Autociv_CLI(this);
+				autociv_CLI_load(this);
 			</action>
 
 			<object size="0% 0% 100% 100%+18"
@@ -218,6 +218,7 @@
 						textcolor="230 230 230"
 						sprite="color: 45 45 45"
 						font="mono-stroke-10"
+
 
 
 						scrollbar ="true"
