@@ -49,7 +49,7 @@ Autociv_CLI.prototype.toggle = function ()
 		this.GUIInput.blur();
 };
 
-Autociv_CLI.prototype.eval = function (text = this.GUIInput.caption)
+Autociv_CLI.prototype.eval = function (ev, text = this.GUIInput.caption)
 {
 	eval(text);
 	let [prefix, key, parent] = this.getObject(text);
