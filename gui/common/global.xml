@@ -187,7 +187,7 @@
 		-->
 
 		<object name="gl_autocivCLI"
-			size="50%-350 28% 50%+350 28%"
+			size="50%-400 28% 50%+400 28%"
 			hidden="true"
 			z="201"
 			hotkey="autociv.CLI.toggle">

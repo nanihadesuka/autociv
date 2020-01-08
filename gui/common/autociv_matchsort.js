@@ -62,6 +62,6 @@ autociv_matchsort.scoreText = function (input, text)
         offset = offsetNext;
     }
     if (input.length < text.length)
-        score += text.length - input.length;
+        score += Math.log(text.length - input.length);
     return score;
 };
