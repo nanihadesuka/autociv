@@ -19,17 +19,9 @@ function Autociv_CLI(GUI)
 	this.list_data = [];
 	this.prefix = "";
 	this.showDepth = 2;
-	this.previewLength = 50;
+	this.previewLength = 140;
 
 	this.initiated = false;
-
-	setTimeout(() =>
-	{
-		// this.GUIInput.caption = `g_GameAttributes.settings.cr`;
-		// this.GUIInput.caption = `loadCivData`;
-		this.GUIInput.caption = `g_GameList[`;
-		this.toggle();
-	}, 10)
 }
 
 Autociv_CLI.prototype.getType = function (val)
@@ -95,8 +87,13 @@ Autociv_CLI.prototype.inspectSelectedSuggestion = function ()
 	if (this.GUIList.selected == -1)
 		return;
 
-	let caption = this.prefix + this.list_data[this.GUIList.selected];
-	this.evalInput(null, caption)
+	let text = this.prefix + this.list_data[this.GUIList.selected];
+	let entry = this.getEntry(text);
+	if (!entry)
+		return;
+
+	if (entry.key.value in entry.parent)
+		this.updateObjectInspector(entry.parent[entry.key.value]);
 }
 
 Autociv_CLI.prototype.setSelectedSuggestion = function ()
@@ -132,7 +129,10 @@ Autociv_CLI.prototype.toggle = function ()
 
 Autociv_CLI.prototype.evalInput = function (ev, text = this.GUIInput.caption)
 {
-	eval(text);
+	let log = eval(text);
+	try { warn(JSON.stringify(log, null, 2)) }
+	catch (error) { }
+
 	text = text.split("=")[0];
 	let entry = this.getEntry(text);
 	if (!entry)
@@ -264,7 +264,7 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 		{
 			let key_candidates = Object.keys(entry.parent);
 			let results = entry.key.hasValue ? autociv_matchsort(entry.key.value.replace(/^"|"$/g, ""), key_candidates) : key_candidates;
-			if (entry.key.hasEndBracket && results[0] == entry.key.value)
+			if (entry.key.hasEndBracket && results.length && results[0] == entry.key.value)
 				results = [];
 			return results;
 		}
@@ -272,7 +272,7 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 		{
 			let key_candidates = Object.keys(entry.parent);
 			let results = entry.key.hasValue ? autociv_matchsort(entry.key.value, key_candidates) : key_candidates;
-			if (entry.key.hasEndBracket && results[0] == entry.key.value)
+			if (entry.key.hasEndBracket && results.length && results[0] == entry.key.value)
 				results = [];
 			return results;
 		}
@@ -295,17 +295,13 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 	}
 };
 
-Autociv_CLI.prototype.updateSuggestions = function ()
+Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
 {
-	let entry = this.getEntry(this.GUIInput.caption);
-	if (!entry)
-		return;
-
-	let suggestions = this.getSuggestions(entry)
-	if (!suggestions)
-		return;
-
-	let truncate = text => text.length > this.previewLength ? text.slice(0, this.previewLength - 3) + "..." : text;
+	let truncate = (text, start) =>
+	{
+		let alloted = this.previewLength - start - 3;
+		return alloted < text.length ? text.slice(0, alloted) + "..." : text;
+	}
 
 	let isArray = this.getType(entry.parent) == "array";
 	this.GUIList.list = suggestions.map(key =>
@@ -314,10 +310,11 @@ Autociv_CLI.prototype.updateSuggestions = function ()
 		let text = entry.prefixColored;
 		text += escapeText(this.accessFormat(key, entry.key.access, isArray));
 		text += " " + this.typeColored(type);
+		let length = text.replace(/[^\\]\[.+[^\\]\]/g, "").replace(/\\\\\[|\\\\\]/g, " ").length;
 		if (type == "boolean" || type == "number" || type == "bigint")
-			text += " " + truncate(escapeText(`${entry.parent[key]}`));
+			text += " " + truncate(escapeText(`${entry.parent[key]}`), length);
 		else if (type == "string")
-			text += " " + truncate(escapeText(`"${entry.parent[key]}"`));
+			text += " " + truncate(escapeText(`"${entry.parent[key]}"`), length);
 
 		return text;
 	});
@@ -327,6 +324,19 @@ Autociv_CLI.prototype.updateSuggestions = function ()
 	this.GUIList.size = Object.assign(this.GUIList.size, {
 		"bottom": Math.min(suggestions.length, this.suggestionsVisibleSize) * 18
 	});
+}
+
+Autociv_CLI.prototype.updateSuggestions = function (event, text = this.GUIInput.caption)
+{
+	let entry = this.getEntry(text);
+	if (!entry)
+		return;
+
+	let suggestions = this.getSuggestions(entry)
+	if (!suggestions)
+		return;
+
+	this.updateSuggestionList(entry, suggestions);
 
 	if (entry.key.value in entry.parent)
 		this.updateObjectInspector(entry.parent[entry.key.value]);
