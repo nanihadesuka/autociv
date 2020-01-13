@@ -192,34 +192,22 @@
 			z="201"
 			hotkey="autociv.CLI.toggle">
 			<action on="Load">
-				autociv_CLI_load(this);
+				global["g_autociv_CLI"] = new Autociv_CLI(this);
 			</action>
 
-			<object size="0% 0% 100% 100%+18"
+			<object size="0% 0% 100% 100%+20"
 				type="input"
-				sprite="color:90 90 90"
-				textcolor="245 245 245"
-				textcolor_selected="255 255 255"
-				sprite_selectarea="color:69 200 161"
 				multiline="false"
-				tooltip="Press Enter to eval expression"
-				font="mono-stroke-10">
+				tooltip="Press Enter to eval expression">
 
-				<object size="0% 100% 100% 100%+18"
+				<object size="0% 100% 100% 100%+20"
+					type="list"
 					style="ModernList"
 					scrollbar="true"
-					scrollbar_style="ModernScrollBar"
-					sprite="color: 0 0 0"
-					type="list"
-					textcolor="220 220 220"
-					font="mono-stroke-10">
+					scrollbar_style="ModernScrollBar">
 
-					<object size="0% 100% 100% 100%+18"
+					<object size="0% 100% 100% 100%+20"
 						type="text"
-						textcolor="230 230 230"
-						sprite="color: 45 45 45"
-						font="mono-stroke-10"
-
 						scrollbar ="true"
 						scrollbar_style="ModernScrollBar">
 					</object>

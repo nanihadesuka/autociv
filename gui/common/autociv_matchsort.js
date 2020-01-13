@@ -1,49 +1,56 @@
 /**
  * Returns a new list filtered and sorted by the similarity with the input text
+ * Order of sorting:
+ * 1. Exact match
+ * 2. Exact lowercase match
+ * 3. Starting letters match and sorted alphabetically
+ * 4. By similarity score (lookahead match)
+ * 5. Entry is discarded if one of the previous don't apply
+ *
  * @param {string} input text to seach for
  * @param {string[] | object[]} list
  * @param {string} [key] text to use if the list is made up of objects
  */
 function autociv_matchsort(input, list, key = null)
 {
-    input = input.toLowerCase();
+    let Linput = input.toLowerCase();
 
     let result = [];
 
-    if (key == null)
-        for (let text of list)
-        {
-            let score = autociv_matchsort.scoreText(input, text);
-            if (score !== undefined)
-                result.push([score, text])
-        }
-    else
-        for (let obj of list)
-        {
-            let score = autociv_matchsort.scoreText(input, obj[key]);
-            if (score !== undefined)
-                result.push([score, obj])
-        }
+    for (let obj of list)
+    {
+        let text = key == null ? obj : obj[key];
+        let score = autociv_matchsort.scoreText(Linput, text);
+        if (score !== undefined)
+            result.push([obj, score, text, text.startsWith(input)])
+    }
 
-    result.sort((a, b) => a[0] - b[0]);
-    return result.map(v => v[1]);
+    result.sort(([o1, s1, t1, a1], [o2, s2, t2, a2]) =>
+    {
+        if (a1 && a2)
+            return t1.localeCompare(t2);
+        else if (a1)
+            return -1;
+        else if (a2)
+            return 1;
+
+        return s1 - s2;
+    });
+    return result.map(v => v[0]);
 };
 
 // The lower the score the better the match
 autociv_matchsort.scoreText = function (input, text)
 {
-    if (!input || !text)
-        return undefined;
-
     // Exact match
     if (input == text)
-        return -16000;
+        return -10E7;
 
     text = text.toLowerCase();
 
-    // Exact match lowercased (relaxed)
+    // Exact match relaxed
     if (input == text)
-        return -8000;
+        return -10E7/2;
 
     let score = 0;
     let offset = -1;
@@ -61,7 +68,5 @@ autociv_matchsort.scoreText = function (input, text)
         score += offsetNext + isConsecutive * offsetNext;
         offset = offsetNext;
     }
-    if (input.length < text.length)
-        score += Math.log(text.length - input.length);
     return score;
 };
