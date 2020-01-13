@@ -195,7 +195,7 @@
 				global["g_autociv_CLI"] = new Autociv_CLI(this);
 			</action>
 
-			<object size="0% 0% 100% 100%+20"
+			<object size="0% 0% 100%-20 100%+20"
 				type="input"
 				multiline="false"
 				tooltip="Press Enter to eval expression">
@@ -213,6 +213,8 @@
 					</object>
 				</object>
 			</object>
+			<object size="100%-20 % 100% 100%+20"
+				type="text" />
 		</object>
 
 	</object>

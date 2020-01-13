@@ -29,8 +29,9 @@ function Autociv_CLI(GUI)
 	// setTimeout(() =>
 	// {
 	// 	// this.GUIInput.caption = `g_TradeDialog.barterPanel.barterButtonManager.buttons[0].`;
-	// 	// this.GUIInput.caption = `g_ChatMessages`;
-	// 	this.GUIInput.caption = `autociv_matchsort`;
+	// 	this.GUIInput.caption = `a?g_ChatMessages[`;
+	// 	// this.GUIInput.caption = `autociv_matchsort.`;
+	// 	// this.GUIInput.caption = `a?g_CivData.athen.`;
 	// 	this.toggle();
 	// }, 20)
 }
@@ -43,7 +44,19 @@ Autociv_CLI.prototype.spacing = " ".repeat(8);
 Autociv_CLI.prototype.list_data = [];
 Autociv_CLI.prototype.prefix = "";
 Autociv_CLI.prototype.showDepth = 2;
-Autociv_CLI.prototype.previewLength = 110;
+Autociv_CLI.prototype.previewLength = 100;
+Autociv_CLI.prototype.searchFilter = "";
+Autociv_CLI.prototype.searchFilterKeys = {
+	"u": "undefined",
+	"b": "boolean",
+	"n": "number",
+	"i": "bigint",
+	"s": "string",
+	"f": "function",
+	"l": "null",
+	"a": "array",
+	"o": "object"
+};
 Autociv_CLI.prototype.style = {
 	"input": {
 		"background": "90 90 90",
@@ -79,6 +92,25 @@ Autociv_CLI.prototype.style = {
 Autociv_CLI.prototype.sort = function (value, candidates)
 {
 	return autociv_matchsort(value, candidates);
+}
+
+Autociv_CLI.prototype.sortSearchFilter = function (parent, candidates)
+{
+	if (!(this.searchFilter in this.searchFilterKeys))
+		return candidates;
+
+	let type = this.searchFilterKeys[this.searchFilter];
+
+	return candidates.sort((a, b) =>
+	{
+		let isa = this.getType(parent[a]) == type;
+		let isb = this.getType(parent[b]) == type;
+		if (isa && isb || !isa && !isb)
+			return 0;
+		if (isa)
+			return -1;
+		return +1;
+	});
 }
 
 Autociv_CLI.prototype.getType = function (val)
@@ -170,7 +202,7 @@ Autociv_CLI.prototype.toggle = function ()
 	this.GUIInput.buffer_position = this.GUIInput.caption.length;
 	if (!this.initiated)
 	{
-		this.updateSuggestions();
+		this.updateSuggestions({});
 		this.initiated = true;
 	}
 };
@@ -328,6 +360,7 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 
 		let candidates = this.getCandidates(entry.parent);
 		let results = entry.key.hasValue ? this.sort(entry.key.value, candidates) : this.sort("", candidates);
+		results = this.sortSearchFilter(entry.parent, results);
 		if (results.length == 1 && results[0] == entry.key.value)
 			results = [];
 		return results;
@@ -342,6 +375,7 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 		{
 			let candidates = this.getCandidates(entry.parent);
 			let results = entry.key.hasValue ? this.sort(entry.key.value.replace(/^"|"$/g, ""), candidates) : this.sort("", candidates);
+			results = this.sortSearchFilter(entry.parent, results);
 			if (entry.key.hasEndBracket && results.length && results[0] == entry.key.value)
 				results = [];
 			return results;
@@ -351,6 +385,7 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 			let candidates = this.getCandidates(entry.parent);
 			let results = entry.key.hasValue ? this.sort(entry.key.value, candidates).sort((a, b) => (+a) - (+b)) :
 				candidates;
+			results = this.sortSearchFilter(entry.parent, results);
 			if (entry.key.hasEndBracket && results.length && results[0] == entry.key.value)
 				results = [];
 			return results;
@@ -363,7 +398,7 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 
 		let candidates = this.getCandidates(entry.parent);
 		let results = entry.key.hasValue ? this.sort(entry.key.value, candidates) : this.sort("", candidates);
-
+		results = this.sortSearchFilter(entry.parent, results);
 		if (results.length == 1 && results[0] == entry.key.value)
 			results = [];
 		return results;
@@ -408,6 +443,15 @@ Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
 
 Autociv_CLI.prototype.updateSuggestions = function (event, text = this.GUIInput.caption)
 {
+	if (event && /^[\w]{0,1}\?.*/.test(text))
+	{
+		let clear = text[0] == "?";
+		this.searchFilter = clear ? "" : text[0];
+		this.GUIInput.caption = text.slice(clear ? 1 : 2);
+		this.GUIInput.buffer_position = Math.min(0, this.GUIInput.buffer_position - clear ? 1 : 2);
+		return this.updateSuggestions();
+	}
+
 	let entry = this.getEntry(text);
 	if (!entry)
 		return;
@@ -437,12 +481,11 @@ Autociv_CLI.prototype.getObjectRepresentation = function (obj, depth = this.show
 	let type = this.getType(obj);
 	let typeTag = ` [color="${this.style.typeTag}"]\\[${type}\\][/color]`;
 
-	if (!depth && type != "array" && type != "object" && type != "function")
+	if (depth < 1 && (type == "array" || type == "object" || type == "function"))
 		return "..." + typeTag;
 
 	if (obj == global)
-		depth = 1;
-
+		depth = Math.min(1, depth);
 
 	let f = (t, v) => `[color="${this.style.type[t] || this.style.type["default"]}"]${this.escape(v)}[/color] `
 
