@@ -2,6 +2,7 @@ function Autociv_CLI(GUI)
 {
 	this.GUI = GUI;
 	this.GUIInput = this.GUI.children[0];
+	this.GUIInputFilter = this.GUI.children[1];
 	this.GUIList = this.GUIInput.children[0];
 	this.GUIText = this.GUIList.children[0];
 
@@ -10,6 +11,7 @@ function Autociv_CLI(GUI)
 	this.GUIInput.textcolor = this.style.input.text;
 	this.GUIInput.textcolor_selected = this.style.input.text_selected;
 	this.GUIInput.sprite_selectarea = "color:" + this.style.input.area_selected;
+	this.GUIInput.tooltip = "Press Enter to eval expression";
 
 	this.GUIList.sprite = "color:" + this.style.suggestions.background;
 	this.GUIList.font = this.style.font;
@@ -46,6 +48,7 @@ Autociv_CLI.prototype.prefix = "";
 Autociv_CLI.prototype.showDepth = 2;
 Autociv_CLI.prototype.previewLength = 100;
 Autociv_CLI.prototype.searchFilter = "";
+
 Autociv_CLI.prototype.searchFilterKeys = {
 	"u": "undefined",
 	"b": "boolean",
@@ -57,6 +60,7 @@ Autociv_CLI.prototype.searchFilterKeys = {
 	"a": "array",
 	"o": "object"
 };
+
 Autociv_CLI.prototype.style = {
 	"input": {
 		"background": "90 90 90",
@@ -71,6 +75,10 @@ Autociv_CLI.prototype.style = {
 	"inspector": {
 		"background": "45 45 45",
 		"text": "230 230 230",
+	},
+	"searchFilter": {
+		"background": "55 55 55",
+		"text": "210 210 210",
 	},
 	"typeTag": "128 81 102",
 	"type": {
@@ -92,7 +100,7 @@ Autociv_CLI.prototype.style = {
 Autociv_CLI.prototype.sort = function (value, candidates)
 {
 	return autociv_matchsort(value, candidates);
-}
+};
 
 Autociv_CLI.prototype.sortSearchFilter = function (parent, candidates)
 {
@@ -111,7 +119,7 @@ Autociv_CLI.prototype.sortSearchFilter = function (parent, candidates)
 			return -1;
 		return +1;
 	});
-}
+};
 
 Autociv_CLI.prototype.getType = function (val)
 {
@@ -132,7 +140,7 @@ Autociv_CLI.prototype.getType = function (val)
 		}
 		default: return "unknown type";
 	}
-}
+};
 
 Autociv_CLI.prototype.accessFormat = function (value, access, isArray)
 {
@@ -143,13 +151,14 @@ Autociv_CLI.prototype.accessFormat = function (value, access, isArray)
 		case "word": return value;
 		default: return value;
 	}
-}
+};
 
 // escapeText from a24
 Autociv_CLI.prototype.escape = function (obj)
 {
 	return obj.toString().replace(/\\/g, "\\\\").replace(/\[/g, "\\[");
-}
+};
+
 Autociv_CLI.prototype.coloredAccessFormat = function (value, access, isArray, type)
 {
 	let text = `[color="${this.style.type[type] || this.style.type.default}"]${this.escape(value)}[/color]`;
@@ -160,7 +169,7 @@ Autociv_CLI.prototype.coloredAccessFormat = function (value, access, isArray, ty
 		case "word": return text;
 		default: return text;
 	}
-}
+};
 
 Autociv_CLI.prototype.inspectSelectedSuggestion = function ()
 {
@@ -174,7 +183,7 @@ Autociv_CLI.prototype.inspectSelectedSuggestion = function ()
 
 	if (entry.key.value in entry.parent)
 		this.updateObjectInspector(entry.parent[entry.key.value], text);
-}
+};
 
 Autociv_CLI.prototype.setSelectedSuggestion = function ()
 {
@@ -186,7 +195,7 @@ Autociv_CLI.prototype.setSelectedSuggestion = function ()
 	this.GUIInput.blur();
 	this.GUIInput.focus();
 	this.GUIInput.buffer_position = this.GUIInput.caption.length;
-}
+};
 
 Autociv_CLI.prototype.toggle = function ()
 {
@@ -290,7 +299,7 @@ Autociv_CLI.prototype.getTokens = function (text)
 	}
 
 	return token;
-}
+};
 
 Autociv_CLI.prototype.getEntry = function (text)
 {
@@ -305,10 +314,8 @@ Autociv_CLI.prototype.getEntry = function (text)
 	{
 		let token = tokens[i];
 
-		// A "word" access can only be valid if is the first token
-		if (i == 0 && token.access != "word")
-			return;
-		else if (i != 0 && token.access == "word")
+		// A "word" access can only be valid if and only if is the first token
+		if (i == 0 && token.access != "word" || i != 0 && token.access == "word")
 			return;
 
 		let parentType = this.getType(object);
@@ -441,16 +448,35 @@ Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
 	});
 }
 
+Autociv_CLI.prototype.processPrefixes = function (text)
+{
+	let original = text;
+	// searchFilter prefix
+	if (/^\w{0,1}\?.*/.test(text))
+	{
+		if (text[0] == "?")
+		{
+			this.searchFilter = "";
+			text = text.slice(1);
+		}
+		else if (text[0] in this.searchFilterKeys)
+		{
+			this.searchFilter = text[0];
+			text = text.slice(2);
+		}
+	}
+
+	// Caption setter doesn't trigger a textedit event (no infinite loop)
+	this.GUIInput.caption = text;
+	this.GUIInput.buffer_position = Math.max(0, this.GUIInput.buffer_position - (original.length - text.length));
+
+	return text;
+};
+
 Autociv_CLI.prototype.updateSuggestions = function (event, text = this.GUIInput.caption)
 {
-	if (event && /^[\w]{0,1}\?.*/.test(text))
-	{
-		let clear = text[0] == "?";
-		this.searchFilter = clear ? "" : text[0];
-		this.GUIInput.caption = text.slice(clear ? 1 : 2);
-		this.GUIInput.buffer_position = Math.min(0, this.GUIInput.buffer_position - clear ? 1 : 2);
-		return this.updateSuggestions();
-	}
+	if (event)
+		text = this.processPrefixes(text);
 
 	let entry = this.getEntry(text);
 	if (!entry)
