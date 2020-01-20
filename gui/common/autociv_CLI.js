@@ -28,6 +28,12 @@ function Autociv_CLI(GUI)
 	this.GUIList.onSelectionChange = this.inspectSelectedSuggestion.bind(this);
 	this.GUIList.onMouseLeftDoubleClick = this.setSelectedSuggestion.bind(this);
 
+	this.GUINames = null;
+
+
+	// global["testSet"] = new Set([1, "hello", { "test": 2 }, null])
+	// global["testMap"] = new Map([[2, 1], [2, "hello"], [{ "test": 2 }, null], ["testSet", testSet]])
+
 	// setTimeout(() =>
 	// {
 	// 	// this.GUIInput.caption = `g_TradeDialog.barterPanel.barterButtonManager.buttons[0].`;
@@ -136,6 +142,8 @@ Autociv_CLI.prototype.getType = function (val)
 		case "object": {
 			if (val === null) return "null";
 			if (Array.isArray(val)) return "array";
+			if (val instanceof Set) return "set";
+			if (val instanceof Map) return "map";
 			else return type;
 		}
 		default: return "unknown type";
@@ -148,8 +156,9 @@ Autociv_CLI.prototype.accessFormat = function (value, access, isArray)
 	{
 		case "dot": return `.${value}`;
 		case "bracket": return isArray ? `[${value}]` : `["${value}"]`;
-		case "word": return value;
-		default: return value;
+		case "parenthesis": return `("${value}")`;
+		case "word": return `${value}`;
+		default: return `${value}`;
 	}
 };
 
@@ -166,6 +175,7 @@ Autociv_CLI.prototype.coloredAccessFormat = function (value, access, isArray, ty
 	{
 		case "dot": return `.${text}`;
 		case "bracket": return isArray ? `\\[${text}\\]` : `\\["${text}"\\]`;
+		case "parenthesis": return `("${text}")`;
 		case "word": return text;
 		default: return text;
 	}
@@ -225,18 +235,18 @@ Autociv_CLI.prototype.evalInput = function (ev, text = this.GUIInput.caption)
 	}
 	catch (error) { }
 
-	text = text.split("=")[0];
+	text = text.split("=")[0].trim();
 	let entry = this.getEntry(text);
 	if (!entry)
 		return;
 
-	if (entry.key.value in entry.parent)
+	if (typeof entry.parent == "object" && entry.key.value in entry.parent)
 		this.updateObjectInspector(entry.parent[entry.key.value], text);
 };
 
 Autociv_CLI.prototype.getTokens = function (text)
 {
-	let lex = text.trim().split(/(\["?)|("?\])|(\.)/g).filter(v => v)
+	let lex = text.split(/(\("?)|("?\))|(\["?)|("?\])|(\.)/g).filter(v => v)
 	// lex ~~  ['word1', '.', 'word2', '["', 'word3', '"]', ...]
 
 	if (!lex.length)
@@ -268,6 +278,36 @@ Autociv_CLI.prototype.getTokens = function (text)
 
 			token.push({
 				"access": "bracket",
+				"hasValue": hasValue,
+				"hasEndBracket": hasEndBracket,
+				"value": value,
+				"valid": hasValue && hasEndBracket
+			});
+			i += k;
+		}
+		else if (lex[i].startsWith("("))
+		{
+			let hasValue = false;
+			let value = "";
+			let hasEndBracket = false;
+			let k = 1;
+			while (i + k < lex.length)
+			{
+				if (lex[i + k].endsWith(")"))
+				{
+					hasEndBracket = true;
+					break;
+				}
+				hasValue = true;
+				value += lex[i + k];
+				++k;
+			}
+
+			if (!hasEndBracket)
+				value = value.replace(/"$/, "");
+
+			token.push({
+				"access": "parenthesis",
 				"hasValue": hasValue,
 				"hasEndBracket": hasEndBracket,
 				"value": value,
@@ -314,12 +354,13 @@ Autociv_CLI.prototype.getEntry = function (text)
 	{
 		let token = tokens[i];
 
-		// A "word" access can only be valid if and only if is the first token
+		// "word" access must and can only be on the first token
 		if (i == 0 && token.access != "word" || i != 0 && token.access == "word")
 			return;
 
 		let parentType = this.getType(object);
-		if (!token.valid || parentType != "array" && parentType != "object" && parentType != "function")
+		let validType = parentType == "array" || parentType == "object" || parentType == "function";
+		if (!token.valid || !validType)
 			return;
 
 		object = object[token.value];
@@ -410,6 +451,23 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 			results = [];
 		return results;
 	}
+	if (entry.key.access == "parenthesis")
+	{
+		if (entry.index == 0)
+			return;
+
+		if (entry.parent !== Engine.GetGUIObjectByName)
+			return;
+
+		if (this.GUINames == null)
+			this.loadGUINames();
+
+		let candidates = this.GUINames;
+		let results = entry.key.hasValue ? this.sort(entry.key.value.replace(/^"|"$/g, ""), candidates) : this.sort("", candidates);
+		if (entry.key.hasEndBracket && results.length && results[0] == entry.key.value)
+			results = [];
+		return results;
+	}
 };
 
 Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
@@ -424,6 +482,13 @@ Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
 	let isArray = this.getType(entry.parent) == "array";
 	this.GUIList.list = suggestions.map(key =>
 	{
+		if (entry.key.access == "parenthesis")
+		{
+			let text = entry.prefixColored;
+			text += this.coloredAccessFormat(key, entry.key.access, false, "string");
+			return text;
+		}
+
 		let type = this.getType(entry.parent[key]);
 		let text = entry.prefixColored;
 		text += this.coloredAccessFormat(key, entry.key.access, isArray, type);
@@ -513,7 +578,7 @@ Autociv_CLI.prototype.getObjectRepresentation = function (obj, depth = this.show
 	if (obj == global)
 		depth = Math.min(1, depth);
 
-	let f = (t, v) => `[color="${this.style.type[t] || this.style.type["default"]}"]${this.escape(v)}[/color] `
+	let f = (t, v) => `[color="${this.style.type[t] || this.style.type["default"]}"]${this.escape(v)}[/color] `;
 
 	switch (type)
 	{
@@ -573,6 +638,42 @@ Autociv_CLI.prototype.getObjectRepresentation = function (obj, depth = this.show
 
 			return `{ \n${output} \n${prefix} } `;
 		}
+		case "set": {
+			let list = Array.from(obj);
+			if (!list.length)
+				return `\\Set( \\)`;
+
+			let output = list.map(value =>
+			{
+				return prefix + this.spacing +
+					this.getObjectRepresentation(
+						value,
+						value == global ? 0 : depth - 1,
+						prefix + this.spacing);
+			}).join(",\n");
+
+			return `Set( \n${output} \n${prefix} ) `;
+		}
+		case "map": {
+			let list = Array.from(obj);
+			if (!list.length)
+				return `\\Map( \\)`;
+
+			let output = list.map(([key, value]) =>
+			{
+				return prefix + this.spacing +
+					this.getObjectRepresentation(
+						key,
+						key == global ? 0 : depth - 1,
+						prefix + this.spacing) + " : " +
+					this.getObjectRepresentation(
+						value,
+						value == global ? 0 : depth - 1,
+						prefix + this.spacing);
+			}).join(",\n");
+
+			return `Map( \n${output} \n${prefix} ) `;
+		}
 		default: return typeTag;
 	}
 }
@@ -587,4 +688,44 @@ Autociv_CLI.prototype.updateObjectInspector = function (object, text = this.GUII
 	this.GUIText.size = Object.assign(this.GUIText.size, {
 		"bottom": Math.min(Math.max(nLines1, nLines2) * this.vlineSize, this.inspectorMaxVisibleSize)
 	});
+};
+
+
+Autociv_CLI.prototype.getRoot = function (object)
+{
+	let root = object;
+	while (root.parent != null)
+		root = root.parent;
+	return root;
+}
+
+Autociv_CLI.prototype.loadGUINames = function ()
+{
+	this.GUINames = [];
+	let internal = 0;
+
+	let traverse = (parent) =>
+	{
+		for (let child of parent.children)
+		{
+			if (child.name)
+			{
+				if (child.name.startsWith("__internal("))
+					++internal;
+				else
+					this.GUINames.push(child.name)
+			}
+			traverse(child);
+		}
+	}
+
+	while (true)
+	{
+		let object = Engine.GetGUIObjectByName(`__internal(${internal})`);
+		if (!object)
+			break;
+
+		traverse(this.getRoot(object));
+		++internal;
+	}
 };

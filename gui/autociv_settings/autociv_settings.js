@@ -781,7 +781,7 @@ function saveDirectMappingToFile()
 			SDL_keycode_value_to_0ad_key[value] = SDL_keycode_constant_to_0ad_key[SDL_keycode_value_to_constant[value]];
 	}
 
-	Engine.WriteJSONFile("config/mapping.json", SDL_keycode_value_to_0ad_key);
+	Engine.WriteJSONFile("config/autociv_mapping.json", SDL_keycode_value_to_0ad_key);
 }
 
 function handleInputBeforeGui(ev)

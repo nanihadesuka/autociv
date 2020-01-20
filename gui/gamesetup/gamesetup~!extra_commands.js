@@ -12,6 +12,14 @@ let game = {
 			sendMessage(`Starting resources set to: ${val}`);
 			updateGameAttributes();
 		},
+		'mapcircular': (circular = true) =>
+		{
+			if (!g_IsController)
+				return;
+			g_GameAttributes.settings.CircularMap = !!circular;
+			sendMessage(`Map shape set to: ${!!circular ? "circular" : "squared"}`);
+			updateGameAttributes();
+		},
 		'population': (quantity) =>
 		{
 			if (!g_IsController)
@@ -148,8 +156,24 @@ let game = {
 		{
 			'assigned': playerName => game.get.player.pos(playerName) >= 0
 		}
+	},
+	"reset": {
+		"civilizations": () =>
+		{
+			for (let i in g_GameAttributes.settings.PlayerData)
+				g_GameAttributes.settings.PlayerData[i].Civ = "random";
+
+			updateGameAttributes();
+		},
+		"teams": () =>
+		{
+			for (let i in g_GameAttributes.settings.PlayerData)
+				g_GameAttributes.settings.PlayerData[i].Team = -1;
+
+			updateGameAttributes();
+		}
 	}
-}
+};
 
 g_NetworkCommands['/help'] = () =>
 {
@@ -170,7 +194,10 @@ g_NetworkCommands['/help'] = () =>
 }
 g_NetworkCommands['/resources'] = value => game.set.resources(value);
 g_NetworkCommands['/population'] = value => game.set.population(value);
-g_NetworkCommands['/mapsize'] = size => game.set.mapsize(size);
+g_NetworkCommands['/mapsize'] = value => game.set.mapsize(value);
+g_NetworkCommands['/mapcircular'] = () => game.set.mapcircular(true);
+g_NetworkCommands['/mapsquare'] = () => game.set.mapcircular(false);
+g_NetworkCommands['/resetcivs'] = () => game.reset.civilizations();
 g_NetworkCommands['/autociv'] = () =>
 {
 	if (!g_IsController)
