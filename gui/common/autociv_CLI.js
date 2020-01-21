@@ -30,7 +30,7 @@ function Autociv_CLI(GUI)
 
 	this.GUINames = null;
 
-	if (false)
+	if (true)
 	{
 		global["test_Set"] = new Set([1, "hello", { "test": 2 }, null])
 		global["test_Map"] = new Map([[2, 1], [2, "hello"], [{ "test": 2 }, null], ["test_Set", test_Set]])
@@ -57,9 +57,13 @@ function Autociv_CLI(GUI)
 			// this.GUIInput.caption = `a?g_ChatMessages[`;
 			// this.GUIInput.caption = `autociv_matchsort.`;
 			// this.GUIInput.caption = `a?g_CivData.athen.`;
-			this.GUIInput.caption = `test_Int8Array`;
+			// this.GUIInput.caption = `test_Int8Array`;
+			this.GUIInput.caption = `Engine`;
 			this.toggle();
 		}, 20)
+
+		this.GUIInput.caption = `Engine`;
+		this.toggle();
 	}
 }
 
@@ -262,12 +266,12 @@ Autociv_CLI.prototype.toggle = function ()
 
 Autociv_CLI.prototype.evalInput = function (ev, text = this.GUIInput.caption)
 {
-	let log = eval(text);
-	try
+	try { eval(text); }
+	catch (er)
 	{
-		warn(JSON.stringify(log === undefined ? "" : log, null, 2))
+		error(er.toString());
+		return;
 	}
-	catch (error) { }
 
 	text = text.split("=")[0].trim();
 	let entry = this.getEntry(text);
