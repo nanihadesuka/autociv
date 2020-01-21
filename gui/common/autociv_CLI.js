@@ -30,18 +30,37 @@ function Autociv_CLI(GUI)
 
 	this.GUINames = null;
 
+	if (false)
+	{
+		global["test_Set"] = new Set([1, "hello", { "test": 2 }, null])
+		global["test_Map"] = new Map([[2, 1], [2, "hello"], [{ "test": 2 }, null], ["test_Set", test_Set]])
+		global["test_WeakSet"] = new WeakSet()
+		global["test_WeakMap"] = new WeakMap()
+		test_WeakSet.add({ "as": 3 })
+		test_WeakMap.set({ "as": 2 }, "asd")
 
-	// global["testSet"] = new Set([1, "hello", { "test": 2 }, null])
-	// global["testMap"] = new Map([[2, 1], [2, "hello"], [{ "test": 2 }, null], ["testSet", testSet]])
+		global["test_Int8Array"] = new Int8Array([1, 2, 3, 4, 5, 6]);
+		global["test_Uint8Array"] = new Uint8Array();
+		global["test_Uint8ClampedArray"] = new Uint8ClampedArray();
+		global["test_Int16Array"] = new Int16Array();
+		global["test_Uint16Array"] = new Uint16Array();
+		global["test_Int32Array"] = new Int32Array();
+		global["test_Uint32Array"] = new Uint32Array();
+		global["test_Float32Array"] = new Float32Array();
+		global["test_Float64Array"] = new Float64Array();
+		// global["test_BigInt64Array"] = new BigInt64Array();
+		// global["test_BigUint64Array"] = new BigUint64Array();}
 
-	// setTimeout(() =>
-	// {
-	// 	// this.GUIInput.caption = `g_TradeDialog.barterPanel.barterButtonManager.buttons[0].`;
-	// 	this.GUIInput.caption = `a?g_ChatMessages[`;
-	// 	// this.GUIInput.caption = `autociv_matchsort.`;
-	// 	// this.GUIInput.caption = `a?g_CivData.athen.`;
-	// 	this.toggle();
-	// }, 20)
+		setTimeout(() =>
+		{
+			// this.GUIInput.caption = `g_TradeDialog.barterPanel.barterButtonManager.buttons[0].`;
+			// this.GUIInput.caption = `a?g_ChatMessages[`;
+			// this.GUIInput.caption = `autociv_matchsort.`;
+			// this.GUIInput.caption = `a?g_CivData.athen.`;
+			this.GUIInput.caption = `test_Int8Array`;
+			this.toggle();
+		}, 20)
+	}
 }
 
 Autociv_CLI.prototype.initiated = false;
@@ -99,6 +118,8 @@ Autociv_CLI.prototype.style = {
 		"function": "78 118 163",
 		"null": "12 234 0",
 		"default": "86 156 214",
+		"Set": "86 156 214",
+		"Map": "86 156 214",
 	},
 	"font": "sans-bold-14",
 };
@@ -142,8 +163,21 @@ Autociv_CLI.prototype.getType = function (val)
 		case "object": {
 			if (val === null) return "null";
 			if (Array.isArray(val)) return "array";
-			if (val instanceof Set) return "set";
-			if (val instanceof Map) return "map";
+			if (val instanceof Set) return "Set";
+			if (val instanceof Map) return "Map";
+			if (val instanceof WeakMap) return "WeakMap";
+			if (val instanceof WeakSet) return "WeakSet";
+			if (val instanceof Int8Array) return "Int8Array"
+			if (val instanceof Uint8Array) return "Uint8Array"
+			if (val instanceof Uint8ClampedArray) return "Uint8ClampedArray"
+			if (val instanceof Int16Array) return "Int16Array"
+			if (val instanceof Uint16Array) return "Uint16Array"
+			if (val instanceof Int32Array) return "Int32Array"
+			if (val instanceof Uint32Array) return "Uint32Array"
+			if (val instanceof Float32Array) return "Float32Array"
+			if (val instanceof Float64Array) return "Float64Array"
+			// if (val instanceof BigInt64Array) return "BigInt64Array"
+			// if (val instanceof BigUint64Array) return "BigUint64Array"
 			else return type;
 		}
 		default: return "unknown type";
@@ -620,12 +654,12 @@ Autociv_CLI.prototype.getObjectRepresentation = function (obj, depth = this.show
 						prefix + this.spacing);
 			}).join(",\n");
 
-			return `\\[\n${output}\n${prefix}\\]`;
+			return `\\[ \n${output} \n${prefix} \\]`;
 		}
 		case "object": {
 			let list = this.getCandidates(obj);
 			if (!list.length)
-				return `\\{ \\}`;
+				return `{ }`;
 
 			let output = list.map(key =>
 			{
@@ -636,12 +670,12 @@ Autociv_CLI.prototype.getObjectRepresentation = function (obj, depth = this.show
 						prefix + this.spacing);
 			}).join(",\n");
 
-			return `{ \n${output} \n${prefix} } `;
+			return `{ \n${output} \n${prefix} }`;
 		}
-		case "set": {
+		case "Set": {
 			let list = Array.from(obj);
 			if (!list.length)
-				return `\\Set( \\)`;
+				return `Set { }`;
 
 			let output = list.map(value =>
 			{
@@ -652,12 +686,12 @@ Autociv_CLI.prototype.getObjectRepresentation = function (obj, depth = this.show
 						prefix + this.spacing);
 			}).join(",\n");
 
-			return `Set( \n${output} \n${prefix} ) `;
+			return `Set { \n${output} \n${prefix} }`;
 		}
-		case "map": {
+		case "Map": {
 			let list = Array.from(obj);
 			if (!list.length)
-				return `\\Map( \\)`;
+				return `Map { }`;
 
 			let output = list.map(([key, value]) =>
 			{
@@ -665,14 +699,34 @@ Autociv_CLI.prototype.getObjectRepresentation = function (obj, depth = this.show
 					this.getObjectRepresentation(
 						key,
 						key == global ? 0 : depth - 1,
-						prefix + this.spacing) + " : " +
+						prefix + this.spacing) + " => " +
 					this.getObjectRepresentation(
 						value,
 						value == global ? 0 : depth - 1,
 						prefix + this.spacing);
 			}).join(",\n");
 
-			return `Map( \n${output} \n${prefix} ) `;
+			return `Map { \n${output} \n${prefix} }`;
+		}
+		case "Int8Array":
+		case "Uint8Array":
+		case "Uint8ClampedArray":
+		case "Int16Array":
+		case "Uint16Array":
+		case "Int32Array":
+		case "Uint32Array":
+		case "Float32Array":
+		case "Float64Array": {
+			let list = Array.from(obj);
+			if (!list.length)
+				return `\\[ \\]`;
+
+			let output = list.map((val, index) =>
+			{
+				return prefix + this.spacing + f("number", val);
+			}).join(",\n");
+
+			return `\\[ \n${output} \n${prefix} \\]` + typeTag;
 		}
 		default: return typeTag;
 	}
