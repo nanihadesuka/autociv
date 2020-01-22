@@ -266,6 +266,7 @@ Object.defineProperty(ResizeBar, "bar", {
 var resizeBar = function (object, side, width, objectsHooked, isVisibleCondition)
 {
 	resizeBar.list.push(new ResizeBar(object, side, width, objectsHooked, isVisibleCondition));
+	resizeBar.disabled = Engine.ConfigDB_GetValue("user", "autociv.resizebar.enabled") != "true";
 };
 
 

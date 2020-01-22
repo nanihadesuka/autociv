@@ -22,15 +22,13 @@ function Autociv_CLI(GUI)
 	this.GUIText.textcolor = this.style.inspector.text;
 
 	this.GUI.onPress = this.toggle.bind(this);
-	this.GUIInput.onTextedit = this.updateSuggestions.bind(this);
+	this.GUIInput.onTextEdit = this.updateSuggestions.bind(this);
 	this.GUIInput.onTab = this.tab.bind(this);
 	this.GUIInput.onPress = this.evalInput.bind(this);
 	this.GUIList.onSelectionChange = this.inspectSelectedSuggestion.bind(this);
 	this.GUIList.onMouseLeftDoubleClick = this.setSelectedSuggestion.bind(this);
 
-	this.GUINames = null;
-
-	if (true)
+	if (false)
 	{
 		global["test_Set"] = new Set([1, "hello", { "test": 2 }, null])
 		global["test_Map"] = new Map([[2, 1], [2, "hello"], [{ "test": 2 }, null], ["test_Set", test_Set]])
@@ -51,21 +49,89 @@ function Autociv_CLI(GUI)
 		// global["test_BigInt64Array"] = new BigInt64Array();
 		// global["test_BigUint64Array"] = new BigUint64Array();}
 
-		setTimeout(() =>
-		{
-			// this.GUIInput.caption = `g_TradeDialog.barterPanel.barterButtonManager.buttons[0].`;
-			// this.GUIInput.caption = `a?g_ChatMessages[`;
-			// this.GUIInput.caption = `autociv_matchsort.`;
-			// this.GUIInput.caption = `a?g_CivData.athen.`;
-			// this.GUIInput.caption = `test_Int8Array`;
-			this.GUIInput.caption = `Engine`;
-			this.toggle();
-		}, 20)
+		// setTimeout(() =>
+		// {
+		// 	// this.GUIInput.caption = `g_TradeDialog.barterPanel.barterButtonManager.buttons[0].`;
+		// 	// this.GUIInput.caption = `a?g_ChatMessages[`;
+		// 	// this.GUIInput.caption = `autociv_matchsort.`;
+		// 	// this.GUIInput.caption = `a?g_CivData.athen.`;
+		// 	// this.GUIInput.caption = `test_Int8Array`;
+		// 	this.GUIInput.caption = `Engine`;
+		// 	this.toggle();
+		// }, 20)
 
-		this.GUIInput.caption = `Engine`;
-		this.toggle();
+		// this.GUIInput.caption = `Engine`;
+		// this.toggle();
+	}
+
+	this.candidates_GetTemplate = null;
+	this.candidates_GetGUIObjectByName = null;
+}
+
+Autociv_CLI.prototype.getFunctionParameterCandidates = function (functionObject)
+{
+	switch (functionObject)
+	{
+		case (Engine && Engine.GetGUIObjectByName): {
+			if (this.candidates_GetGUIObjectByName == null)
+				this.candidates_GetGUIObjectByName = this.loadGetGUIObjectByNameCandidates();
+			return this.candidates_GetGUIObjectByName;
+		}
+		case ("GetTemplateData" in global && GetTemplateData):
+		case (Engine && Engine.GetTemplate): {
+			if (this.candidates_GetTemplate == null)
+				this.candidates_GetTemplate = this.loadGetTemplateCandidates();
+			return this.candidates_GetTemplate;
+		}
 	}
 }
+
+Autociv_CLI.prototype.loadGetTemplateCandidates = function ()
+{
+	const prefix = "simulation/templates/";
+	return Engine.ListDirectoryFiles(prefix, "*.xml", true).
+		map(t => t.slice(prefix.length, -4));
+}
+
+Autociv_CLI.prototype.loadGetGUIObjectByNameCandidates = function ()
+{
+	let list = [];
+	let internal = 0;
+
+	let getRoot = (object) =>
+	{
+		let root = object;
+		while (root.parent != null)
+			root = root.parent;
+		return root;
+	}
+
+	let traverse = (parent) =>
+	{
+		for (let child of parent.children)
+		{
+			if (child.name)
+			{
+				if (child.name.startsWith("__internal("))
+					++internal;
+				else
+					list.push(child.name)
+			}
+			traverse(child);
+		}
+	}
+
+	while (true)
+	{
+		let object = Engine.GetGUIObjectByName(`__internal(${internal})`);
+		if (!object)
+			break;
+
+		traverse(getRoot(object));
+		++internal;
+	}
+	return list;
+};
 
 Autociv_CLI.prototype.initiated = false;
 Autociv_CLI.prototype.suggestionsMaxVisibleSize = 350
@@ -494,13 +560,10 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 		if (entry.index == 0)
 			return;
 
-		if (entry.parent !== Engine.GetGUIObjectByName)
+		let candidates = this.getFunctionParameterCandidates(entry.parent);
+		if (!candidates)
 			return;
 
-		if (this.GUINames == null)
-			this.loadGUINames();
-
-		let candidates = this.GUINames;
 		let results = entry.key.hasValue ? this.sort(entry.key.value.replace(/^"|"$/g, ""), candidates) : this.sort("", candidates);
 		if (entry.key.hasEndBracket && results.length && results[0] == entry.key.value)
 			results = [];
@@ -578,8 +641,7 @@ Autociv_CLI.prototype.processPrefixes = function (text)
 
 Autociv_CLI.prototype.updateSuggestions = function (event, text = this.GUIInput.caption)
 {
-	if (event)
-		text = this.processPrefixes(text);
+	text = this.processPrefixes(text);
 
 	let entry = this.getEntry(text);
 	if (!entry)
@@ -746,44 +808,4 @@ Autociv_CLI.prototype.updateObjectInspector = function (object, text = this.GUII
 	this.GUIText.size = Object.assign(this.GUIText.size, {
 		"bottom": Math.min(Math.max(nLines1, nLines2) * this.vlineSize, this.inspectorMaxVisibleSize)
 	});
-};
-
-
-Autociv_CLI.prototype.getRoot = function (object)
-{
-	let root = object;
-	while (root.parent != null)
-		root = root.parent;
-	return root;
-}
-
-Autociv_CLI.prototype.loadGUINames = function ()
-{
-	this.GUINames = [];
-	let internal = 0;
-
-	let traverse = (parent) =>
-	{
-		for (let child of parent.children)
-		{
-			if (child.name)
-			{
-				if (child.name.startsWith("__internal("))
-					++internal;
-				else
-					this.GUINames.push(child.name)
-			}
-			traverse(child);
-		}
-	}
-
-	while (true)
-	{
-		let object = Engine.GetGUIObjectByName(`__internal(${internal})`);
-		if (!object)
-			break;
-
-		traverse(this.getRoot(object));
-		++internal;
-	}
 };
