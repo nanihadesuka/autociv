@@ -88,7 +88,7 @@ g_ChatCommands["pingall"] = {
 					candidatesToAnnoy.add(splitRatingFromNick(player.Name).nick);
 		}
 
-		for (let player of Engine.GetPlayerList())
+		for (let player of g_PlayerList)
 			if (player.presence == "available")
 				candidatesToAnnoy.add(player.name);
 

@@ -60,79 +60,12 @@ function Autociv_CLI(GUI)
 		// 	this.toggle();
 		// }, 20)
 
-		// this.GUIInput.caption = `Engine`;
-		// this.toggle();
-	}
-
-	this.candidates_GetTemplate = null;
-	this.candidates_GetGUIObjectByName = null;
-}
-
-Autociv_CLI.prototype.getFunctionParameterCandidates = function (functionObject)
-{
-	switch (functionObject)
-	{
-		case (Engine && Engine.GetGUIObjectByName): {
-			if (this.candidates_GetGUIObjectByName == null)
-				this.candidates_GetGUIObjectByName = this.loadGetGUIObjectByNameCandidates();
-			return this.candidates_GetGUIObjectByName;
-		}
-		case ("GetTemplateData" in global && GetTemplateData):
-		case (Engine && Engine.GetTemplate): {
-			if (this.candidates_GetTemplate == null)
-				this.candidates_GetTemplate = this.loadGetTemplateCandidates();
-			return this.candidates_GetTemplate;
-		}
+		this.GUIInput.caption = `Engine`;
+		this.toggle();
 	}
 }
 
-Autociv_CLI.prototype.loadGetTemplateCandidates = function ()
-{
-	const prefix = "simulation/templates/";
-	return Engine.ListDirectoryFiles(prefix, "*.xml", true).
-		map(t => t.slice(prefix.length, -4));
-}
-
-Autociv_CLI.prototype.loadGetGUIObjectByNameCandidates = function ()
-{
-	let list = [];
-	let internal = 0;
-
-	let getRoot = (object) =>
-	{
-		let root = object;
-		while (root.parent != null)
-			root = root.parent;
-		return root;
-	}
-
-	let traverse = (parent) =>
-	{
-		for (let child of parent.children)
-		{
-			if (child.name)
-			{
-				if (child.name.startsWith("__internal("))
-					++internal;
-				else
-					list.push(child.name)
-			}
-			traverse(child);
-		}
-	}
-
-	while (true)
-	{
-		let object = Engine.GetGUIObjectByName(`__internal(${internal})`);
-		if (!object)
-			break;
-
-		traverse(getRoot(object));
-		++internal;
-	}
-	return list;
-};
-
+Autociv_CLI.prototype.functionParameterCandidates = {}
 Autociv_CLI.prototype.initiated = false;
 Autociv_CLI.prototype.suggestionsMaxVisibleSize = 350
 Autociv_CLI.prototype.inspectorMaxVisibleSize = 350;
@@ -143,6 +76,51 @@ Autociv_CLI.prototype.prefix = "";
 Autociv_CLI.prototype.showDepth = 2;
 Autociv_CLI.prototype.previewLength = 100;
 Autociv_CLI.prototype.searchFilter = "";
+
+Autociv_CLI.prototype.functionAutocomplete = new Map([
+	[Engine && Engine.GetGUIObjectByName, "guiObjectNames"],
+	["GetTemplateData" in global && GetTemplateData, "templateNames"],
+	[Engine && Engine.GetTemplate, "templateNames"]
+]);
+
+Autociv_CLI.prototype.functionParameterCandidatesLoader = {
+	"guiObjectNames": () =>
+	{
+		let list = [];
+		let internal = 0;
+
+		let traverse = parent => parent.children.forEach(child =>
+		{
+			if (child.name.startsWith("__internal("))
+				++internal;
+			else
+				list.push(child.name)
+			traverse(child);
+		});
+
+		while (true)
+		{
+			let object = Engine.GetGUIObjectByName(`__internal(${internal})`);
+			if (!object)
+				break;
+
+			// Go to root
+			while (object.parent != null)
+				object = object.parent;
+
+			traverse(object);
+			++internal;
+		}
+		return list;
+	},
+	"templateNames": () =>
+	{
+		const prefix = "simulation/templates/";
+		const suffix = ".xml";
+		return Engine.ListDirectoryFiles(prefix, "*" + suffix, true).
+			map(t => t.slice(prefix.length, -suffix.length));
+	}
+}
 
 Autociv_CLI.prototype.searchFilterKeys = {
 	"u": "undefined",
@@ -193,6 +171,18 @@ Autociv_CLI.prototype.style = {
 	},
 	"font": "sans-bold-14",
 };
+
+Autociv_CLI.prototype.getFunctionParameterCandidates = function (functionObject)
+{
+	if (!this.functionAutocomplete.has(functionObject))
+		return;
+
+	let parameterName = this.functionAutocomplete.get(functionObject);
+	if (!(parameterName in this.functionParameterCandidates))
+		this.functionParameterCandidates[parameterName] = this.functionParameterCandidatesLoader[parameterName]();
+
+	return this.functionParameterCandidates[parameterName];
+}
 
 Autociv_CLI.prototype.sort = function (value, candidates)
 {
@@ -295,8 +285,8 @@ Autociv_CLI.prototype.inspectSelectedSuggestion = function ()
 	if (!entry)
 		return;
 
-	if (entry.key.value in entry.parent)
-		this.updateObjectInspector(entry.parent[entry.key.value], text);
+	if (entry.token.value in entry.parent)
+		this.updateObjectInspector(entry.parent[entry.token.value], text);
 };
 
 Autociv_CLI.prototype.setSelectedSuggestion = function ()
@@ -344,8 +334,8 @@ Autociv_CLI.prototype.evalInput = function (ev, text = this.GUIInput.caption)
 	if (!entry)
 		return;
 
-	if (typeof entry.parent == "object" && entry.key.value in entry.parent)
-		this.updateObjectInspector(entry.parent[entry.key.value], text);
+	if (typeof entry.parent == "object" && entry.token.value in entry.parent)
+		this.updateObjectInspector(entry.parent[entry.token.value], text);
 };
 
 Autociv_CLI.prototype.getTokens = function (text)
@@ -476,7 +466,7 @@ Autociv_CLI.prototype.getEntry = function (text)
 		"parent": object,
 		"prefix": prefix,
 		"prefixColored": prefixColored,
-		"key": tokens[tokens.length - 1],
+		"token": tokens[tokens.length - 1],
 		"index": tokens.length - 1
 	};
 };
@@ -501,7 +491,7 @@ Autociv_CLI.prototype.getCandidates = function (object)
 
 Autociv_CLI.prototype.getSuggestions = function (entry)
 {
-	if (entry.key.access == "dot")
+	if (entry.token.access == "dot")
 	{
 		if (entry.index == 0)
 			return;
@@ -511,13 +501,13 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 			return
 
 		let candidates = this.getCandidates(entry.parent);
-		let results = entry.key.hasValue ? this.sort(entry.key.value, candidates) : this.sort("", candidates);
+		let results = entry.token.hasValue ? this.sort(entry.token.value, candidates) : this.sort("", candidates);
 		results = this.sortSearchFilter(entry.parent, results);
-		if (results.length == 1 && results[0] == entry.key.value)
+		if (results.length == 1 && results[0] == entry.token.value)
 			results = [];
 		return results;
 	}
-	if (entry.key.access == "bracket")
+	if (entry.token.access == "bracket")
 	{
 		if (entry.index == 0)
 			return;
@@ -526,36 +516,36 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 		if (parentType == "object" || parentType == "function")
 		{
 			let candidates = this.getCandidates(entry.parent);
-			let results = entry.key.hasValue ? this.sort(entry.key.value.replace(/^"|"$/g, ""), candidates) : this.sort("", candidates);
+			let results = entry.token.hasValue ? this.sort(entry.token.value.replace(/^"|"$/g, ""), candidates) : this.sort("", candidates);
 			results = this.sortSearchFilter(entry.parent, results);
-			if (entry.key.hasEndBracket && results.length && results[0] == entry.key.value)
+			if (entry.token.hasEndBracket && results.length && results[0] == entry.token.value)
 				results = [];
 			return results;
 		}
 		else if (parentType == "array")
 		{
 			let candidates = this.getCandidates(entry.parent);
-			let results = entry.key.hasValue ? this.sort(entry.key.value, candidates).sort((a, b) => (+a) - (+b)) :
+			let results = entry.token.hasValue ? this.sort(entry.token.value, candidates).sort((a, b) => (+a) - (+b)) :
 				candidates;
 			results = this.sortSearchFilter(entry.parent, results);
-			if (entry.key.hasEndBracket && results.length && results[0] == entry.key.value)
+			if (entry.token.hasEndBracket && results.length && results[0] == entry.token.value)
 				results = [];
 			return results;
 		}
 	}
-	if (entry.key.access == "word")
+	if (entry.token.access == "word")
 	{
 		if (entry.index != 0)
 			return;
 
 		let candidates = this.getCandidates(entry.parent);
-		let results = entry.key.hasValue ? this.sort(entry.key.value, candidates) : this.sort("", candidates);
+		let results = entry.token.hasValue ? this.sort(entry.token.value, candidates) : this.sort("", candidates);
 		results = this.sortSearchFilter(entry.parent, results);
-		if (results.length == 1 && results[0] == entry.key.value)
+		if (results.length == 1 && results[0] == entry.token.value)
 			results = [];
 		return results;
 	}
-	if (entry.key.access == "parenthesis")
+	if (entry.token.access == "parenthesis")
 	{
 		if (entry.index == 0)
 			return;
@@ -564,8 +554,8 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 		if (!candidates)
 			return;
 
-		let results = entry.key.hasValue ? this.sort(entry.key.value.replace(/^"|"$/g, ""), candidates) : this.sort("", candidates);
-		if (entry.key.hasEndBracket && results.length && results[0] == entry.key.value)
+		let results = entry.token.hasValue ? this.sort(entry.token.value.replace(/^"|"$/g, ""), candidates) : this.sort("", candidates);
+		if (entry.token.hasEndBracket && results.length && results[0] == entry.token.value)
 			results = [];
 		return results;
 	}
@@ -581,18 +571,18 @@ Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
 	}
 
 	let isArray = this.getType(entry.parent) == "array";
-	this.GUIList.list = suggestions.map(key =>
+	this.GUIList.list = suggestions.map(value =>
 	{
-		if (entry.key.access == "parenthesis")
+		if (entry.token.access == "parenthesis")
 		{
 			let text = entry.prefixColored;
-			text += this.coloredAccessFormat(key, entry.key.access, false, "string");
+			text += this.coloredAccessFormat(value, entry.token.access, false, "string");
 			return text;
 		}
 
-		let type = this.getType(entry.parent[key]);
+		let type = this.getType(entry.parent[value]);
 		let text = entry.prefixColored;
-		text += this.coloredAccessFormat(key, entry.key.access, isArray, type);
+		text += this.coloredAccessFormat(value, entry.token.access, isArray, type);
 
 		// Show variable type
 		text += ` [color="${this.style.typeTag}"]\\[${type}\\][/color]`;
@@ -600,13 +590,13 @@ Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
 		// Show preview
 		let length = text.replace(/[^\\]\[.+[^\\]\]/g, "").replace(/\\\\\[|\\\\\]/g, " ").length;
 		if (type == "boolean" || type == "number" || type == "bigint")
-			text += " " + truncate(this.escape(`${entry.parent[key]}`), length);
+			text += " " + truncate(this.escape(`${entry.parent[value]}`), length);
 		else if (type == "string")
-			text += " " + truncate(this.escape(`"${entry.parent[key]}"`), length);
+			text += " " + truncate(this.escape(`"${entry.parent[value]}"`), length);
 
 		return text;
 	});
-	this.list_data = suggestions.map(key => this.accessFormat(key, entry.key.access, isArray));
+	this.list_data = suggestions.map(value => this.accessFormat(value, entry.token.access, isArray));
 	this.prefix = entry.prefix;
 
 	this.GUIList.size = Object.assign(this.GUIList.size, {
@@ -653,8 +643,8 @@ Autociv_CLI.prototype.updateSuggestions = function (event, text = this.GUIInput.
 
 	this.updateSuggestionList(entry, suggestions);
 
-	if (entry.key.value in entry.parent)
-		this.updateObjectInspector(entry.parent[entry.key.value]);
+	if (entry.token.value in entry.parent)
+		this.updateObjectInspector(entry.parent[entry.token.value]);
 };
 
 Autociv_CLI.prototype.tab = function ()
@@ -699,7 +689,6 @@ Autociv_CLI.prototype.getObjectRepresentation = function (obj, depth = this.show
 				return typeTag;
 			try
 			{
-				// replacetext function truncates result for some reason, use own made
 				return this.escape(obj.toSource()).replace(/	|\r/g, this.spacing);
 			}
 			catch (error)
