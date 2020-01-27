@@ -443,10 +443,20 @@ Autociv_CLI.prototype.getEntry = function (text)
 	let prefix = "";
 	let prefixColored = "";
 
+	let entry = {};
+
 	// Dive into the nested object or array (but don't process last token)
 	for (let i = 0; i < tokens.length - 1; ++i)
 	{
 		let token = tokens[i];
+		entry = {
+			"entry": entry,
+			"parent": object,
+			"prefix": prefix,
+			"prefixColored": prefixColored,
+			"token": token,
+			"index": i
+		};
 
 		// "word" access must and can only be on the first token
 		if (i == 0 && token.access != "word" || i != 0 && token.access == "word")
@@ -457,12 +467,14 @@ Autociv_CLI.prototype.getEntry = function (text)
 		if (!token.valid || !validType)
 			return;
 
+
 		object = object[token.value];
 		prefix += this.accessFormat(token.value, token.access, parentType == "array");
 		prefixColored += this.coloredAccessFormat(token.value, token.access, parentType == "array", parentType);
 	}
 
 	return {
+		"entry": entry,
 		"parent": object,
 		"prefix": prefix,
 		"prefixColored": prefixColored,

@@ -117,6 +117,11 @@ let game = {
 					g_GameAttributes.settings.PlayerData[slot++].Team = team;
 
 			updateGameAttributes();
+		},
+		"slotName": (slotNumber, name) =>
+		{
+			g_GameAttributes.settings.PlayerData[slotNumber - 1].Name = name;
+			updateGameAttributes();
 		}
 	},
 	'get':
@@ -170,6 +175,12 @@ let game = {
 			for (let i in g_GameAttributes.settings.PlayerData)
 				g_GameAttributes.settings.PlayerData[i].Team = -1;
 
+			updateGameAttributes();
+		},
+		"slotNames": () =>
+		{
+			for (let i = 0; i < 8; ++i)
+				g_GameAttributes.settings.PlayerData[i].Name = `Player ${i + 1}`;
 			updateGameAttributes();
 		}
 	}

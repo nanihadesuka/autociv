@@ -4,20 +4,30 @@ if (!GuiInterface.prototype.Init)
 
 autociv_patchApplyN(GuiInterface.prototype, "Init", function (target, that, args)
 {
-    that.autociv_corpse = {
-        "entities": new Set(),
-        "max": Infinity
+    that.autociv = {
+        corpse: {
+            "entities": new Set(),
+            "max": Infinity
+        },
+        StatusBar: {
+            "showNumberOfGatherers": false,
+        }
     };
     return target.apply(that, args);
 })
 
+GuiInterface.prototype.autociv_SetStatusBar_showNumberOfGatherers = function (player, show)
+{
+    this.autociv.StatusBar.showNumberOfGatherers = !!show;
+}
+
 GuiInterface.prototype.autociv_CorpseUpdate = function ()
 {
-    for (let entity of this.autociv_corpse.entities)
+    for (let entity of this.autociv.corpse.entities)
     {
-        if (this.autociv_corpse.entities.size <= this.autociv_corpse.max)
+        if (this.autociv.corpse.entities.size <= this.autociv.corpse.max)
             break;
-        this.autociv_corpse.entities.delete(entity);
+        this.autociv.corpse.entities.delete(entity);
         Engine.DestroyEntity(entity)
     }
 }
@@ -26,10 +36,10 @@ GuiInterface.prototype.autociv_CorpseAdd = function (entity)
 {
     if (!entity ||
         entity == INVALID_ENTITY ||
-        this.autociv_corpse.max == Infinity)
+        this.autociv.corpse.max == Infinity)
         return;
 
-    this.autociv_corpse.entities.add(entity);
+    this.autociv.corpse.entities.add(entity);
     this.autociv_CorpseUpdate();
 }
 
@@ -38,8 +48,8 @@ GuiInterface.prototype.autociv_SetCorpsesMax = function (player, max = Infinity)
     let value = +max;
     if (value === Infinity)
     {
-        this.autociv_corpse.entities.clear();
-        this.autociv_corpse.max = Infinity;
+        this.autociv.corpse.entities.clear();
+        this.autociv.corpse.max = Infinity;
         return;
     }
 
@@ -50,7 +60,7 @@ GuiInterface.prototype.autociv_SetCorpsesMax = function (player, max = Infinity)
         return;
     }
 
-    this.autociv_corpse.max = value;
+    this.autociv.corpse.max = value;
     this.autociv_CorpseUpdate();
 };
 
@@ -148,14 +158,17 @@ let autociv_exposedFunctions = {
     "autociv_FindEntitiesWithGenericName": 1,
     "autociv_FindEntitiesWithClasses": 1,
     "autociv_FindEntitiesWithClassesExpression": 1,
-    "autociv_SetCorpsesMax": 1
+    "autociv_SetCorpsesMax": 1,
+    "autociv_SetStatusBar_showNumberOfGatherers": 1,
 };
 
 autociv_patchApplyN(GuiInterface.prototype, "ScriptCall", function (target, that, args)
 {
     let [player, name, vargs] = args;
-    return name in autociv_exposedFunctions ? that[name](player, vargs) :
-        target.apply(that, args);
+    if (name in autociv_exposedFunctions)
+        return that[name](player, vargs);
+
+    return target.apply(that, args);
 })
 
 Engine.ReRegisterComponentType(IID_GuiInterface, "GuiInterface", GuiInterface);

@@ -4,7 +4,7 @@ if (!Visibility.prototype.OnDestroy)
 autociv_patchApplyN(Visibility.prototype, "OnDestroy", function (target, that, args)
 {
     let cmpGUIInterface = Engine.QueryInterface(SYSTEM_ENTITY, IID_GuiInterface);
-    cmpGUIInterface.autociv_corpse.entities.delete(that.entity);
+    cmpGUIInterface.autociv.corpse.entities.delete(that.entity);
     return target.apply(that, args);
 })
 

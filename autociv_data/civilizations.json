@@ -11,6 +11,6 @@
 	"mace"  : ["macedonians", "maced"],
 	"pers"  : ["persians", "persa"],
 	"ptol"  : ["ptolemies", "ptol", "ptolo", "ptololo", "ptolomeos", "ptoleme"],
-	"rome"  : ["romans", "rome"],
+	"rome"  : ["romans", "rome","S.P.Q.R","SPQR"],
 	"sele"  : ["seleucids", "seleuc", "seles"]
 }

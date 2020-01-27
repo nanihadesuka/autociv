@@ -91,19 +91,6 @@ function autociv_clearSelectedProductionQueues()
 	return true;
 }
 
-function autociv_SetCorpsesMax(value)
-{
-	Engine.GuiInterfaceCall("autociv_SetCorpsesMax", value);
-}
-
-function autociv_SetAutotrain(active, entities = g_Selection.toList())
-{
-	Engine.GuiInterfaceCall("autociv_SetAutotrain", {
-		"active": active,
-		"entities": entities
-	});
-}
-
 var g_autociv_hotkeys = {
 	"autociv.session.building.autotrain.enable": function (ev)
 	{
