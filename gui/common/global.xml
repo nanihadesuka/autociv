@@ -189,7 +189,7 @@
 		<object name="gl_autocivCLI"
 			size="50%-400 28% 50%+400 28%"
 			hidden="true"
-			z="201"
+			z="500"
 			hotkey="autociv.CLI.toggle">
 			<action on="Load">
 				global["g_autociv_CLI"] = new Autociv_CLI(this);
@@ -200,7 +200,7 @@
 				multiline="false">
 				<object size="0% 100% 100% 100%+20"
 					type="list"
-					style="ModernList"
+					sprite_selectarea="ModernDarkBoxWhite"
 					scrollbar="true"
 					scrollbar_style="ModernScrollBar">
 					<object size="0% 100% 100% 100%+20"

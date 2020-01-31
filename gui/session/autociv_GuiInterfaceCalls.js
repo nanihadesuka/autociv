@@ -14,4 +14,5 @@ function autociv_SetAutotrain(active, entities = g_Selection.toList())
 function autociv_SetStatusBar_showNumberOfGatherers(show)
 {
     Engine.GuiInterfaceCall("autociv_SetStatusBar_showNumberOfGatherers", show);
+    recalculateStatusBarDisplay(show)
 }

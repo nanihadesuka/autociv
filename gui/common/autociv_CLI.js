@@ -80,7 +80,8 @@ Autociv_CLI.prototype.searchFilter = "";
 Autociv_CLI.prototype.functionAutocomplete = new Map([
 	[Engine && Engine.GetGUIObjectByName, "guiObjectNames"],
 	["GetTemplateData" in global && GetTemplateData, "templateNames"],
-	[Engine && Engine.GetTemplate, "templateNames"]
+	[Engine && Engine.GetTemplate, "templateNames"],
+	[Engine && Engine.TemplateExists, "templateNames"],
 ]);
 
 Autociv_CLI.prototype.functionParameterCandidatesLoader = {
@@ -483,22 +484,39 @@ Autociv_CLI.prototype.getEntry = function (text)
 	};
 };
 
-Autociv_CLI.prototype.getCandidates = function (object)
+Autociv_CLI.prototype.getCandidates = function (object, access)
 {
-	let list = [];
+	let list = new Set();
 	if (this.getType(object) == "function" && "prototype" in object)
-		list.push("prototype");
+		list.add("prototype");
 
 	if ("__iterator__" in object)
-	{
 		for (let k in object)
-			list.push(k);
-		return list;
+			list.add(k);
+
+	let proto = Object.getPrototypeOf(object);
+	if (proto)
+		for (let name of Object.getOwnPropertyNames(proto))
+			if (name !== 'constructor' &&
+				name !== "caller" &&
+				name !== "callee" &&
+				proto.hasOwnProperty(name) &&
+				name != "arguments" &&
+				!name.startsWith("__"))
+				list.add(name);
+
+	if (this.getType(object) == "array")
+	{
+		if (access == "dot")
+			return Array.from(list);
+		else
+			list = new Set();
 	}
 
-	Array.prototype.push.apply(list, Object.keys(object));
+	for (let key of Object.keys(object))
+		list.add(key)
 
-	return list;
+	return Array.from(list);
 };
 
 Autociv_CLI.prototype.getSuggestions = function (entry)
@@ -509,10 +527,10 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 			return;
 
 		let parentType = this.getType(entry.parent);
-		if (parentType != "object" && parentType != "function")
+		if (parentType != "object" && parentType != "function" && parentType != "array")
 			return
 
-		let candidates = this.getCandidates(entry.parent);
+		let candidates = this.getCandidates(entry.parent, entry.token.access);
 		let results = entry.token.hasValue ? this.sort(entry.token.value, candidates) : this.sort("", candidates);
 		results = this.sortSearchFilter(entry.parent, results);
 		if (results.length == 1 && results[0] == entry.token.value)
@@ -536,7 +554,7 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 		}
 		else if (parentType == "array")
 		{
-			let candidates = this.getCandidates(entry.parent);
+			let candidates = this.getCandidates(entry.parent, entry.token.access);
 			let results = entry.token.hasValue ? this.sort(entry.token.value, candidates).sort((a, b) => (+a) - (+b)) :
 				candidates;
 			results = this.sortSearchFilter(entry.parent, results);

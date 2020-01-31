@@ -79,7 +79,7 @@ loadSettingsValues = function ()
 		"AIDescriptions": loadAIDescriptions(),
 		"AIDifficulties": loadAIDifficulties(),
 		"AIBehaviors": loadAIBehaviors(),
-		"Ceasefire": loadCeasefire(),
+		"Ceasefire": "loadCeasefire" in global ? loadCeasefire() : "",
 		"VictoryDurations": loadVictoryDuration(),
 		"GameSpeeds": loadSettingValuesFile("game_speeds.json"),
 		"MapTypes": loadMapTypes(),

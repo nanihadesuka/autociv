@@ -1,12 +1,11 @@
 if (StatusBars.prototype.Sprites.indexOf("_autociv_NumberOfGatherers") == -1)
     StatusBars.prototype.Sprites.push("_autociv_NumberOfGatherers");
 
-if (!StatusBars.prototype.OnResourceSupplyNumGatherersChanged)
-    StatusBars.prototype.OnResourceSupplyNumGatherersChanged = function (msg)
-    {
-        if (this.enabled)
-            this.RegenerateSprites();
-    };
+StatusBars.prototype.OnResourceSupplyNumGatherersChanged = function (msg)
+{
+    if (this.enabled)
+        this.RegenerateSprites();
+};
 
 StatusBars.prototype.Add_autociv_NumberOfGatherers = function (cmpOverlayRenderer, yoffset)
 {
