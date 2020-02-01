@@ -28,10 +28,29 @@ function Autociv_CLI(GUI)
 	this.GUIList.onSelectionChange = this.inspectSelectedSuggestion.bind(this);
 	this.GUIList.onMouseLeftDoubleClick = this.setSelectedSuggestion.bind(this);
 
+	this.lastEntry = undefined;
+	this.inspectorSettings = {
+		"tickPeriod": 1,
+		"tickCount": 0,
+		"update": true
+	};
+	this.suggestionsSettings = {
+		"tickPeriod": 1,
+		"tickCount": 0,
+		"update": true
+	};
+
+	this.GUI.onTick = this.onTick.bind(this);
+
 	if (false)
 	{
 		global["test_Set"] = new Set([1, "hello", { "test": 2 }, null])
-		global["test_Map"] = new Map([[2, 1], [2, "hello"], [{ "test": 2 }, null], ["test_Set", test_Set]])
+		global["test_Map"] = new Map([
+			[2, 1],
+			[2, "hello"],
+			[{ "test": 2 }, null],
+			["test_Set", test_Set]
+		])
 		global["test_WeakSet"] = new WeakSet()
 		global["test_WeakMap"] = new WeakMap()
 		test_WeakSet.add({ "as": 3 })
@@ -60,7 +79,8 @@ function Autociv_CLI(GUI)
 		// 	this.toggle();
 		// }, 20)
 
-		this.GUIInput.caption = `Engine`;
+
+		this.GUIInput.caption = `test_Map.get(`;
 		this.toggle();
 	}
 }
@@ -76,6 +96,8 @@ Autociv_CLI.prototype.prefix = "";
 Autociv_CLI.prototype.showDepth = 2;
 Autociv_CLI.prototype.previewLength = 100;
 Autociv_CLI.prototype.searchFilter = "";
+Autociv_CLI.prototype.seeOwnPropertyNames = true;
+Autociv_CLI.prototype.lastVariableNameExpressionInspector = "";
 
 Autociv_CLI.prototype.functionAutocomplete = new Map([
 	[Engine && Engine.GetGUIObjectByName, "guiObjectNames"],
@@ -173,6 +195,33 @@ Autociv_CLI.prototype.style = {
 	"font": "sans-bold-14",
 };
 
+Autociv_CLI.prototype.onTick = function ()
+{
+
+	if (this.GUI.hidden || !this.lastEntry)
+		return;
+
+	this.inspectorSettings.tickCount += 1;
+	this.inspectorSettings.tickCount %= this.inspectorSettings.tickPeriod;
+	if (this.inspectorSettings.update && !this.inspectorSettings.tickCount)
+	{
+		let object = this.lastEntry.parent[this.lastEntry.token.value];
+		let caption = this.updateObjectInspector(object, this
+			.lastVariableNameExpressionInspector);
+		this.inspectorSettings.tickPeriod = Math.ceil(Math.sqrt(caption.length + 1) * 1 + 2);
+		this.inspectorSettings.tickCount = 1;
+	}
+
+	this.suggestionsSettings.tickCount += 1;
+	this.suggestionsSettings.tickCount %= this.suggestionsSettings.tickPeriod;
+	if (this.suggestionsSettings.update && !this.suggestionsSettings.tickCount)
+	{
+		let length = this.updateSuggestions(undefined, this.GUIInput.caption, false);
+		this.suggestionsSettings.tickPeriod = Math.ceil(Math.sqrt(length + 1) * 6 + 2);
+		this.suggestionsSettings.tickCount = 1;
+	}
+}
+
 Autociv_CLI.prototype.getFunctionParameterCandidates = function (functionObject)
 {
 	if (!this.functionAutocomplete.has(functionObject))
@@ -214,13 +263,6 @@ Autociv_CLI.prototype.getType = function (val)
 	let type = typeof val;
 	switch (type)
 	{
-		case "undefined": return type;
-		case "boolean": return type;
-		case "number": return type;
-		case "bigint": return type;
-		case "string": return type;
-		case "symbol": return type;
-		case "function": return type;
 		case "object": {
 			if (val === null) return "null";
 			if (Array.isArray(val)) return "array";
@@ -241,17 +283,26 @@ Autociv_CLI.prototype.getType = function (val)
 			// if (val instanceof BigUint64Array) return "BigUint64Array"
 			else return type;
 		}
-		default: return "unknown type";
+		case "undefined":
+		case "boolean":
+		case "number":
+		case "bigint":
+		case "string":
+		case "symbol":
+		case "function":
+			return type;
+		default:
+			return type;
 	}
 };
 
-Autociv_CLI.prototype.accessFormat = function (value, access, isArray)
+Autociv_CLI.prototype.accessFormat = function (value, access, isString)
 {
 	switch (access)
 	{
 		case "dot": return `.${value}`;
-		case "bracket": return isArray ? `[${value}]` : `["${value}"]`;
-		case "parenthesis": return `("${value}")`;
+		case "bracket": return isString ? `["${value}"]` : `[${value}]`;
+		case "parenthesis": return isString ? `("${value}")` : `(${value})`
 		case "word": return `${value}`;
 		default: return `${value}`;
 	}
@@ -263,16 +314,18 @@ Autociv_CLI.prototype.escape = function (obj)
 	return obj.toString().replace(/\\/g, "\\\\").replace(/\[/g, "\\[");
 };
 
-Autociv_CLI.prototype.coloredAccessFormat = function (value, access, isArray, type)
+Autociv_CLI.prototype.coloredAccessFormat = function (value, access, isString, type)
 {
-	let text = `[color="${this.style.type[type] || this.style.type.default}"]${this.escape(value)}[/color]`;
+	// ****** REMBER TO ESCAPE STRINGS BY HAND ******
+	const color = this.style.type[type] || this.style.type.default;
+	value = `[color="${color}"]${this.escape(value)}[/color]`;
 	switch (access)
 	{
-		case "dot": return `.${text}`;
-		case "bracket": return isArray ? `\\[${text}\\]` : `\\["${text}"\\]`;
-		case "parenthesis": return `("${text}")`;
-		case "word": return text;
-		default: return text;
+		case "dot": return `.${value}`;
+		case "bracket": return isString ? `\\["${value}"]` : `\\[${value}]`;
+		case "parenthesis": return isString ? `("${value}")` : `(${value})`
+		case "word": return `${value}`;
+		default: return `${value}`;
 	}
 };
 
@@ -286,8 +339,11 @@ Autociv_CLI.prototype.inspectSelectedSuggestion = function ()
 	if (!entry)
 		return;
 
-	if (entry.token.value in entry.parent)
+	if (typeof entry.parent == "object" && entry.token.value in entry.parent)
+	{
+		this.lastEntry = entry;
 		this.updateObjectInspector(entry.parent[entry.token.value], text);
+	}
 };
 
 Autociv_CLI.prototype.setSelectedSuggestion = function ()
@@ -336,7 +392,10 @@ Autociv_CLI.prototype.evalInput = function (ev, text = this.GUIInput.caption)
 		return;
 
 	if (typeof entry.parent == "object" && entry.token.value in entry.parent)
+	{
+		this.lastEntry = entry;
 		this.updateObjectInspector(entry.parent[entry.token.value], text);
+	}
 };
 
 Autociv_CLI.prototype.getTokens = function (text)
@@ -347,20 +406,20 @@ Autociv_CLI.prototype.getTokens = function (text)
 	if (!lex.length)
 		lex = [""];
 
-	let token = [];
+	let tokens = [];
 	for (let i = 0; i < lex.length; ++i)
 	{
 		if (lex[i].startsWith("["))
 		{
 			let hasValue = false;
 			let value = "";
-			let hasEndBracket = false;
+			let hasClosure = false;
 			let k = 1;
 			while (i + k < lex.length)
 			{
 				if (lex[i + k].endsWith("]"))
 				{
-					hasEndBracket = true;
+					hasClosure = true;
 					break;
 				}
 				hasValue = true;
@@ -368,15 +427,15 @@ Autociv_CLI.prototype.getTokens = function (text)
 				++k;
 			}
 
-			if (!hasEndBracket)
+			if (!hasClosure)
 				value = value.replace(/"$/, "");
 
-			token.push({
+			tokens.push({
 				"access": "bracket",
 				"hasValue": hasValue,
-				"hasEndBracket": hasEndBracket,
+				"hasClosure": hasClosure,
 				"value": value,
-				"valid": hasValue && hasEndBracket
+				"valid": hasValue && hasClosure
 			});
 			i += k;
 		}
@@ -384,13 +443,13 @@ Autociv_CLI.prototype.getTokens = function (text)
 		{
 			let hasValue = false;
 			let value = "";
-			let hasEndBracket = false;
+			let hasClosure = false;
 			let k = 1;
 			while (i + k < lex.length)
 			{
 				if (lex[i + k].endsWith(")"))
 				{
-					hasEndBracket = true;
+					hasClosure = true;
 					break;
 				}
 				hasValue = true;
@@ -398,22 +457,22 @@ Autociv_CLI.prototype.getTokens = function (text)
 				++k;
 			}
 
-			if (!hasEndBracket)
+			if (!hasClosure)
 				value = value.replace(/"$/, "");
 
-			token.push({
+			tokens.push({
 				"access": "parenthesis",
 				"hasValue": hasValue,
-				"hasEndBracket": hasEndBracket,
+				"hasClosure": hasClosure,
 				"value": value,
-				"valid": hasValue && hasEndBracket
+				"valid": hasValue && hasClosure
 			});
 			i += k;
 		}
 		else if (lex[i] == ".")
 		{
 			let hasValue = i + 1 in lex;
-			token.push({
+			tokens.push({
 				"access": "dot",
 				"hasValue": hasValue,
 				"value": hasValue ? lex[i + 1] : "",
@@ -424,7 +483,7 @@ Autociv_CLI.prototype.getTokens = function (text)
 		else
 		{
 			let hasValue = i in lex;
-			token.push({
+			tokens.push({
 				"access": "word",
 				"hasValue": hasValue,
 				"value": lex[i],
@@ -432,8 +491,7 @@ Autociv_CLI.prototype.getTokens = function (text)
 			});
 		}
 	}
-
-	return token;
+	return tokens;
 };
 
 Autociv_CLI.prototype.getEntry = function (text)
@@ -464,14 +522,21 @@ Autociv_CLI.prototype.getEntry = function (text)
 			return;
 
 		let parentType = this.getType(object);
-		let validType = parentType == "array" || parentType == "object" || parentType == "function";
+		let isMapGet = parentType == "Map" && token.value == "get";
+		let validType = parentType == "array" ||
+			parentType == "object" ||
+			parentType == "function" ||
+			isMapGet;
 		if (!token.valid || !validType)
 			return;
 
+		if (isMapGet)
+			object = object[token.value].bind(object);
+		else
+			object = object[token.value];
 
-		object = object[token.value];
-		prefix += this.accessFormat(token.value, token.access, parentType == "array");
-		prefixColored += this.coloredAccessFormat(token.value, token.access, parentType == "array", parentType);
+		prefix += this.accessFormat(token.value, token.access, parentType != "array");
+		prefixColored += this.coloredAccessFormat(token.value, token.access, parentType != "array", parentType);
 	}
 
 	return {
@@ -494,16 +559,20 @@ Autociv_CLI.prototype.getCandidates = function (object, access)
 		for (let k in object)
 			list.add(k);
 
-	let proto = Object.getPrototypeOf(object);
-	if (proto)
-		for (let name of Object.getOwnPropertyNames(proto))
-			if (name !== 'constructor' &&
-				name !== "caller" &&
-				name !== "callee" &&
-				proto.hasOwnProperty(name) &&
-				name != "arguments" &&
-				!name.startsWith("__"))
-				list.add(name);
+
+	if (this.seeOwnPropertyNames)
+	{
+		let proto = Object.getPrototypeOf(object);
+		if (proto)
+			for (let name of Object.getOwnPropertyNames(proto))
+				if (name !== 'constructor' &&
+					name !== "caller" &&
+					name !== "callee" &&
+					proto.hasOwnProperty(name) &&
+					name != "arguments" &&
+					!name.startsWith("__"))
+					list.add(name);
+	}
 
 	if (this.getType(object) == "array")
 	{
@@ -527,11 +596,14 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 			return;
 
 		let parentType = this.getType(entry.parent);
-		if (parentType != "object" && parentType != "function" && parentType != "array")
+		if (parentType != "object" && parentType != "function" && parentType != "array" &&
+			parentType != "Map")
 			return
 
 		let candidates = this.getCandidates(entry.parent, entry.token.access);
-		let results = entry.token.hasValue ? this.sort(entry.token.value, candidates) : this.sort("", candidates);
+		let results = entry.token.hasValue ?
+			this.sort(entry.token.value, candidates) :
+			this.sort("", candidates);
 		results = this.sortSearchFilter(entry.parent, results);
 		if (results.length == 1 && results[0] == entry.token.value)
 			results = [];
@@ -546,19 +618,22 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 		if (parentType == "object" || parentType == "function")
 		{
 			let candidates = this.getCandidates(entry.parent);
-			let results = entry.token.hasValue ? this.sort(entry.token.value.replace(/^"|"$/g, ""), candidates) : this.sort("", candidates);
+			let results = entry.token.hasValue ?
+				this.sort(entry.token.value.replace(/^"|"$/g, ""), candidates) :
+				this.sort("", candidates);
 			results = this.sortSearchFilter(entry.parent, results);
-			if (entry.token.hasEndBracket && results.length && results[0] == entry.token.value)
+			if (entry.token.hasClosure && results.length && results[0] == entry.token.value)
 				results = [];
 			return results;
 		}
 		else if (parentType == "array")
 		{
 			let candidates = this.getCandidates(entry.parent, entry.token.access);
-			let results = entry.token.hasValue ? this.sort(entry.token.value, candidates).sort((a, b) => (+a) - (+b)) :
+			let results = entry.token.hasValue ?
+				this.sort(entry.token.value, candidates).sort((a, b) => (+a) - (+b)) :
 				candidates;
 			results = this.sortSearchFilter(entry.parent, results);
-			if (entry.token.hasEndBracket && results.length && results[0] == entry.token.value)
+			if (entry.token.hasClosure && results.length && results[0] == entry.token.value)
 				results = [];
 			return results;
 		}
@@ -569,7 +644,9 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 			return;
 
 		let candidates = this.getCandidates(entry.parent);
-		let results = entry.token.hasValue ? this.sort(entry.token.value, candidates) : this.sort("", candidates);
+		let results = entry.token.hasValue ?
+			this.sort(entry.token.value, candidates) :
+			this.sort("", candidates);
 		results = this.sortSearchFilter(entry.parent, results);
 		if (results.length == 1 && results[0] == entry.token.value)
 			results = [];
@@ -580,12 +657,19 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 		if (entry.index == 0)
 			return;
 
-		let candidates = this.getFunctionParameterCandidates(entry.parent);
+		let candidates = [];
+		if (entry.entry.token.value == "get" && entry.entry.parent instanceof Map)
+			candidates = Array.from(entry.entry.parent.keys()).filter(v => this.getType(v) == "string")
+		else
+			candidates = this.getFunctionParameterCandidates(entry.parent);
+
 		if (!candidates)
 			return;
 
-		let results = entry.token.hasValue ? this.sort(entry.token.value.replace(/^"|"$/g, ""), candidates) : this.sort("", candidates);
-		if (entry.token.hasEndBracket && results.length && results[0] == entry.token.value)
+		let results = entry.token.hasValue ?
+			this.sort(entry.token.value.replace(/^"|"$/g, ""), candidates) :
+			this.sort("", candidates);
+		if (entry.token.hasClosure && results.length && results[0] == entry.token.value)
 			results = [];
 		return results;
 	}
@@ -600,19 +684,20 @@ Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
 		return alloted < text.length ? text.slice(0, alloted) + "..." : text;
 	}
 
-	let isArray = this.getType(entry.parent) == "array";
+	let isString = this.getType(entry.parent) != "array";
 	this.GUIList.list = suggestions.map(value =>
 	{
 		if (entry.token.access == "parenthesis")
 		{
 			let text = entry.prefixColored;
-			text += this.coloredAccessFormat(value, entry.token.access, false, "string");
+			let type = this.getType(value);
+			text += this.coloredAccessFormat(value, entry.token.access, type == "string", type);
 			return text;
 		}
 
 		let type = this.getType(entry.parent[value]);
 		let text = entry.prefixColored;
-		text += this.coloredAccessFormat(value, entry.token.access, isArray, type);
+		text += this.coloredAccessFormat(value, entry.token.access, isString, type);
 
 		// Show variable type
 		text += ` [color="${this.style.typeTag}"]\\[${type}\\][/color]`;
@@ -626,7 +711,7 @@ Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
 
 		return text;
 	});
-	this.list_data = suggestions.map(value => this.accessFormat(value, entry.token.access, isArray));
+	this.list_data = suggestions.map(value => this.accessFormat(value, entry.token.access, isString));
 	this.prefix = entry.prefix;
 
 	this.GUIList.size = Object.assign(this.GUIList.size, {
@@ -637,6 +722,13 @@ Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
 Autociv_CLI.prototype.processPrefixes = function (text)
 {
 	let original = text;
+
+	if (text.startsWith("p?"))
+	{
+		this.seeOwnPropertyNames = !this.seeOwnPropertyNames;
+		text = text.slice(2);
+	}
+
 	// searchFilter prefix
 	if (/^\w{0,1}\?.*/.test(text))
 	{
@@ -659,9 +751,10 @@ Autociv_CLI.prototype.processPrefixes = function (text)
 	return text;
 };
 
-Autociv_CLI.prototype.updateSuggestions = function (event, text = this.GUIInput.caption)
+Autociv_CLI.prototype.updateSuggestions = function (event, text = this.GUIInput.caption, lookForPrefixes = true)
 {
-	text = this.processPrefixes(text);
+	if (lookForPrefixes)
+		text = this.processPrefixes(text);
 
 	let entry = this.getEntry(text);
 	if (!entry)
@@ -673,8 +766,13 @@ Autociv_CLI.prototype.updateSuggestions = function (event, text = this.GUIInput.
 
 	this.updateSuggestionList(entry, suggestions);
 
-	if (entry.token.value in entry.parent)
+	if (typeof entry.parent == "object" && entry.token.value in entry.parent)
+	{
+		this.lastEntry = entry;
 		this.updateObjectInspector(entry.parent[entry.token.value]);
+	}
+
+	return suggestions.length;
 };
 
 Autociv_CLI.prototype.tab = function ()
@@ -819,6 +917,7 @@ Autociv_CLI.prototype.getObjectRepresentation = function (obj, depth = this.show
 
 Autociv_CLI.prototype.updateObjectInspector = function (object, text = this.GUIInput.caption)
 {
+	this.lastVariableNameExpressionInspector = text;
 	let result = `${this.escape(text.split("=")[0].trim())} : ${this.getObjectRepresentation(object)} `;
 	this.GUIText.caption = result;
 	// Count number of lines
@@ -827,4 +926,5 @@ Autociv_CLI.prototype.updateObjectInspector = function (object, text = this.GUII
 	this.GUIText.size = Object.assign(this.GUIText.size, {
 		"bottom": Math.min(Math.max(nLines1, nLines2) * this.vlineSize, this.inspectorMaxVisibleSize)
 	});
+	return result;
 };

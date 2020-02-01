@@ -5,7 +5,7 @@
 	"autociv.session.graphics.corpses.max": 50,
 	"autociv.session.APM.enabled": "false",
 	"autociv.session.APM.chart.enabled": "false",
-	"autociv.session.StatusBar.NumberOfGatherers.show": "true",
+	"autociv.session.StatusBar.NumberOfGatherers.show": "false",
 	"autociv.resizebar.enabled": "true",
 	"hotkey.autociv.open.test": "Ctrl+A+T",
 	"hotkey.autociv.open.autociv_settings": "F4",
