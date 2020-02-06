@@ -1,3 +1,5 @@
+// Revision https://code.wildfiregames.com/D2079?id=8905
+// ONLY MEANT FOR 23b
 function autociv_input_D2079_8905_LoadSnappingEdges()
 {
     global["handleInputBeforeGui"] = function (ev, hoveredObject)
@@ -264,10 +266,14 @@ function autociv_input_D2079_8905_LoadSnappingEdges()
                             placementSupport.SetDefaultAngle();
                         }
 
+                        var snapToEdge = Engine.HotkeyIsPressed("autociv.session.snaptoedge") &&
+                            Engine.ConfigDB_GetValue("user", "autociv.session.snaptoedge.enabled") === "true";
                         var snapData = Engine.GuiInterfaceCall("GetFoundationSnapData", {
                             "template": placementSupport.template,
                             "x": placementSupport.position.x,
-                            "z": placementSupport.position.z
+                            "z": placementSupport.position.z,
+                            "angle": placementSupport.angle,
+                            "snapToEdgeEntities": snapToEdge && Engine.PickPlayerEntitiesOnScreen(g_ViewedPlayer)
                         });
                         if (snapData)
                         {
@@ -603,11 +609,13 @@ function autociv_input_D2079_8905_LoadSnappingEdges()
                         inputState = INPUT_NORMAL;
                         return true;
                     }
-
+                    var snapToEdge = Engine.HotkeyIsPressed("autociv.session.snaptoedge") &&
+                        Engine.ConfigDB_GetValue("user", "autociv.session.snaptoedge.enabled") === "true";
                     var snapData = Engine.GuiInterfaceCall("GetFoundationSnapData", {
                         "template": placementSupport.template,
                         "x": placementSupport.position.x,
                         "z": placementSupport.position.z,
+                        "snapToEdgeEntities": snapToEdge && Engine.PickPlayerEntitiesOnScreen(g_ViewedPlayer)
                     });
                     if (snapData)
                     {
@@ -632,6 +640,25 @@ function autociv_input_D2079_8905_LoadSnappingEdges()
                     else
                     {
                         placementSupport.position = Engine.GetTerrainAtScreenPoint(ev.x, ev.y);
+
+                        var snapToEdge = Engine.HotkeyIsPressed("autociv.session.snaptoedge") &&
+                            Engine.ConfigDB_GetValue("user", "autociv.session.snaptoedge.enabled") === "true";
+                        if (snapToEdge)
+                        {
+                            var snapData = Engine.GuiInterfaceCall("GetFoundationSnapData", {
+                                "template": placementSupport.template,
+                                "x": placementSupport.position.x,
+                                "z": placementSupport.position.z,
+                                "snapToEdgeEntities": Engine.PickPlayerEntitiesOnScreen(g_ViewedPlayer)
+                            });
+                            if (snapData)
+                            {
+                                placementSupport.angle = snapData.angle;
+                                placementSupport.position.x = snapData.x;
+                                placementSupport.position.z = snapData.z;
+                            }
+                        }
+
                         g_DragStart = new Vector2D(ev.x, ev.y);
                         inputState = INPUT_BUILDING_CLICK;
                     }
