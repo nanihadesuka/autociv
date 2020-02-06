@@ -133,6 +133,6 @@
 	"hotkey.autociv.session.stance.set.defensive": "Alt+3",
 	"hotkey.autociv.session.stance.set.passive": "Alt+4",
 	"hotkey.autociv.session.stance.set.standground": "Alt+5",
-	"hotkey.autociv.session.snaptoedge": "Shift",
+	"hotkey.autociv.session.snaptoedge": "Alt",
 	"autociv.session.snaptoedge.enabled": "true"
 }
