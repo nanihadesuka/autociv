@@ -152,6 +152,9 @@ var g_autociv_hotkeysPrefixes = {
 	}
 };
 
+if (!g_autociv_is24)
+	autociv_D2079_8905_LoadSnappingEdges();
+
 autociv_patchApplyN("handleInputBeforeGui", function (target, that, args)
 {
 	let [ev] = args;

@@ -151,6 +151,117 @@ GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (pla
     });
 };
 
+
+// Revision https://code.wildfiregames.com/D2079?id=8905
+// ONLY MEANT FOR 23b
+GuiInterface.prototype.autociv_D2079_8905_LoadSnappingEdges = function ()
+{
+    // ################################################
+    // binaries/data/mods/public/simulation/components/GuiInterface.js
+    GuiInterface.prototype.GetFoundationSnapData = function(player, data)
+    {
+        let template = Engine.QueryInterface(SYSTEM_ENTITY, IID_TemplateManager).GetTemplate(data.template);
+        if (!template)
+        {
+            warn("[GetFoundationSnapData] Failed to load template '" + data.template + "'");
+            return false;
+        }
+
+        if (data.snapEntities && data.snapRadius && data.snapRadius > 0)
+        {
+            // see if {data.x, data.z} is inside the snap radius of any of the snap entities; and if so, to which it is closest
+            // (TODO: break unlikely ties by choosing the lowest entity ID)
+
+            let minDist2 = -1;
+            let minDistEntitySnapData = null;
+            let radius2 = data.snapRadius * data.snapRadius;
+
+            for (let ent of data.snapEntities)
+            {
+                let cmpPosition = Engine.QueryInterface(ent, IID_Position);
+                if (!cmpPosition || !cmpPosition.IsInWorld())
+                    continue;
+
+                let pos = cmpPosition.GetPosition();
+                let dist2 = (data.x - pos.x) * (data.x - pos.x) + (data.z - pos.z) * (data.z - pos.z);
+                if (dist2 > radius2)
+                    continue;
+
+                if (minDist2 < 0 || dist2 < minDist2)
+                {
+                    minDist2 = dist2;
+                    minDistEntitySnapData = {
+                            "x": pos.x,
+                            "z": pos.z,
+                            "angle": cmpPosition.GetRotation().y,
+                            "ent": ent
+                    };
+                }
+            }
+
+            if (minDistEntitySnapData != null)
+                return minDistEntitySnapData;
+        }
+
+        if (template.BuildRestrictions.PlacementType == "shore")
+        {
+            let angle = GetDockAngle(template, data.x, data.z);
+            if (angle !== undefined)
+                return {
+                    "x": data.x,
+                    "z": data.z,
+                    "angle": angle
+                };
+        }
+
+        return false;
+    };
+
+    Engine.ReRegisterComponentType(IID_GuiInterface, "GuiInterface", GuiInterface);
+
+    // ################################################
+    // binaries/data/mods/public/simulation/helpers/Placement.js
+    function GetObstructionEdges(entity)
+    {
+        let cmpTemplateManager = Engine.QueryInterface(SYSTEM_ENTITY, IID_TemplateManager);
+        let template = cmpTemplateManager.GetTemplate(cmpTemplateManager.GetCurrentTemplateName(entity));
+        if (!template || !template.Obstruction || !template.Obstruction.Static)
+            return [];
+        let cmpPosition = Engine.QueryInterface(entity, IID_Position);
+        if (!cmpPosition)
+            return [];
+
+        let halfWidth = template.Obstruction.Static["@width"] / 2;
+        let halfDepth = template.Obstruction.Static["@depth"] / 2;
+
+        // All corners of a foundation in clockwise order.
+        let corners = [
+            new Vector2D(-halfWidth, -halfDepth),
+            new Vector2D(-halfWidth, halfDepth),
+            new Vector2D(halfWidth, halfDepth),
+            new Vector2D(halfWidth, -halfDepth)
+        ];
+
+        let angle = cmpPosition.GetRotation().y;
+        for (let i = 0; i < 4; ++i)
+            corners[i].rotate(angle).add(cmpPosition.GetPosition2D());
+
+        let edges = [];
+        for (let i = 0; i < 4; ++i)
+            edges.push({
+                'entity': entity,
+                'begin': corners[i],
+                'end': corners[(i + 1) % 4],
+                'angle': angle,
+                'normal': corners[(i + 1) % 4].clone().sub(corners[i]).perpendicular().normalize(),
+                'order': 'cw',
+            });
+        return edges;
+    }
+
+    Engine.RegisterGlobal("GetObstructionEdges", GetObstructionEdges);
+};
+
 // Adding a new key to the exposedFunctions object doesn't work,
 // must patch the original function
 let autociv_exposedFunctions = {
@@ -160,6 +271,7 @@ let autociv_exposedFunctions = {
     "autociv_FindEntitiesWithClassesExpression": 1,
     "autociv_SetCorpsesMax": 1,
     "autociv_SetStatusBar_showNumberOfGatherers": 1,
+    "autociv_D2079_8905_LoadSnappingEdges": 1,
 };
 
 autociv_patchApplyN(GuiInterface.prototype, "ScriptCall", function (target, that, args)
