@@ -129,7 +129,7 @@
 			sprite_disabled="stretched:grayscale:autociv_mapbrowser/map_button.png"
 			hidden="true"
 			font="sans-bold-stroke-13"
-			size="100%-45-60 0%+320-60 100%-45-0 0%+320+0"
+			size="100%-45-64 0%+320-64 100%-45-0 0%+320+0"
 			z="799"
 			textcolor="200 200 200"
 			text_align="center"
