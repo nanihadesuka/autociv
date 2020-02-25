@@ -2,6 +2,7 @@ function Autociv_CLI(GUI)
 {
 	this.GUI = GUI;
 	this.GUIInput = this.GUI.children[0];
+	this.GUIStdOut = this.GUI.children[1];
 	this.GUIInputFilter = this.GUI.children[1];
 	this.GUIList = this.GUIInput.children[0];
 	this.GUIText = this.GUIList.children[0];
@@ -12,6 +13,12 @@ function Autociv_CLI(GUI)
 	this.GUIInput.textcolor_selected = this.style.input.text_selected;
 	this.GUIInput.sprite_selectarea = "color:" + this.style.input.area_selected;
 	this.GUIInput.tooltip = "Press Enter to eval expression";
+
+	this.GUIStdOut.sprite = "color:" + this.style.stdout.background;
+	this.GUIStdOut.font = this.style.font;
+	this.GUIStdOut.textcolor = this.style.stdout.text;
+	this.GUIStdOut.textcolor_selected = this.style.stdout.text_selected;
+	this.GUIStdOut.sprite_selectarea = "color:" + this.style.stdout.area_selected;
 
 	this.GUIList.sprite = "color:" + this.style.suggestions.background;
 	this.GUIList.font = this.style.font;
@@ -25,19 +32,22 @@ function Autociv_CLI(GUI)
 	this.GUIInput.onTextEdit = this.updateSuggestions.bind(this);
 	this.GUIInput.onTab = this.tab.bind(this);
 	this.GUIInput.onPress = this.evalInput.bind(this);
+	this.GUIStdOut.onPress = this.toggleStdOut.bind(this);
 	this.GUIList.onSelectionChange = this.inspectSelectedSuggestion.bind(this);
 	this.GUIList.onMouseLeftDoubleClick = this.setSelectedSuggestion.bind(this);
 
 	this.lastEntry = undefined;
 	this.inspectorSettings = {
-		"tickPeriod": 1,
+		"getTickPeriod": () => Math.min(1, Math.ceil(this.inspectorSettings.genTime / 16666)),
 		"tickCount": 0,
-		"update": true
+		"update": true,
+		"genTime": 0
 	};
 	this.suggestionsSettings = {
-		"tickPeriod": 1,
+		"getTickPeriod": () => Math.min(1, Math.ceil(this.suggestionsSettings.genTime / 16666)),
 		"tickCount": 0,
-		"update": true
+		"update": true,
+		"genTime": 0
 	};
 
 	this.GUI.onTick = this.onTick.bind(this);
@@ -80,8 +90,10 @@ function Autociv_CLI(GUI)
 		// }, 20)
 
 
-		this.GUIInput.caption = `test_Map.get(`;
+		// this.GUIInput.caption = `g_Autociv_Tic`;
+		this.GUIInput.caption = `g_GameList`;
 		this.toggle();
+		this.toggleStdOut();
 	}
 }
 
@@ -89,6 +101,7 @@ Autociv_CLI.prototype.functionParameterCandidates = {}
 Autociv_CLI.prototype.initiated = false;
 Autociv_CLI.prototype.suggestionsMaxVisibleSize = 350
 Autociv_CLI.prototype.inspectorMaxVisibleSize = 350;
+Autociv_CLI.prototype.stdOutMaxVisibleSize = 250;
 Autociv_CLI.prototype.vlineSize = 19.2;
 Autociv_CLI.prototype.spacing = " ".repeat(8);
 Autociv_CLI.prototype.list_data = [];
@@ -96,7 +109,7 @@ Autociv_CLI.prototype.prefix = "";
 Autociv_CLI.prototype.showDepth = 2;
 Autociv_CLI.prototype.previewLength = 100;
 Autociv_CLI.prototype.searchFilter = "";
-Autociv_CLI.prototype.seeOwnPropertyNames = true;
+Autociv_CLI.prototype.seeOwnPropertyNames = false;
 Autociv_CLI.prototype.lastVariableNameExpressionInspector = "";
 
 Autociv_CLI.prototype.functionAutocomplete = new Map([
@@ -164,6 +177,12 @@ Autociv_CLI.prototype.style = {
 		"text_selected": "255 255 255",
 		"area_selected": "69 200 161"
 	},
+	"stdout": {
+		"background": "60 60 60",
+		"text": "245 245 245",
+		"text_selected": "255 255 255",
+		"area_selected": "69 200 161"
+	},
 	"suggestions": {
 		"background": "10 10 10",
 		"text": "220 220 220",
@@ -202,24 +221,50 @@ Autociv_CLI.prototype.onTick = function ()
 		return;
 
 	this.inspectorSettings.tickCount += 1;
-	this.inspectorSettings.tickCount %= this.inspectorSettings.tickPeriod;
-	if (this.inspectorSettings.update && !this.inspectorSettings.tickCount)
+	this.inspectorSettings.tickCount %= this.inspectorSettings.getTickPeriod();
+	if (this.inspectorSettings.update &&
+		!this.inspectorSettings.tickCount &&
+		this.inspectorSettings.genTime < 5000)
 	{
 		let object = this.lastEntry.parent[this.lastEntry.token.value];
-		let caption = this.updateObjectInspector(object, this
-			.lastVariableNameExpressionInspector);
-		this.inspectorSettings.tickPeriod = Math.ceil(Math.sqrt(caption.length + 1) * 1 + 2);
+		this.updateObjectInspector(object, this.lastVariableNameExpressionInspector);
 		this.inspectorSettings.tickCount = 1;
 	}
 
 	this.suggestionsSettings.tickCount += 1;
-	this.suggestionsSettings.tickCount %= this.suggestionsSettings.tickPeriod;
-	if (this.suggestionsSettings.update && !this.suggestionsSettings.tickCount)
+	this.suggestionsSettings.tickCount %= this.suggestionsSettings.getTickPeriod();
+	if (this.suggestionsSettings.update &&
+		!this.suggestionsSettings.tickCount &&
+		this.suggestionsSettings.genTime < 5000 * 2)
 	{
-		let length = this.updateSuggestions(undefined, this.GUIInput.caption, false);
-		this.suggestionsSettings.tickPeriod = Math.ceil(Math.sqrt(length + 1) * 6 + 2);
+		this.updateSuggestions(undefined, this.GUIInput.caption, false);
 		this.suggestionsSettings.tickCount = 1;
 	}
+}
+
+Autociv_CLI.prototype.toggleStdOut = function ()
+{
+	if (this.GUI.hidden)
+		return;
+
+	this.GUIStdOut.hidden = !this.GUIStdOut.hidden;
+	if (this.GUIStdOut.hidden)
+		return;
+
+	if (!this.lastEntry)
+		return;
+
+	let object = this.lastEntry.parent[this.lastEntry.token.value];
+	let result = this.getObjectRepresentationUnformatted(object);
+	// Count number of lines
+	this.GUIStdOut.caption = "";
+	let nLines1 = (result.match(/\n/g) || '').length + 1;
+	let nLines2 = Math.ceil(result.length / 100);
+	this.GUIStdOut.size = Object.assign(this.GUIStdOut.size, {
+		"top": -Math.min(Math.max(nLines1, nLines2) * this.vlineSize, this.stdOutMaxVisibleSize) - 5
+	});
+
+	this.GUIStdOut.caption = result;
 }
 
 Autociv_CLI.prototype.getFunctionParameterCandidates = function (functionObject)
@@ -711,12 +756,13 @@ Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
 
 		return text;
 	});
-	this.list_data = suggestions.map(value => this.accessFormat(value, entry.token.access, isString));
+	this.list_data = [];
 	this.prefix = entry.prefix;
 
 	this.GUIList.size = Object.assign(this.GUIList.size, {
 		"bottom": Math.min(suggestions.length * this.vlineSize, this.suggestionsMaxVisibleSize)
 	});
+	this.list_data = suggestions.map(value => this.accessFormat(value, entry.token.access, isString));
 }
 
 Autociv_CLI.prototype.processPrefixes = function (text)
@@ -753,6 +799,7 @@ Autociv_CLI.prototype.processPrefixes = function (text)
 
 Autociv_CLI.prototype.updateSuggestions = function (event, text = this.GUIInput.caption, lookForPrefixes = true)
 {
+	let time = Engine.GetMicroseconds();
 	if (lookForPrefixes)
 		text = this.processPrefixes(text);
 
@@ -772,7 +819,7 @@ Autociv_CLI.prototype.updateSuggestions = function (event, text = this.GUIInput.
 		this.updateObjectInspector(entry.parent[entry.token.value]);
 	}
 
-	return suggestions.length;
+	this.suggestionsSettings.genTime = Engine.GetMicroseconds() - time;
 };
 
 Autociv_CLI.prototype.tab = function ()
@@ -915,16 +962,141 @@ Autociv_CLI.prototype.getObjectRepresentation = function (obj, depth = this.show
 	}
 }
 
+Autociv_CLI.prototype.getObjectRepresentationUnformatted = function (obj, depth = this.showDepth, prefix = "")
+{
+	let type = this.getType(obj);
+
+	if (depth < 1 && (type == "array" || type == "object" || type == "function"))
+		return "...";
+
+	if (obj == global)
+		depth = Math.min(1, depth);
+
+	switch (type)
+	{
+		case "undefined": return "undefined";
+		case "boolean": return obj ? "true" : "false";
+		case "number": return `${obj}`;
+		case "bigint": return `${obj}`;
+		case "symbol": return "Symbol";
+		case "null": return "null";
+		case "string":
+			return `"${obj}"`;
+		case "function": {
+			if (prefix)
+				return "function";
+			try
+			{
+				return obj.toSource().replace(/	|\r/g, this.spacing);
+			}
+			catch (error)
+			{
+				return "Proxy";
+			}
+		}
+		case "array": {
+			if (!obj.length)
+				return `[ ]`;
+
+			let output = obj.map((val, index) =>
+			{
+				return prefix + this.spacing + (this.getType(val) == "object" ? index + " : " : "") +
+					this.getObjectRepresentationUnformatted(
+						val,
+						val == global ? 0 : depth - 1,
+						prefix + this.spacing);
+			}).join(",\n");
+			return `[ \n${output} \n${prefix} ]`;
+		}
+		case "object": {
+			let list = this.getCandidates(obj);
+			if (!list.length)
+				return `{ }`;
+
+			let output = list.map(key =>
+			{
+				return prefix + this.spacing + key + " : " +
+					this.getObjectRepresentationUnformatted(
+						obj[key],
+						obj[key] == global ? 0 : depth - 1,
+						prefix + this.spacing);
+			}).join(",\n");
+
+
+			return `{ \n${output} \n${prefix} }`;
+		}
+		case "Set": {
+			let list = Array.from(obj);
+			if (!list.length)
+				return `Set { }`;
+
+			let output = list.map(value =>
+			{
+				return prefix + this.spacing +
+					this.getObjectRepresentationUnformatted(
+						value,
+						value == global ? 0 : depth - 1,
+						prefix + this.spacing);
+			}).join(",\n");
+
+			return `Set { \n${output} \n${prefix} }`;
+		}
+		case "Map": {
+			let list = Array.from(obj);
+			if (!list.length)
+				return `Map { }`;
+
+			let output = list.map(([key, value]) =>
+			{
+				return prefix + this.spacing +
+					this.getObjectRepresentationUnformatted(
+						key,
+						key == global ? 0 : depth - 1,
+						prefix + this.spacing) + " => " +
+					this.getObjectRepresentationUnformatted(
+						value,
+						value == global ? 0 : depth - 1,
+						prefix + this.spacing);
+			}).join(",\n");
+
+			return `Map { \n${output} \n${prefix} }`;
+		}
+		case "Int8Array":
+		case "Uint8Array":
+		case "Uint8ClampedArray":
+		case "Int16Array":
+		case "Uint16Array":
+		case "Int32Array":
+		case "Uint32Array":
+		case "Float32Array":
+		case "Float64Array": {
+			let list = Array.from(obj);
+			if (!list.length)
+				return `[ ]`;
+
+			let output = list.map((val, index) =>
+			{
+				return prefix + this.spacing + `${val}`;
+			}).join(",\n");
+
+			return `[ \n${output} \n${prefix} ]`;
+		}
+		default: return "";
+	}
+}
+
 Autociv_CLI.prototype.updateObjectInspector = function (object, text = this.GUIInput.caption)
 {
+	let time = Engine.GetMicroseconds();
 	this.lastVariableNameExpressionInspector = text;
 	let result = `${this.escape(text.split("=")[0].trim())} : ${this.getObjectRepresentation(object)} `;
-	this.GUIText.caption = result;
+	this.GUIText.caption = "";
 	// Count number of lines
 	let nLines1 = (result.match(/\n/g) || '').length + 1;
 	let nLines2 = Math.ceil(result.length / 100);
 	this.GUIText.size = Object.assign(this.GUIText.size, {
 		"bottom": Math.min(Math.max(nLines1, nLines2) * this.vlineSize, this.inspectorMaxVisibleSize)
 	});
-	return result;
+	this.GUIText.caption = result;
+	this.inspectorSettings.genTime = Engine.GetMicroseconds() - time;
 };

@@ -77,7 +77,7 @@ let game = {
 			}
 		},
 		/**
-		 * @param {string} text E.g : "1v1v3"
+		 * @param {string} text E.g : "1v1v3" "ffa" "4v4" "2v2v2v2"
 		 */
 		"teams": (text) =>
 		{

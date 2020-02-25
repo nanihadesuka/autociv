@@ -210,6 +210,15 @@
 					</object>
 				</object>
 			</object>
+			<object size="0% 0%-70 100% 0%"
+				hotkey="autociv.CLI.stdout.toggle"
+				hidden="true"
+				type="input"
+				multiline="true"
+				scrollbar ="true"
+				style="ModernInput"
+				scrollbar_style="ModernScrollBar">
+			</object>
 		</object>
 
 	</object>

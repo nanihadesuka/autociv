@@ -421,7 +421,7 @@ botManager.addBot("link", {
 	"parseURLs": function (text)
 	{
 		// https://www.regexpal.com/93652
-		return text.match(/^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/gmi);
+		return text.match(/(sftp:\/\/|ftp:\/\/|http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?/gmi);
 	},
 	"findAndAdd": function (text)
 	{

@@ -229,7 +229,7 @@ autociv_patchApplyN("onTick", function (target, that, args)
 	return target.apply(that, args)
 })
 
-// Hack. This two should have their own pushGuiPage but it doesn't.
+// Hack. This one should have his own pushGuiPage but it does not.
 autociv_patchApplyN("setLeaderboardVisibility", function (target, that, args)
 {
 	let [open] = args;
@@ -237,7 +237,7 @@ autociv_patchApplyN("setLeaderboardVisibility", function (target, that, args)
 	return target.apply(that, args)
 })
 
-// Hack. This two should have their own pushGuiPage but it doesnt't.
+// Hack. This one should have his own pushGuiPage but it does not.
 autociv_patchApplyN("setUserProfileVisibility", function (target, that, args)
 {
 	let [open] = args;

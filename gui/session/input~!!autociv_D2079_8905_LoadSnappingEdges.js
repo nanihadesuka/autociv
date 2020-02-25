@@ -266,7 +266,7 @@ function autociv_input_D2079_8905_LoadSnappingEdges()
                             placementSupport.SetDefaultAngle();
                         }
 
-                        var snapToEdge = Engine.HotkeyIsPressed("autociv.session.snaptoedge") &&
+                        var snapToEdge = !Engine.HotkeyIsPressed("autociv.session.snaptoedge") &&
                             Engine.ConfigDB_GetValue("user", "autociv.session.snaptoedge.enabled") === "true";
                         var snapData = Engine.GuiInterfaceCall("GetFoundationSnapData", {
                             "template": placementSupport.template,
@@ -609,7 +609,7 @@ function autociv_input_D2079_8905_LoadSnappingEdges()
                         inputState = INPUT_NORMAL;
                         return true;
                     }
-                    var snapToEdge = Engine.HotkeyIsPressed("autociv.session.snaptoedge") &&
+                    var snapToEdge = !Engine.HotkeyIsPressed("autociv.session.snaptoedge") &&
                         Engine.ConfigDB_GetValue("user", "autociv.session.snaptoedge.enabled") === "true";
                     var snapData = Engine.GuiInterfaceCall("GetFoundationSnapData", {
                         "template": placementSupport.template,
@@ -641,7 +641,7 @@ function autociv_input_D2079_8905_LoadSnappingEdges()
                     {
                         placementSupport.position = Engine.GetTerrainAtScreenPoint(ev.x, ev.y);
 
-                        var snapToEdge = Engine.HotkeyIsPressed("autociv.session.snaptoedge") &&
+                        var snapToEdge = !Engine.HotkeyIsPressed("autociv.session.snaptoedge") &&
                             Engine.ConfigDB_GetValue("user", "autociv.session.snaptoedge.enabled") === "true";
                         if (snapToEdge)
                         {

@@ -1,7 +1,7 @@
 {
 	"random": ["random", "rando"],
 	"athen" : ["athenians", "athen","greece","greeks"],
-	"brit"  : ["britons", "brits", "britania","germania"],
+	"brit"  : ["britons", "brits", "britania"],
 	"cart"  : ["carthaginians", "carta", "carthage"],
 	"spart" : ["spartans", "sparta", "esparta"],
 	"gaul"  : ["gauls", "galos","gauleses"],
@@ -11,6 +11,6 @@
 	"mace"  : ["macedonians", "maced"],
 	"pers"  : ["persians", "persa"],
 	"ptol"  : ["ptolemies", "ptol", "ptolo", "ptololo", "ptolomeos", "ptoleme"],
-	"rome"  : ["romans", "rome","S.P.Q.R","SPQR"],
+	"rome"  : ["romans", "rome","S.P.Q.R"],
 	"sele"  : ["seleucids", "seleuc", "seles"]
 }

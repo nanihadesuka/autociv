@@ -14,6 +14,7 @@
 	"hotkey.autociv.lobby.focus.chatInput": "Alt+Q",
 	"hotkey.autociv.lobby.focus.gameList": "Alt+W",
 	"hotkey.autociv.CLI.toggle": "Ctrl+C+L",
+	"hotkey.autociv.CLI.stdout.toggle": "Alt+S",
 	"hotkey.autociv.lobby.gameList.selected.join": "Alt+E",
 	"hotkey.autociv.selection.nowoundedonly": "I",
 	"hotkey.autociv.session.minimap.expand.toggle": "Shift+Tab",
