@@ -282,7 +282,14 @@ function autociv_input_D2079_8905_LoadSnappingEdges()
                             placementSupport.position.z = snapData.z;
                         }
 
-                        updateBuildingPlacementPreview();
+                        // If snap position can't place use mouse position
+                        let success = updateBuildingPlacementPreview();
+                        if (!success && snapToEdge)
+                        {
+                            placementSupport.position = Engine.GetTerrainAtScreenPoint(ev.x, ev.y);
+                            updateBuildingPlacementPreview();
+                        }
+
                         break;
 
                     case "mousebuttonup":
@@ -599,6 +606,7 @@ function autociv_input_D2079_8905_LoadSnappingEdges()
                     // still selecting a starting point (which must necessarily be on-screen). (The update of the snap entities
                     // itself happens in the call to updateBuildingPlacementPreview below).
                     placementSupport.wallSnapEntitiesIncludeOffscreen = false;
+                    updateBuildingPlacementPreview();
                 }
                 else
                 {
@@ -623,9 +631,16 @@ function autociv_input_D2079_8905_LoadSnappingEdges()
                         placementSupport.position.x = snapData.x;
                         placementSupport.position.z = snapData.z;
                     }
+
+                    // If snap position can't place use mouse position
+                    let success = updateBuildingPlacementPreview();
+                    if (!success && snapToEdge)
+                    {
+                        placementSupport.position = Engine.GetTerrainAtScreenPoint(ev.x, ev.y);
+                        updateBuildingPlacementPreview();
+                    }
                 }
 
-                updateBuildingPlacementPreview(); // includes an update of the snap entity candidates
                 return false; // continue processing mouse motion
 
             case "mousebuttondown":
@@ -657,6 +672,14 @@ function autociv_input_D2079_8905_LoadSnappingEdges()
                                 placementSupport.position.x = snapData.x;
                                 placementSupport.position.z = snapData.z;
                             }
+                        }
+
+                        // If snap position can't place use mouse position
+                        let success = updateBuildingPlacementPreview();
+                        if (!success && snapToEdge)
+                        {
+                            placementSupport.position = Engine.GetTerrainAtScreenPoint(ev.x, ev.y);
+                            updateBuildingPlacementPreview();
                         }
 
                         g_DragStart = new Vector2D(ev.x, ev.y);

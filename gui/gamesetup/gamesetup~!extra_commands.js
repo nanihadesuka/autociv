@@ -160,6 +160,23 @@ let game = {
 		'player':
 		{
 			'assigned': playerName => game.get.player.pos(playerName) >= 0
+		},
+		"allReady": function ()
+		{
+			for (let playerName of game.get.players.name())
+				if (game.is.player.assigned(playerName) &&
+					game.get.player.status(playerName) == "blank")
+					return false;
+			return true;
+		},
+		"full": function ()
+		{
+			let filledSlots = 0;
+			for (let guid in g_PlayerAssignments)
+				if (g_PlayerAssignments[guid].player >= 0)
+					filledSlots += 1
+
+			return g_GameAttributes.settings.PlayerData.length == filledSlots;
 		}
 	},
 	"reset": {
@@ -238,5 +255,31 @@ g_NetworkCommands['/start'] = () =>
 	launchGame();
 };
 
+g_NetworkCommands['/start'] = () =>
+{
+	if (!g_IsController)
+		return;
+
+	if (!game.is.allReady())
+		return selfMessage("Can't start game. Some players not ready.")
+
+	launchGame();
+};
+
+g_NetworkCommands['/countdown'] = input =>
+{
+	if (!g_IsController)
+		return;
+
+	let value = parseInt(input, 10);
+	if (isNaN(value))
+	{
+		g_autociv_countdown.toggle()
+		return;
+	}
+
+	value = Math.max(0, value);
+	g_autociv_countdown.toggle(true, value)
+};
 
 g_NetworkCommands['/team'] = text => game.set.teams(text);

@@ -3,6 +3,8 @@
 	"autociv.lobby.chat.comments.max": 10000,
 	"autociv.lobby.chat.notifications.max": 30,
 	"autociv.session.graphics.corpses.max": 50,
+	"autociv.gamesetup.countdown.enabled": "false",
+	"autociv.gamesetup.countdown.time": 10,
 	"autociv.session.APM.enabled": "false",
 	"autociv.session.APM.chart.enabled": "false",
 	"autociv.session.StatusBar.NumberOfGatherers.show": "false",
