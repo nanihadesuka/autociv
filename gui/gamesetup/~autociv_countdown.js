@@ -1,6 +1,6 @@
 var g_autociv_countdown = {
     "active": false,
-    "default_time": parseInt(Engine.ConfigDB_GetValue("user", "autociv.gamesetup.countdown.time"),10),
+    "default_time": parseInt(Engine.ConfigDB_GetValue("user", "autociv.gamesetup.countdown.time"), 10),
     "set_time": undefined,
     "time": undefined,
     "timeoutid": null,
@@ -9,7 +9,7 @@ var g_autociv_countdown = {
         if (this.time < 1)
         {
             this.stopCountdown();
-            // launchGame();
+            launchGame();
             return;
         }
 
@@ -24,7 +24,7 @@ var g_autociv_countdown = {
         this.stopCountdown();
         this.set_time = time;
         this.time = time;
-        if (game.is.full() && game.is.allReady())
+        if (this.valid())
             this.next();
     },
     "resetCountdown": function ()
@@ -35,12 +35,17 @@ var g_autociv_countdown = {
     {
         clearTimeout(this.timeoutid);
     },
+    "valid": function ()
+    {
+        return game.is.full() && game.is.allReady() &&
+            (game.get.numberOfSlots() == 2 ? !game.is.rated() : true);
+    },
     "gameUpdate": function ()
     {
         if (!this.active)
             return;
 
-        if (game.is.full() && game.is.allReady())
+        if (this.valid())
             this.resetCountdown();
         else
             this.stopCountdown();
@@ -51,21 +56,26 @@ var g_autociv_countdown = {
         this.set_time = time;
         if (active)
         {
-            selfMessage(`Countdown enabled and set to ${time} seconds.`)
-            this.startCountdown(this.set_time)
+            selfMessage(`Countdown enabled: ${time} seconds.`);
+            this.startCountdown(this.set_time);
         }
         else
         {
-            selfMessage(`Countdown disabled.`)
+            selfMessage(`Countdown disabled.`);
             this.stopCountdown();
         }
+    },
+    "init": function ()
+    {
+        if (g_IsController && Engine.ConfigDB_GetValue("user", "autociv.gamesetup.countdown.enabled") == "true")
+            g_autociv_countdown.toggle(true);
     }
 }
 
 autociv_patchApplyN("updateGameAttributes", function (target, that, args)
 {
     let result = target.apply(that, args);
-    if(g_IsController)
+    if (g_IsController)
         g_autociv_countdown.gameUpdate();
     return result;
 });

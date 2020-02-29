@@ -173,8 +173,7 @@ autociv_patchApplyN("init", function (target, that, args)
 	autociv_patchModFilter();
 	g_autociv_stanza.removeAllValues();
 	g_autociv_stanza.setValue("gamesetup", g_LastGameStanza);
-	if (Engine.ConfigDB_GetValue("user", "autociv.gamesetup.countdown.enabled") == "true")
-		g_autociv_countdown.toggle();
+	g_autociv_countdown.init();
 
 	// FGod command not working
 	delete g_NetworkCommands['/showip'];

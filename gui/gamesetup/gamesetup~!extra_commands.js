@@ -153,7 +153,8 @@ let game = {
 		'players':
 		{
 			'name': () => Object.keys(g_PlayerAssignments).map(id => g_PlayerAssignments[id].name)
-		}
+		},
+		"numberOfSlots":() => g_GameAttributes.settings.PlayerData.length
 	},
 	'is':
 	{
@@ -177,7 +178,8 @@ let game = {
 					filledSlots += 1
 
 			return g_GameAttributes.settings.PlayerData.length == filledSlots;
-		}
+		},
+		"rated": () => g_GameAttributes.settings.RatingEnabled
 	},
 	"reset": {
 		"civilizations": () =>
