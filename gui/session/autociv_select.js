@@ -4,14 +4,18 @@ var autociv_select = {
         let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithGenericName", genericName);
         return this.fromList(entities, selectAll, accumulateSelection);
     },
-    "entityWithClassesExpression": function (classesExpression, selectAll, accumulateSelection)
+    "entityWithClassesExpression": function (classesExpression, selectAll, accumulateSelection, force)
     {
-        let args = [classesExpression, selectAll, accumulateSelection];
-        if (Engine.GetMicroseconds() - this.rate.last.time < this.rate.interval &&
-            this.rate.last.args.every((v, i) => v == args[i]))
-            return;
-        this.rate.last.time = Engine.GetMicroseconds();
-        this.rate.last.args = args;
+        // Time rate it, given is an expensive call
+        if (!force)
+        {
+            let args = [classesExpression, selectAll, accumulateSelection];
+            if (Engine.GetMicroseconds() - this.rate.last.time < this.rate.interval &&
+                this.rate.last.args.every((v, i) => v == args[i]))
+                return;
+            this.rate.last.time = Engine.GetMicroseconds();
+            this.rate.last.args = args;
+        }
 
         let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithClassesExpression", classesExpression);
         return this.fromList(entities, selectAll, accumulateSelection);
@@ -23,26 +27,27 @@ var autociv_select = {
             "args": []
         }
     },
-    "fromList": function (entities,
-        selectAll = Engine.HotkeyIsPressed("selection.offscreen"),
-        accumulateSelection = Engine.HotkeyIsPressed("selection.add"))
+    /**
+     * Select all entities.
+     */
+    "selectAll": function (entities, accumulateSelection)
     {
         if (!entities || !entities.length)
             return;
 
-        // CASE 1: wants to select all entities of the same type.
+        if (!accumulateSelection)
+            g_Selection.reset();
 
-        if (selectAll)
-        {
-            // CASE 1 + 3: doesn't want to keep current selection.
-            if (!accumulateSelection)
-                g_Selection.reset();
-
-            g_Selection.addList(entities);
-            return true;
-        }
-
-        // CASE 2: cycle between entities of the same type one at a time.
+        g_Selection.addList(entities);
+        return true;
+    },
+    /**
+     * Cycle between entities.
+     */
+    "cycle": function (entities, accumulateSelection)
+    {
+        if (!entities || !entities.length)
+            return;
 
         let lastSelectedIndex = entities.findIndex(entity => entity in g_Selection.selected);
         if (lastSelectedIndex == -1)
@@ -56,12 +61,19 @@ var autociv_select = {
             if (entity in g_Selection.selected)
                 continue;
 
-            // CASE 2 + 3: doesn't want to keep current selection.
             if (!accumulateSelection)
                 g_Selection.reset();
 
             g_Selection.addList([entity]);
             return true;
         }
+    },
+    "fromList": function (entities,
+        selectAll = Engine.HotkeyIsPressed("selection.offscreen"),
+        accumulateSelection = Engine.HotkeyIsPressed("selection.add"))
+    {
+        return selectAll ?
+            this.selectAll(entities, accumulateSelection) :
+            this.cycle(entities, accumulateSelection);
     }
 }

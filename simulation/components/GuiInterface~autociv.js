@@ -156,6 +156,10 @@ GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (pla
 // ONLY MEANT FOR 23b
 GuiInterface.prototype.autociv_D2079_8905_LoadSnappingEdges = function ()
 {
+    if (this.autociv_D2079_8905_LoadSnappingEdges_loaded)
+        return;
+    this.autociv_D2079_8905_LoadSnappingEdges_loaded = true;
+
     // ################################################
     // binaries/data/mods/public/simulation/components/GuiInterface.js
     GuiInterface.prototype.GetFoundationSnapData = function (player, data)

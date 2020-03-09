@@ -424,7 +424,11 @@ Autociv_CLI.prototype.toggle = function ()
 
 Autociv_CLI.prototype.evalInput = function (ev, text = this.GUIInput.caption)
 {
-	try { eval(text); }
+	try
+	{
+		let result = eval(text);
+		warn(text + " -> " + this.getObjectRepresentationUnformatted(result).slice(0,200))
+	}
 	catch (er)
 	{
 		error(er.toString());

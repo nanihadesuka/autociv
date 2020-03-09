@@ -2,7 +2,7 @@ var g_autociv_stanza = new ConfigJSON("stanza", false);
 
 function autociv_saveStanzaSession()
 {
-    if (!g_IsController)
+    if (!g_IsController ||  Engine.IsAtlasRunning())
         return;
 
     // Extract the relevant player data and minimize packet load
