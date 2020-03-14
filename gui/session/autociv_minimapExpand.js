@@ -1,4 +1,4 @@
-let autociv_minimapExpand = {
+var autociv_minimapExpand = {
     "toggle": function ()
     {
         if (!this.defaultSize)

@@ -15,7 +15,7 @@ function autociv_GetNameRatingText(text)
 	}
 };
 
-let g_autociv_SharedCommands = {
+var g_autociv_SharedCommands = {
 	"mute": {
 		"description": "Mute player.",
 		"handler": (player) =>

@@ -86,8 +86,8 @@ function calcKeyWidth(text)
 };
 
 // In : [1,3,1,4,2]   Out: [0,1,4,5,9,11]
-let accumulateArray = list => list.reduce((acum, value, i) => [...acum, value + acum[i]], [0]);
-let getComboFromText = text => text.split("+").filter(t => ["unused", ""].indexOf(t) == -1);
+var accumulateArray = list => list.reduce((acum, value, i) => [...acum, value + acum[i]], [0]);
+var getComboFromText = text => text.split("+").filter(t => ["unused", ""].indexOf(t) == -1);
 
 function comboGenerator(data)
 {

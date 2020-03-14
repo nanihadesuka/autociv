@@ -1,4 +1,4 @@
-let game = {
+var game = {
 	'set':
 	{
 		'resources': (quantity) =>

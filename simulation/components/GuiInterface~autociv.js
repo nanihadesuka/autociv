@@ -412,9 +412,9 @@ GuiInterface.prototype.autociv_D2079_8905_LoadSnappingEdges = function ()
     Engine.RegisterGlobal("GetObstructionEdges", GetObstructionEdges);
 };
 
-// Adding a new key to the exposedFunctions object doesn't work,
-// must patch the original function
-let autociv_exposedFunctions = {
+// Original variable declaration is prefixed with let instead of var so we can't
+// just add new entries directly (global let declaration rules)
+var autociv_exposedFunctions = {
     "autociv_SetAutotrain": 1,
     "autociv_FindEntitiesWithGenericName": 1,
     "autociv_FindEntitiesWithClasses": 1,

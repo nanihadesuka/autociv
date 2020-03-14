@@ -1,7 +1,7 @@
-let hotkeyData = {};
+var hotkeyData = {};
 
 
-let g_containerBackground = {
+var g_containerBackground = {
 	"fadeIn": function ()
 	{
 		animate("dialogBackground").add({
@@ -23,7 +23,7 @@ let g_containerBackground = {
 	}
 };
 
-let g_container = {
+var g_container = {
 	"fadeIn": function () { },
 	"fadeOut": function ()
 	{
@@ -68,7 +68,7 @@ function saveHotkey(hotkey, key)
 	updateHotkey(hotkey);
 }
 
-let userConfig = {
+var userConfig = {
 	"init": function ()
 	{
 		this.currentConfig = {};
@@ -303,7 +303,7 @@ function clearHotkey(hotkey)
 		saveHotkey(hotkey, "");
 };
 
-let restartMessage = {
+var restartMessage = {
 	"assignedGUIObjectName": "restartMessage",
 	"onOpen": function ()
 	{

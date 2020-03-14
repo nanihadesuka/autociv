@@ -1,4 +1,4 @@
-let g_containerBackground = {
+var g_containerBackground = {
 	"fadeIn": function ()
 	{
 		animate("dialogBackground").add({
@@ -18,7 +18,7 @@ let g_containerBackground = {
 	}
 };
 
-let g_container = {
+var g_container = {
 	"fadeIn": function ()
 	{
 		animate("dialog").add({
@@ -49,7 +49,7 @@ let g_container = {
 	}
 };
 
-let g_scrollBarThumb = {
+var g_scrollBarThumb = {
 	"init": () =>
 	{
 		let scrollBarTrack = Engine.GetGUIObjectByName("scrollBarTrack");
@@ -341,12 +341,12 @@ function comboGenerator(i)
 	})
 }
 
-let g_mouse = {
+var g_mouse = {
 	"x": 0, "y": 0,
 	"set": function (coord) { this.x = coord.x; this.y = coord.y; }
 };
 
-let g_userConfig = {
+var g_userConfig = {
 	"assignedGUIObjectName": "userConfig",
 	"init": function ()
 	{
@@ -693,7 +693,7 @@ let g_userConfig = {
 	},
 };
 
-let restartMessage = {
+var restartMessage = {
 	"assignedGUIObjectName": "restartMessage",
 	"onOpen": function ()
 	{
@@ -730,7 +730,7 @@ function close()
 	g_container.fadeOut();
 }
 
-let verticalScroller = {
+var verticalScroller = {
 	"hookOnMouseWheelEventsFor": function (GUIObject)
 	{
 		GUIObject.onMouseWheelUp = () => GUIReact.emit("scrollBarThumb", "onMouseWheelUp");
