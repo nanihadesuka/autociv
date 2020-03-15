@@ -6,7 +6,7 @@ var g_autociv_countdown = {
 	"timeoutid": null,
 	"next": function ()
 	{
-		if (this.time < 0.01)
+		if (this.time < 0)
 		{
 			this.stopCountdown();
 			launchGame();
