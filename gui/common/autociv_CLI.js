@@ -164,7 +164,6 @@ Autociv_CLI.prototype.style = {
 
 Autociv_CLI.prototype.onTick = function ()
 {
-
 	if (this.GUI.gui.hidden || !this.inspectorSettings.lastEntry)
 		return;
 
@@ -499,7 +498,7 @@ Autociv_CLI.prototype.getEntry = function (text)
 		};
 
 		// "word" access must and can only be on the first token
-		if (i == 0 && token.access != "word" || i != 0 && token.access == "word")
+		if (i == 0 ^ token.access == "word")
 			return;
 
 		let parentType = this.getType(object);
