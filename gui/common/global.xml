@@ -143,12 +143,12 @@
 
 		<object name="gl_autocivSessionAPM"
 			size="100%-100 0 100%-5 0"
-			hidden="true">
+			hidden="true"
+			z="799">
 
 			<object name="gl_autocivSessionAPMOverlay"
 				type="button"
 				size="0 0 100% 0%+14"
-				z="799"
 				textcolor="white"
 				sprite="color: 0 0 0 100"
 				sprite_over="color: 0 0 0 150"
