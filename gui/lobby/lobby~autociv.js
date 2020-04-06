@@ -26,24 +26,26 @@ var g_autociv_addChatMessage = {
 	"notifications": {
 		"max": +Engine.ConfigDB_GetValue("user", "autociv.lobby.chat.notifications.max"),
 		"count": 0,
-		"is": text => !/<.*>/.test(text)
+		"is": text => !(/<.*>/.test(text))
 	},
 	"comments": {
 		"max": +Engine.ConfigDB_GetValue("user", "autociv.lobby.chat.comments.max"),
 		"count": 0,
 		"is": text => /<.*>/.test(text)
 	},
+	"currentTick" : 0,
 	"updateAfterTick": 3,
 	"updateAfterTickRenderOnce": function ()
 	{
-		if (g_Autociv_TickCount === this.updateAfterTick + 1)
+		this.currentTick++;
+		if (this.currentTick === this.updateAfterTick + 1)
 			Engine.GetGUIObjectByName("chatText").caption = g_ChatMessages.join("\n");
 	},
 	"rate": function (target, that, args)
 	{
 		let [msg] = args;
 		let oldLength = g_ChatMessages.length;
-		let noRedraw = g_Autociv_TickCount <= this.updateAfterTick;
+		let noRedraw = this.currentTick <= this.updateAfterTick;
 		if (noRedraw) this.addChatMessageNoRedraw(msg);
 		else target.apply(that, args);
 
@@ -221,10 +223,8 @@ autociv_patchApplyN("addChatMessage", function (target, that, args)
 	return botManager.react(msg) || g_autociv_addChatMessage.rate(target, that, args);
 })
 
-var g_Autociv_TickCount = 0;
 autociv_patchApplyN("onTick", function (target, that, args)
 {
-	++g_Autociv_TickCount;
 	g_autociv_addChatMessage.updateAfterTickRenderOnce();
 	return target.apply(that, args)
 })
