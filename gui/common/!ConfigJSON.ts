@@ -13,7 +13,7 @@ class ConfigJSON {
         this.saveToDisk = saveToDisk;
         this.key = "autociv.data." + this.identifier;
         this.load();
-    };
+    }
 
     load(): void {
         let value = Engine.ConfigDB_GetValue("user", this.key);
@@ -23,7 +23,7 @@ class ConfigJSON {
             return;
         }
         this.data = JSON.parse(decodeURIComponent(value));
-    };
+    }
 
     save(): void {
         let value = encodeURIComponent(JSON.stringify(this.data));
@@ -38,11 +38,11 @@ class ConfigJSON {
 
     hasValue(id: string): boolean {
         return id in this.data;
-    };
+    }
 
     getValue(id: string): any {
         return this.data[id];
-    };
+    }
 
     getIds(): Array<string> {
         return Object.keys(this.data);
@@ -51,15 +51,15 @@ class ConfigJSON {
     setValue(id: string, value: any) {
         this.data[id] = value;
         this.save();
-    };
+    }
 
     removeValue(id: string): void {
         delete this.data[id];
         this.save();
-    };
+    }
 
     removeAllValues(): void {
         this.data = {};
         this.save();
-    };
+    }
 }

@@ -209,6 +209,7 @@
 						scrollbar_style="ModernScrollBar">
 					</object>
 				</object>
+				<object type="text" size="0% 0%+2 0% 100%-2"/>
 			</object>
 			<object size="0% 0%-70 100% 0%"
 				hotkey="autociv.CLI.stdout.toggle"

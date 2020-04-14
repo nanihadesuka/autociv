@@ -5,6 +5,7 @@ function Autociv_CLI(gui)
 	this.GUI.input = this.GUI.gui.children[0];
 	this.GUI.stdout = this.GUI.gui.children[1];
 	this.GUI.suggestions = this.GUI.input.children[0];
+	this.GUI.sortMode = this.GUI.input.children[1];
 	this.GUI.inspector = this.GUI.suggestions.children[0];
 
 	for (let name in this.style.GUI)
@@ -141,6 +142,13 @@ Autociv_CLI.prototype.style = {
 		"inspector": {
 			"sprite": "color:45 45 45",
 			"textcolor": "230 230 230",
+		},
+		"sortMode": {
+			"sprite": "color:70 70 70",
+			"textcolor": "255 255 255",
+			"text_align": "center",
+			"text_valign": "center",
+			"buffer_zone": "0"
 		}
 	},
 	"typeTag": "128 81 102",
@@ -227,13 +235,9 @@ Autociv_CLI.prototype.sortSearchFilter = function (parent, candidates)
 
 	return candidates.sort((a, b) =>
 	{
-		let isa = this.getType(parent[a]) == type;
-		let isb = this.getType(parent[b]) == type;
-		if (isa == isb)
-			return 0;
-		if (isa)
-			return -1;
-		return +1;
+		let isa = this.getType(parent[a]) == type ? 1 : 0;
+		let isb = this.getType(parent[b]) == type ? 1 : 0;
+		return isb - isa;
 	});
 };
 
@@ -511,6 +515,7 @@ Autociv_CLI.prototype.getEntry = function (text)
 		if (!token.valid || !validType)
 			return;
 
+		// Must bind to the new assignation the instance to not lose "this"
 		if (isMapGet)
 			object = object[token.value].bind(object);
 		else
@@ -704,24 +709,34 @@ Autociv_CLI.prototype.processPrefixes = function (text)
 {
 	let original = text;
 
+	// Toggle own property names search
 	if (text.startsWith("p?"))
 	{
 		this.seeOwnPropertyNames = !this.seeOwnPropertyNames;
 		text = text.slice(2);
 	}
-
 	// searchFilter prefix
-	if (/^\w{0,1}\?.*/.test(text))
+	else if (/^\w{0,1}\?.*/.test(text))
 	{
 		if (text[0] == "?")
 		{
 			this.searchFilter = "";
 			text = text.slice(1);
+			this.GUI.sortMode.size = Object.assign(this.GUI.sortMode.size, {
+				"left": 0
+			});
 		}
 		else if (text[0] in this.searchFilterKeys)
 		{
 			this.searchFilter = text[0];
 			text = text.slice(2);
+
+			let type = this.searchFilterKeys[this.searchFilter];
+			this.GUI.sortMode.caption = type.slice(0, 6);
+			this.GUI.sortMode.textcolor = this.style.type[type] || this.style.type["default"],
+			this.GUI.sortMode.size = Object.assign(this.GUI.sortMode.size, {
+				"left": -50
+			});
 		}
 	}
 

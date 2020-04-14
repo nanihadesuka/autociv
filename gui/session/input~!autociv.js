@@ -135,7 +135,7 @@ var g_autociv_hotkeysPrefixes = {
 	"autociv.session.entity.by.class.select.": function (ev, hotkeyPrefix)
 	{
 		let entityClassesExpression = ev.hotkey.split(hotkeyPrefix)[1];
-		autociv_select.entityWithClassesExpression(entityClassesExpression, true);
+		autociv_select.entityWithClassesExpression(entityClassesExpression);
 		return true;
 	},
 	"autociv.session.formation.set.": function (ev, hotkeyPrefix)
