@@ -116,6 +116,18 @@ var g_autociv_hotkeys = {
 	{
 		autociv_minimapExpand.toggle();
 		return true;
+	},
+	"selection.woundedonly": function (ev)
+	{
+		let list = g_Selection.toList();
+		g_Selection.reset();
+		g_Selection.addList(list.filter(unitFilters.isWounded));
+	},
+	"autociv.selection.nowoundedonly": function (ev)
+	{
+		let list = g_Selection.toList();
+		g_Selection.reset();
+		g_Selection.addList(list.filter(unitFilters.autociv_isNotWounded));
 	}
 }
 

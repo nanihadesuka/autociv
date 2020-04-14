@@ -18,7 +18,7 @@
 	"hotkey.autociv.CLI.toggle": "Ctrl+C+L",
 	"hotkey.autociv.CLI.stdout.toggle": "Alt+S",
 	"hotkey.autociv.lobby.gameList.selected.join": "Alt+E",
-	"hotkey.autociv.selection.nowoundedonly": "I",
+	"hotkey.autociv.selection.nowoundedonly": "K",
 	"hotkey.autociv.session.minimap.expand.toggle": "Shift+Tab",
 	"hotkey.autociv.session.building.place.City_Wall": "Space+W",
 	"hotkey.autociv.session.building.place.Wooden_Wall": "Space+E",
@@ -136,6 +136,6 @@
 	"hotkey.autociv.session.stance.set.defensive": "Alt+3",
 	"hotkey.autociv.session.stance.set.passive": "Alt+4",
 	"hotkey.autociv.session.stance.set.standground": "Alt+5",
-	"hotkey.autociv.session.snaptoedge": "Alt",
+	"hotkey.autociv.session.snaptoedgeOff": "Alt",
 	"autociv.session.snaptoedge.enabled": "true"
 }
