@@ -111,20 +111,17 @@ GuiInterface.prototype.autociv_FindEntitiesWithClasses = function (player, class
 };
 
 /**
- * @param {Object} data
- * @param {String} settings.classesExpression
- * @param {Number[]} [settings.list] Initial list of entities to search from
+ * @param {String} expression
+ * @returns {Function} function that evaluates if the input array matches with the expression
  */
-GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (player, data)
+GuiInterface.prototype.autociv_getExpressionEvaluator = function (expression)
 {
-    let classesExpression = data.classesExpression;
-
     // /([^&!|()]+)/g  regex matches anything that is not a boolean operator
-    const genExpression = classesList =>
-        classesExpression.replace(/([^&!|()]+)/g, match =>
-            classesList.indexOf(match.replace(/_/g, " ")) == -1 ? "0" : "1")
+    const genExpression = list =>
+        expression.replace(/([^&!|()]+)/g, match =>
+            list.indexOf(match) == -1 ? "0" : "1")
 
-    // Test if classesExpression is a valid expression ([] as dummy data)
+    // Test if expression is a valid expression ([] as dummy data)
     const testExpression = genExpression([]);
     // /^[01&!|()]+$/ regex matches only 0 1 and boolean operators
     if (!/^[01&!|()]+$/.test(testExpression))
@@ -132,16 +129,30 @@ GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (pla
         // Known pitfall:
         // & and && ( | and || ) are equivalent for 1 bit operations.
         // Use & and | or && and || but do not mix both in the same expression.
-        warn("INVALID HOTKEY CLASS EXPRESSION: " + classesExpression + "  Only allowed operators are: & ! | ( )");
-        return [];
+        warn(`INVALID EXPRESSION: "${expression}" Only allowed operators are: & ! | ( )`);
+        return;
     }
+
     // Test expression is well defined (doesn't throw errors)
     try { !!Function("return " + testExpression)() }
     catch (err)
     {
-        warn("INVALID HOTKEY CLASS EXPRESSION: " + classesExpression + " Expression wrongly defined")
-        return [];
+        warn(`INVALID EXPRESSION: "${expression}" Expression wrongly defined`);
+        return;
     }
+    return genExpression;
+};
+
+/**
+ * @param {Object} data
+ * @param {String} settings.classesExpression
+ * @param {Number[]} [settings.list] Initial list of entities to search from
+ */
+GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (player, data)
+{
+    const evalExpression = this.autociv_getExpressionEvaluator(data.classesExpression);
+    if (!evalExpression)
+        return [];
 
     let rangeManager = Engine.QueryInterface(SYSTEM_ENTITY, IID_RangeManager);
     let entities = data.list || rangeManager.GetEntitiesByPlayer(player);
@@ -156,7 +167,7 @@ GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (pla
             !cmpFoundation &&
             !cmpMirage &&
             (cmpUnitAI ? !cmpUnitAI.IsGarrisoned() : true) &&
-            !!Function("return " + genExpression(cmpIdentity.GetClassesList()))();
+            !!Function("return " + evalExpression(cmpIdentity.GetClassesList()))();
     });
 };
 
@@ -428,6 +439,7 @@ var autociv_exposedFunctions = {
     "autociv_FindEntitiesWithGenericName": 1,
     "autociv_FindEntitiesWithClasses": 1,
     "autociv_FindEntitiesWithClassesExpression": 1,
+    "autociv_getExpressionEvaluator": 1,
     "autociv_SetCorpsesMax": 1,
     "autociv_SetStatusBar_showNumberOfGatherers": 1,
     "autociv_D2079_8905_LoadSnappingEdges": 1,
