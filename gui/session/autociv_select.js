@@ -14,7 +14,7 @@ var autociv_select = {
         this.rate.last.time = Engine.GetMicroseconds();
         this.rate.last.args = args;
 
-        let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithClassesExpression", classesExpression);
+        let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithClassesExpression", { "classesExpression": classesExpression } );
         return this.fromList(entities, selectAll, accumulateSelection);
     },
     "rate": {

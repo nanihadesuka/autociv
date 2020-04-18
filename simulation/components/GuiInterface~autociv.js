@@ -110,8 +110,15 @@ GuiInterface.prototype.autociv_FindEntitiesWithClasses = function (player, class
     });
 };
 
-GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (player, classesExpression)
+/**
+ * @param {Object} data
+ * @param {String} settings.classesExpression
+ * @param {Number[]} [settings.list] Initial list of entities to search from
+ */
+GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (player, data)
 {
+    let classesExpression = data.classesExpression;
+
     // /([^&!|()]+)/g  regex matches anything that is not a boolean operator
     const genExpression = classesList =>
         classesExpression.replace(/([^&!|()]+)/g, match =>
@@ -137,7 +144,9 @@ GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (pla
     }
 
     let rangeManager = Engine.QueryInterface(SYSTEM_ENTITY, IID_RangeManager);
-    return rangeManager.GetEntitiesByPlayer(player).filter(e =>
+    let entities = data.list || rangeManager.GetEntitiesByPlayer(player);
+
+    return entities.filter(e =>
     {
         let cmpIdentity = Engine.QueryInterface(e, IID_Identity);
         let cmpUnitAI = Engine.QueryInterface(e, IID_UnitAI);

@@ -29,7 +29,7 @@
 				size="0% 0% 100%-15 100%">
 			<object name="scrollBoxDisplace">
 				<repeat
-						count="375"
+						count="400"
 						var="n">
 					<object
 							name="setting[n]"

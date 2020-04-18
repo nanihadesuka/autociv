@@ -138,18 +138,6 @@ var g_autociv_hotkeysPrefixes = {
 		autociv_placeBuildingByGenericName(buildingGenericName);
 		return true;
 	},
-	"autociv.session.entity.select.": function (ev, hotkeyPrefix)
-	{
-		let entityGenericName = ev.hotkey.split(hotkeyPrefix)[1].replace(/_/g, " ");
-		autociv_select.entityWithGenericName(entityGenericName);
-		return true;
-	},
-	"autociv.session.entity.by.class.select.": function (ev, hotkeyPrefix)
-	{
-		let entityClassesExpression = ev.hotkey.split(hotkeyPrefix)[1];
-		autociv_select.entityWithClassesExpression(entityClassesExpression);
-		return true;
-	},
 	"autociv.session.formation.set.": function (ev, hotkeyPrefix)
 	{
 		let formationName = ev.hotkey.split(hotkeyPrefix)[1];
@@ -161,6 +149,75 @@ var g_autociv_hotkeysPrefixes = {
 		let stanceName = ev.hotkey.split(hotkeyPrefix)[1];
 		autociv_stance.set(stanceName);
 		return true;
+	},
+	"autociv.session.entity.": function (ev, hotkeyPrefix)
+	{
+		let expression = ev.hotkey.slice(hotkeyPrefix.length);
+
+		for (let prefix in g_autociv_hotkey_entity)
+		{
+			const prefixDot = prefix + ".";
+			if (expression.startsWith(prefixDot))
+				return g_autociv_hotkey_entity[prefix](ev, expression.slice(prefixDot.length));
+		}
+		return false;
+	}
+};
+
+var g_autociv_hotkey_entity = {
+	"by": function (ev, expression)
+	{
+		// [["filter1", "param1", "param2"], ["filter2", "param1", ...], ...]
+		let filters = expression.split(".by.").map(v => v.split("."));
+
+		let list = Engine.GuiInterfaceCall("GetPlayerEntities");
+		for (let [filter, ...parameters] of filters)
+		{
+			if (filter in g_autociv_hotkey_entity_by_filter)
+				list = g_autociv_hotkey_entity_by_filter[filter](ev, list, parameters);
+			else
+				warn(`Hotkey "${ev.hotkey}" with has invalid filter "${filter}"`);
+		}
+
+		g_Selection.reset();
+		g_Selection.addList(list);
+		return true;
+	},
+	"select": function (ev, expression)
+	{
+		let entityGenericName = expression.replace(/_/g, " ");
+		autociv_select.entityWithGenericName(entityGenericName);
+		return true;
+	}
+};
+
+var g_autociv_hotkey_entity_by_filter = {
+	"health": function (ev, list, parameters)
+	{
+		switch (parameters[0])
+		{
+			case "wounded":
+				return list.filter(unitFilters.isWounded);
+			case "nowounded":
+				return list.filter(unitFilters.autociv_isNotWounded);
+			default:
+				error(`Invalid hotkey "${ev.hotkey}" for by.health. parameter "${parameters[0]}"`);
+				return list;
+		}
+	},
+	"class": function (ev, list, parameters)
+	{
+		switch (parameters[0])
+		{
+			case "select":
+				return Engine.GuiInterfaceCall("autociv_FindEntitiesWithClassesExpression", {
+					"classesExpression": parameters[1],
+					"list": list
+				});
+			default:
+				error(`Invalid hotkey "${ev.hotkey}" for by.class. parameter "${parameters[0]}"`);
+				return list;
+		}
 	}
 };
 
@@ -206,5 +263,42 @@ autociv_patchApplyN("getPreferredEntities", function (target, that, args)
 	if (Engine.HotkeyIsPressed("autociv.selection.nowoundedonly"))
 		return ents.filter(unitFilters.autociv_isNotWounded);
 
+	return target.apply(that, args);
+})
+
+autociv_patchApplyN("performGroup", function (target, that, args)
+{
+	let [action, groupId] = args;
+
+	// Garrison selected units inside the building from the control group groupId
+	if (action == "breakUp" && Engine.HotkeyIsPressed("autociv.group.button.garrison"))
+	{
+		let selection = g_Selection.toList();
+		if (!selection.length)
+			return;
+
+		let ents = Object.keys(g_Groups.groups[groupId].ents);
+		if (ents.length != 1)
+			return;
+
+		let target = +ents[0];
+		let targetState = GetEntityState(target);
+		if (!targetState || !targetState.garrisonHolder)
+			return;
+
+		Engine.PostNetworkCommand({
+			"type": "garrison",
+			"entities": selection,
+			"target": target,
+			"queued": false
+		});
+
+		Engine.GuiInterfaceCall("PlaySound", {
+			"name": "order_garrison",
+			"entity": selection[0]
+		});
+
+		return;
+	}
 	return target.apply(that, args);
 })

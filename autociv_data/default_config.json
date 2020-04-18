@@ -113,6 +113,8 @@
 	"hotkey.autociv.session.entity.by.class.select.Ranged": "unused",
 	"hotkey.autociv.session.entity.by.class.select.Infantry": "unused",
 	"hotkey.autociv.session.entity.by.class.select.Siege": "unused",
+	"hotkey.autociv.session.entity.by.health.nowounded.by.class.select.Cavalry": "unused",
+	"hotkey.autociv.session.entity.by.health.wounded.by.class.select.Cavalry": "unused",
 	"hotkey.autociv.session.building.autotrain.enable": "Alt+Q",
 	"hotkey.autociv.session.building.autotrain.disable": "Alt+W",
 	"hotkey.autociv.session.production.queue.clear": "Alt+R",
@@ -137,5 +139,6 @@
 	"hotkey.autociv.session.stance.set.passive": "Alt+4",
 	"hotkey.autociv.session.stance.set.standground": "Alt+5",
 	"hotkey.autociv.session.snaptoedgeOff": "Alt",
+	"hotkey.autociv.group.button.garrison": "Ctrl",
 	"autociv.session.snaptoedge.enabled": "true"
 }
