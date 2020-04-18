@@ -220,6 +220,7 @@
 				style="ModernInput"
 				scrollbar_style="ModernScrollBar">
 			</object>
+			<object hotkey="autociv.CLI.stdout.eval"/>
 		</object>
 
 	</object>

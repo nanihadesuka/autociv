@@ -4,6 +4,7 @@ function Autociv_CLI(gui)
 	this.GUI.gui = gui;
 	this.GUI.input = this.GUI.gui.children[0];
 	this.GUI.stdout = this.GUI.gui.children[1];
+	this.GUI.hotkey = this.GUI.gui.children[2];
 	this.GUI.suggestions = this.GUI.input.children[0];
 	this.GUI.sortMode = this.GUI.input.children[1];
 	this.GUI.inspector = this.GUI.suggestions.children[0];
@@ -20,6 +21,7 @@ function Autociv_CLI(gui)
 	this.GUI.input.onTab = () => this.tab();
 	this.GUI.input.onPress = () => this.evalInput();
 	this.GUI.stdout.onPress = () => this.stdoutToggle();
+	this.GUI.hotkey.onPress = () => this.stdoutEval();
 	this.GUI.suggestions.onSelectionChange = () => this.inspectSelectedSuggestion();
 	this.GUI.suggestions.onMouseLeftDoubleClick = () => this.setSelectedSuggestion();
 
@@ -209,6 +211,24 @@ Autociv_CLI.prototype.stdoutToggle = function ()
 	this.GUI.stdout.caption = result;
 }
 
+Autociv_CLI.prototype.stdoutEval = function ()
+{
+	if (this.GUI.gui.hidden)
+		return;
+
+	let result = this.evalInput();
+
+	// Count number of lines
+	this.GUI.stdout.caption = "";
+	let nLines1 = (result.match(/\n/g) || '').length + 1;
+	let nLines2 = Math.ceil(result.length / 100);
+	this.GUI.stdout.size = Object.assign(this.GUI.stdout.size, {
+		"top": -Math.min(Math.max(nLines1, nLines2) * this.vlineSize, this.stdOutMaxVisibleSize) - 5
+	});
+
+	this.GUI.stdout.caption = result;
+}
+
 Autociv_CLI.prototype.getFunctionParameterCandidates = function (functionObject)
 {
 	if (!this.functionAutocomplete.has(functionObject))
@@ -359,27 +379,31 @@ Autociv_CLI.prototype.toggle = function ()
 
 Autociv_CLI.prototype.evalInput = function (text = this.GUI.input.caption)
 {
+	let representation = "";
 	try
 	{
 		let result = eval(text);
-		warn(text + " -> " + this.getObjectRepresentation(result, undefined, undefined, false).slice(0, 200))
+		representation = this.getObjectRepresentation(result, undefined, undefined, false);
+		warn(text + " -> " + representation.slice(0, 200))
 	}
 	catch (er)
 	{
 		error(er.toString());
-		return;
+		return representation;
 	}
 
 	text = text.split("=")[0].trim();
 	let entry = this.getEntry(text);
 	if (!entry)
-		return;
+		return representation;
 
 	if (typeof entry.parent == "object" && entry.token.value in entry.parent)
 	{
 		this.inspectorSettings.lastEntry = entry;
 		this.updateObjectInspector(entry.parent[entry.token.value], text);
 	}
+
+	return representation;
 };
 
 Autociv_CLI.prototype.getTokens = function (text)
@@ -733,7 +757,7 @@ Autociv_CLI.prototype.processPrefixes = function (text)
 
 			let type = this.searchFilterKeys[this.searchFilter];
 			this.GUI.sortMode.caption = type.slice(0, 6);
-			this.GUI.sortMode.textcolor = this.style.type[type] || this.style.type["default"],
+			this.GUI.sortMode.textcolor = this.style.type[type] || this.style.type["default"];
 			this.GUI.sortMode.size = Object.assign(this.GUI.sortMode.size, {
 				"left": -50
 			});
