@@ -147,7 +147,7 @@ var g_autociv_hotkeys = {
 
 function handleInputBeforeGui(ev)
 {
-	resizeBar.onEvent(ev);
+	resizeBarManager.onEvent(ev);
 
 	if ("hotkey" in ev && ev.hotkey in g_autociv_hotkeys && ev.type == "hotkeydown")
 		return !!g_autociv_hotkeys[ev.hotkey](ev);
@@ -233,7 +233,7 @@ autociv_patchApplyN("onTick", function (target, that, args)
 autociv_patchApplyN("setLeaderboardVisibility", function (target, that, args)
 {
 	let [open] = args;
-	resizeBar.ghostMode = open;
+	resizeBarManager.ghostMode = open;
 	return target.apply(that, args)
 })
 
@@ -241,7 +241,7 @@ autociv_patchApplyN("setLeaderboardVisibility", function (target, that, args)
 autociv_patchApplyN("setUserProfileVisibility", function (target, that, args)
 {
 	let [open] = args;
-	resizeBar.ghostMode = open;
+	resizeBarManager.ghostMode = open;
 	return target.apply(that, args);
 });
 
@@ -268,14 +268,14 @@ autociv_patchApplyN("init", function (target, that, args)
 	if (g_autociv_isFGod)
 		hookList.push(["presenceDropdown", "right"], ["playerGamesNumber", "right"])
 
-	resizeBar("chatPanel", "top", undefined, [[g_autociv_isFGod ? "gameList" : "gamesBox", "bottom"]])
-	resizeBar("middlePanel", "left", undefined, hookList);
-	resizeBar("rightPanel", "left", undefined, [["middlePanel", "right"]]);
+	resizeBarManager("chatPanel", "top", undefined, [[g_autociv_isFGod ? "gameList" : "gamesBox", "bottom"]])
+	resizeBarManager("middlePanel", "left", undefined, hookList);
+	resizeBarManager("rightPanel", "left", undefined, [["middlePanel", "right"]]);
 
 	let gameInfo = Engine.GetGUIObjectByName("gameInfo");
 	let gameInfoUsers = gameInfo.children[gameInfo.children.length - 1];
 	let gameInfoDescription = gameInfo.children[gameInfo.children.length - 2];
-	resizeBar(gameInfoUsers, "top", undefined, [[gameInfoDescription, "bottom"]], () => !gameInfo.hidden);
+	resizeBarManager(gameInfoUsers, "top", undefined, [[gameInfoDescription, "bottom"]], () => !gameInfo.hidden);
 
 	autociv_focus.chatInput();
 });

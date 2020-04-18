@@ -67,7 +67,7 @@ g_MiscControls["glMapBrowser"] = {
 
 function handleInputBeforeGui(ev)
 {
-	resizeBar.onEvent(ev);
+	resizeBarManager.onEvent(ev);
 
 	if ("hotkey" in ev && ev.hotkey in g_autociv_hotkeys && ev.type == "hotkeydown")
 		return !!g_autociv_hotkeys[ev.hotkey](ev);

@@ -102,7 +102,7 @@
 		-->
 
 		<action on="Tick">
-			resizeBar.onTick();
+			resizeBarManager.onTick();
 			animate.onTick();
 		</action>
 

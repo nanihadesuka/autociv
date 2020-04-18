@@ -236,11 +236,11 @@ Object.defineProperty(ResizeBar, "bar", {
 });
 
 /**
- * Creates a resize bar for an GUIObject.
+ * Manages and creates a resize bars for an GUIObject.
  *
  * Example: (lobby.js)
  *
- * resizeBar(
+ * resizeBarManager(
  *	Engine.GetGUIObjectByName("chatPanel"),
  *	"left",
  *	20,
@@ -263,35 +263,35 @@ Object.defineProperty(ResizeBar, "bar", {
  * visible/enabled if it returns true. By default the condition is the property
  * hidden of the main XML object, visible/enabled if not hidden.
  */
-var resizeBar = function (object, side, width, objectsHooked, isVisibleCondition)
+var resizeBarManager = function (object, side, width, objectsHooked, isVisibleCondition)
 {
-	resizeBar.list.push(new ResizeBar(object, side, width, objectsHooked, isVisibleCondition));
-	resizeBar.disabled = Engine.ConfigDB_GetValue("user", "autociv.resizebar.enabled") != "true";
+	resizeBarManager.list.push(new ResizeBar(object, side, width, objectsHooked, isVisibleCondition));
+	resizeBarManager.disabled = Engine.ConfigDB_GetValue("user", "autociv.resizebar.enabled") != "true";
 };
 
 
-resizeBar.list = [];
+resizeBarManager.list = [];
 
 // Use to temporary disable all resize bars
-resizeBar.ghostMode = false;
+resizeBarManager.ghostMode = false;
 
-resizeBar.disabled = false;
+resizeBarManager.disabled = false;
 
-resizeBar.onEvent = function (event)
+resizeBarManager.onEvent = function (event)
 {
-	if (resizeBar.disabled || resizeBar.ghostMode || !ResizeBar.bar)
+	if (resizeBarManager.disabled || resizeBarManager.ghostMode || !ResizeBar.bar)
 		return;
 
 	switch (event.type)
 	{
 		case "mousebuttondown":
 			ResizeBar.mouse.set(event)
-			for (let bar of resizeBar.list)
+			for (let bar of resizeBarManager.list)
 				if (bar.drag()) return true;
 			break;
 		case "mousebuttonup":
 			ResizeBar.mouse.set(event)
-			for (let bar of resizeBar.list)
+			for (let bar of resizeBarManager.list)
 				if (bar.drop()) return true;
 			break;
 		case "mousemotion":
@@ -304,13 +304,13 @@ resizeBar.onEvent = function (event)
  * Tick routine always called on all pages with
  * global.xml included (all?).
  */
-resizeBar.onTick = function ()
+resizeBarManager.onTick = function ()
 {
-	if (resizeBar.disabled || resizeBar.ghostMode)
+	if (resizeBarManager.disabled || resizeBarManager.ghostMode)
 		return;
 
 	if (!ResizeBar.ghostMode)
-		for (let bar of resizeBar.list)
+		for (let bar of resizeBarManager.list)
 			if (bar.tick())
 				break;
 };
@@ -319,7 +319,7 @@ resizeBar.onTick = function ()
 
 	function handleInputBeforeGui(ev)
     {
-        resizeBar.onEvent(ev);
+        resizeBarManager.onEvent(ev);
         return false;
     }
 */
