@@ -272,11 +272,14 @@ var resizeBar = function (object, side, width, objectsHooked, isVisibleCondition
 
 resizeBar.list = [];
 
+// Use to temporary disable all resize bars
+resizeBar.ghostMode = false;
+
 resizeBar.disabled = false;
 
 resizeBar.onEvent = function (event)
 {
-	if (resizeBar.disabled || !ResizeBar.bar)
+	if (resizeBar.disabled || resizeBar.ghostMode || !ResizeBar.bar)
 		return;
 
 	switch (event.type)
@@ -303,9 +306,8 @@ resizeBar.onEvent = function (event)
  */
 resizeBar.onTick = function ()
 {
-	if (resizeBar.disabled)
+	if (resizeBar.disabled || resizeBar.ghostMode)
 		return;
-
 
 	if (!ResizeBar.ghostMode)
 		for (let bar of resizeBar.list)

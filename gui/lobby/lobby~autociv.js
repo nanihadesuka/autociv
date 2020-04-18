@@ -233,7 +233,7 @@ autociv_patchApplyN("onTick", function (target, that, args)
 autociv_patchApplyN("setLeaderboardVisibility", function (target, that, args)
 {
 	let [open] = args;
-	resizeBar.disabled = open;
+	resizeBar.ghostMode = open;
 	return target.apply(that, args)
 })
 
@@ -241,7 +241,7 @@ autociv_patchApplyN("setLeaderboardVisibility", function (target, that, args)
 autociv_patchApplyN("setUserProfileVisibility", function (target, that, args)
 {
 	let [open] = args;
-	resizeBar.disabled = open;
+	resizeBar.ghostMode = open;
 	return target.apply(that, args);
 });
 
