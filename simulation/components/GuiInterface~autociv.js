@@ -171,7 +171,6 @@ GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (pla
     });
 };
 
-
 // Revision https://code.wildfiregames.com/D2079?id=8905
 // ONLY MEANT FOR 23b
 GuiInterface.prototype.autociv_D2079_8905_LoadSnappingEdges = function ()
@@ -439,7 +438,6 @@ var autociv_exposedFunctions = {
     "autociv_FindEntitiesWithGenericName": 1,
     "autociv_FindEntitiesWithClasses": 1,
     "autociv_FindEntitiesWithClassesExpression": 1,
-    "autociv_getExpressionEvaluator": 1,
     "autociv_SetCorpsesMax": 1,
     "autociv_SetStatusBar_showNumberOfGatherers": 1,
     "autociv_D2079_8905_LoadSnappingEdges": 1,
