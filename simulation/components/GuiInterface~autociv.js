@@ -140,7 +140,8 @@ GuiInterface.prototype.autociv_getExpressionEvaluator = function (expression)
         warn(`INVALID EXPRESSION: "${expression}" Expression wrongly defined`);
         return;
     }
-    return genExpression;
+
+    return list => !!Function("return " + genExpression(list))();
 };
 
 /**
@@ -167,7 +168,7 @@ GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (pla
             !cmpFoundation &&
             !cmpMirage &&
             (cmpUnitAI ? !cmpUnitAI.IsGarrisoned() : true) &&
-            !!Function("return " + evalExpression(cmpIdentity.GetClassesList()))();
+            evalExpression(cmpIdentity.GetClassesList());
     });
 };
 

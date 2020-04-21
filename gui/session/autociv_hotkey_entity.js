@@ -16,7 +16,6 @@ var g_autociv_hotkey_entity = {
             else
                 warn(`Hotkey "${ev.hotkey}" with has invalid filter "${filter}"`);
         }
-
         g_Selection.reset();
         g_Selection.addList(list);
         return true;
@@ -81,7 +80,7 @@ var g_autociv_hotkey_entity_by_filter = {
         for (let [id, rank] of [[1, "Basic"], [2, "Advanced"], [3, "Elite"]])
             expression = expression.replace(id, rank);
 
-        let evalExpression = autociv_getExpressionEvaluator(parameters[0]);
+        let evalExpression = autociv_getExpressionEvaluator(expression);
         if (!evalExpression)
         {
             error(`Invalid hotkey "${ev.hotkey}" for by.rank. parameter "${parameters[0]}"`);
@@ -91,7 +90,7 @@ var g_autociv_hotkey_entity_by_filter = {
         return list.filter(entity =>
         {
             let entityState = GetEntityState(entity);
-            return entityState && entityState.identity && entityState.identity.rank;
+            return entityState && entityState.identity && evalExpression([entityState.identity.rank]);
         });
     }
 };
@@ -128,5 +127,6 @@ function autociv_getExpressionEvaluator(expression)
         warn(`INVALID EXPRESSION: "${expression}" Expression wrongly defined`);
         return;
     }
-    return genExpression;
+
+    return list => !!Function("return " + genExpression(list))();
 };
