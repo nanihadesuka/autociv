@@ -11,6 +11,7 @@
 	"autociv.session.StatusBar.NumberOfGatherers.show": "false",
 	"autociv.session.snaptoedge.enabled": "true",
 	"autociv.session.kill.nowarning": "false",
+	"autociv.session.snaptoedgeOff.invert": "true",
 	"autociv.resizebar.enabled": "true",
 	"hotkey.autociv.open.test": "Ctrl+A+T",
 	"hotkey.autociv.open.autociv_settings": "F4",

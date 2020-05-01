@@ -1,3 +1,17 @@
+
+function autociv_SnapToEdge_IsActive()
+{
+    if (Engine.ConfigDB_GetValue("user", "autociv.session.snaptoedge.enabled") != "true")
+        return false;
+
+    let snap = !Engine.HotkeyIsPressed("autociv.session.snaptoedgeOff");
+
+    if (Engine.ConfigDB_GetValue("user", "autociv.session.snaptoedgeOff.invert") == "true")
+        snap = !snap;
+
+    return snap;
+}
+
 // Revision https://code.wildfiregames.com/D2079?id=8905
 // ONLY MEANT FOR 23b
 function autociv_input_D2079_8905_LoadSnappingEdges()
@@ -266,14 +280,12 @@ function autociv_input_D2079_8905_LoadSnappingEdges()
                             placementSupport.SetDefaultAngle();
                         }
 
-                        var snapToEdge = !Engine.HotkeyIsPressed("autociv.session.snaptoedgeOff") &&
-                            Engine.ConfigDB_GetValue("user", "autociv.session.snaptoedge.enabled") === "true";
                         var snapData = Engine.GuiInterfaceCall("GetFoundationSnapData", {
                             "template": placementSupport.template,
                             "x": placementSupport.position.x,
                             "z": placementSupport.position.z,
                             "angle": placementSupport.angle,
-                            "snapToEdgeEntities": snapToEdge && Engine.PickPlayerEntitiesOnScreen(g_ViewedPlayer)
+                            "snapToEdgeEntities": autociv_SnapToEdge_IsActive() && Engine.PickPlayerEntitiesOnScreen(g_ViewedPlayer)
                         });
                         if (snapData)
                         {
@@ -381,290 +393,248 @@ function autociv_input_D2079_8905_LoadSnappingEdges()
 
         switch (inputState)
         {
-        case INPUT_NORMAL:
-            switch (ev.type)
-            {
-            case "mousemotion":
-                // Highlight the first hovered entity (if any)
-                var ent = Engine.PickEntityAtPoint(ev.x, ev.y);
-                if (ent != INVALID_ENTITY)
-                    g_Selection.setHighlightList([ent]);
-                else
-                    g_Selection.setHighlightList([]);
-
-                return false;
-
-            case "mousebuttondown":
-                if (ev.button == SDL_BUTTON_LEFT)
+            case INPUT_NORMAL:
+                switch (ev.type)
                 {
-                    g_DragStart = new Vector2D(ev.x, ev.y);
-                    inputState = INPUT_SELECTING;
-                    // If a single click occured, reset the clickedEntity.
-                    // Also set it if we're double/triple clicking and missed the unit earlier.
-                    if (ev.clicks == 1 || clickedEntity == INVALID_ENTITY)
-                        clickedEntity = Engine.PickEntityAtPoint(ev.x, ev.y);
-                    return true;
-                }
-                else if (ev.button == SDL_BUTTON_RIGHT)
-                {
-                    g_DragStart = new Vector2D(ev.x, ev.y);
-                    inputState = INPUT_UNIT_POSITION_START;
-                }
-                break;
+                    case "mousemotion":
+                        // Highlight the first hovered entity (if any)
+                        var ent = Engine.PickEntityAtPoint(ev.x, ev.y);
+                        if (ent != INVALID_ENTITY)
+                            g_Selection.setHighlightList([ent]);
+                        else
+                            g_Selection.setHighlightList([]);
 
-            case "hotkeydown":
-                    if (ev.hotkey.indexOf("selection.group.") == 0)
-                    {
-                        let now = Date.now();
-                        if (now - doublePressTimer < doublePressTime && ev.hotkey == prevHotkey)
+                        return false;
+
+                    case "mousebuttondown":
+                        if (ev.button == SDL_BUTTON_LEFT)
                         {
-                            if (ev.hotkey.indexOf("selection.group.select.") == 0)
+                            g_DragStart = new Vector2D(ev.x, ev.y);
+                            inputState = INPUT_SELECTING;
+                            // If a single click occured, reset the clickedEntity.
+                            // Also set it if we're double/triple clicking and missed the unit earlier.
+                            if (ev.clicks == 1 || clickedEntity == INVALID_ENTITY)
+                                clickedEntity = Engine.PickEntityAtPoint(ev.x, ev.y);
+                            return true;
+                        }
+                        else if (ev.button == SDL_BUTTON_RIGHT)
+                        {
+                            g_DragStart = new Vector2D(ev.x, ev.y);
+                            inputState = INPUT_UNIT_POSITION_START;
+                        }
+                        break;
+
+                    case "hotkeydown":
+                        if (ev.hotkey.indexOf("selection.group.") == 0)
+                        {
+                            let now = Date.now();
+                            if (now - doublePressTimer < doublePressTime && ev.hotkey == prevHotkey)
+                            {
+                                if (ev.hotkey.indexOf("selection.group.select.") == 0)
+                                {
+                                    var sptr = ev.hotkey.split(".");
+                                    performGroup("snap", sptr[3]);
+                                }
+                            }
+                            else
                             {
                                 var sptr = ev.hotkey.split(".");
-                                performGroup("snap", sptr[3]);
+                                performGroup(sptr[2], sptr[3]);
+
+                                doublePressTimer = now;
+                                prevHotkey = ev.hotkey;
                             }
                         }
-                        else
-                        {
-                            var sptr = ev.hotkey.split(".");
-                            performGroup(sptr[2], sptr[3]);
-
-                            doublePressTimer = now;
-                            prevHotkey = ev.hotkey;
-                        }
-                    }
-                    break;
-            }
-            break;
-
-        case INPUT_PRESELECTEDACTION:
-            switch (ev.type)
-            {
-            case "mousemotion":
-                // Highlight the first hovered entity (if any)
-                var ent = Engine.PickEntityAtPoint(ev.x, ev.y);
-                if (ent != INVALID_ENTITY)
-                    g_Selection.setHighlightList([ent]);
-                else
-                    g_Selection.setHighlightList([]);
-
-                return false;
-
-            case "mousebuttondown":
-                if (ev.button == SDL_BUTTON_LEFT && preSelectedAction != ACTION_NONE)
-                {
-                    var action = determineAction(ev.x, ev.y);
-                    if (!action)
                         break;
-                    if (!Engine.HotkeyIsPressed("session.queue"))
-                    {
-                        preSelectedAction = ACTION_NONE;
-                        inputState = INPUT_NORMAL;
-                    }
-                    return doAction(action, ev);
                 }
-                else if (ev.button == SDL_BUTTON_RIGHT && preSelectedAction != ACTION_NONE)
-                {
-                    preSelectedAction = ACTION_NONE;
-                    inputState = INPUT_NORMAL;
-                    break;
-                }
-                // else
-            default:
-                // Slight hack: If selection is empty, reset the input state
-                if (g_Selection.toList().length == 0)
-                {
-                    preSelectedAction = ACTION_NONE;
-                    inputState = INPUT_NORMAL;
-                    break;
-                }
-            }
-            break;
+                break;
 
-        case INPUT_SELECTING:
-            switch (ev.type)
-            {
-            case "mousemotion":
-                // If the mouse moved further than a limit, switch to bandbox mode
-                if (g_DragStart.distanceTo(ev) >= g_MaxDragDelta)
+            case INPUT_PRESELECTEDACTION:
+                switch (ev.type)
                 {
-                    inputState = INPUT_BANDBOXING;
-                    return false;
-                }
+                    case "mousemotion":
+                        // Highlight the first hovered entity (if any)
+                        var ent = Engine.PickEntityAtPoint(ev.x, ev.y);
+                        if (ent != INVALID_ENTITY)
+                            g_Selection.setHighlightList([ent]);
+                        else
+                            g_Selection.setHighlightList([]);
 
-                var ent = Engine.PickEntityAtPoint(ev.x, ev.y);
-                if (ent != INVALID_ENTITY)
-                    g_Selection.setHighlightList([ent]);
-                else
-                    g_Selection.setHighlightList([]);
-                return false;
+                        return false;
 
-            case "mousebuttonup":
-                if (ev.button == SDL_BUTTON_LEFT)
-                {
-                    if (clickedEntity == INVALID_ENTITY)
-                        clickedEntity = Engine.PickEntityAtPoint(ev.x, ev.y);
-                    // Abort if we didn't click on an entity or if the entity was removed before the mousebuttonup event.
-                    if (clickedEntity == INVALID_ENTITY || !GetEntityState(clickedEntity))
-                    {
-                        clickedEntity = INVALID_ENTITY;
-                        if (!Engine.HotkeyIsPressed("selection.add") && !Engine.HotkeyIsPressed("selection.remove"))
+                    case "mousebuttondown":
+                        if (ev.button == SDL_BUTTON_LEFT && preSelectedAction != ACTION_NONE)
                         {
-                            g_Selection.reset();
-                            resetIdleUnit();
+                            var action = determineAction(ev.x, ev.y);
+                            if (!action)
+                                break;
+                            if (!Engine.HotkeyIsPressed("session.queue"))
+                            {
+                                preSelectedAction = ACTION_NONE;
+                                inputState = INPUT_NORMAL;
+                            }
+                            return doAction(action, ev);
                         }
-                        inputState = INPUT_NORMAL;
-                        return true;
-                    }
-
-                    // If camera following and we select different unit, stop
-                    if (Engine.GetFollowedEntity() != clickedEntity)
-                        Engine.CameraFollow(0);
-
-                    var ents = [];
-                    if (ev.clicks == 1)
-                        ents = [clickedEntity];
-                    else
-                    {
-                        // Double click or triple click has occurred
-                        var showOffscreen = Engine.HotkeyIsPressed("selection.offscreen");
-                        var matchRank = true;
-                        var templateToMatch;
-
-                        // Check for double click or triple click
-                        if (ev.clicks == 2)
+                        else if (ev.button == SDL_BUTTON_RIGHT && preSelectedAction != ACTION_NONE)
                         {
-                            // Select similar units regardless of rank
-                            templateToMatch = GetEntityState(clickedEntity).identity.selectionGroupName;
-                            if (templateToMatch)
-                                matchRank = false;
-                            else
-                                // No selection group name defined, so fall back to exact match
-                                templateToMatch = GetEntityState(clickedEntity).template;
+                            preSelectedAction = ACTION_NONE;
+                            inputState = INPUT_NORMAL;
+                            break;
+                        }
+                    // else
+                    default:
+                        // Slight hack: If selection is empty, reset the input state
+                        if (g_Selection.toList().length == 0)
+                        {
+                            preSelectedAction = ACTION_NONE;
+                            inputState = INPUT_NORMAL;
+                            break;
+                        }
+                }
+                break;
 
+            case INPUT_SELECTING:
+                switch (ev.type)
+                {
+                    case "mousemotion":
+                        // If the mouse moved further than a limit, switch to bandbox mode
+                        if (g_DragStart.distanceTo(ev) >= g_MaxDragDelta)
+                        {
+                            inputState = INPUT_BANDBOXING;
+                            return false;
+                        }
+
+                        var ent = Engine.PickEntityAtPoint(ev.x, ev.y);
+                        if (ent != INVALID_ENTITY)
+                            g_Selection.setHighlightList([ent]);
+                        else
+                            g_Selection.setHighlightList([]);
+                        return false;
+
+                    case "mousebuttonup":
+                        if (ev.button == SDL_BUTTON_LEFT)
+                        {
+                            if (clickedEntity == INVALID_ENTITY)
+                                clickedEntity = Engine.PickEntityAtPoint(ev.x, ev.y);
+                            // Abort if we didn't click on an entity or if the entity was removed before the mousebuttonup event.
+                            if (clickedEntity == INVALID_ENTITY || !GetEntityState(clickedEntity))
+                            {
+                                clickedEntity = INVALID_ENTITY;
+                                if (!Engine.HotkeyIsPressed("selection.add") && !Engine.HotkeyIsPressed("selection.remove"))
+                                {
+                                    g_Selection.reset();
+                                    resetIdleUnit();
+                                }
+                                inputState = INPUT_NORMAL;
+                                return true;
+                            }
+
+                            // If camera following and we select different unit, stop
+                            if (Engine.GetFollowedEntity() != clickedEntity)
+                                Engine.CameraFollow(0);
+
+                            var ents = [];
+                            if (ev.clicks == 1)
+                                ents = [clickedEntity];
+                            else
+                            {
+                                // Double click or triple click has occurred
+                                var showOffscreen = Engine.HotkeyIsPressed("selection.offscreen");
+                                var matchRank = true;
+                                var templateToMatch;
+
+                                // Check for double click or triple click
+                                if (ev.clicks == 2)
+                                {
+                                    // Select similar units regardless of rank
+                                    templateToMatch = GetEntityState(clickedEntity).identity.selectionGroupName;
+                                    if (templateToMatch)
+                                        matchRank = false;
+                                    else
+                                        // No selection group name defined, so fall back to exact match
+                                        templateToMatch = GetEntityState(clickedEntity).template;
+
+                                }
+                                else
+                                    // Triple click
+                                    // Select units matching exact template name (same rank)
+                                    templateToMatch = GetEntityState(clickedEntity).template;
+
+                                // TODO: Should we handle "control all units" here as well?
+                                ents = Engine.PickSimilarPlayerEntities(templateToMatch, showOffscreen, matchRank, false);
+                            }
+
+                            // Update the list of selected units
+                            if (Engine.HotkeyIsPressed("selection.add"))
+                                g_Selection.addList(ents);
+                            else if (Engine.HotkeyIsPressed("selection.remove"))
+                                g_Selection.removeList(ents);
+                            else
+                            {
+                                g_Selection.reset();
+                                g_Selection.addList(ents);
+                            }
+
+                            inputState = INPUT_NORMAL;
+                            return true;
+                        }
+                        break;
+                }
+                break;
+
+            case INPUT_UNIT_POSITION_START:
+                switch (ev.type)
+                {
+                    case "mousemotion":
+                        // If the mouse moved further than a limit, switch to unit position mode
+                        if (g_DragStart.distanceToSquared(ev) >= Math.square(g_MaxDragDelta))
+                        {
+                            inputState = INPUT_UNIT_POSITION;
+                            return false;
+                        }
+                        break;
+                    case "mousebuttonup":
+                        inputState = INPUT_NORMAL;
+                        if (ev.button == SDL_BUTTON_RIGHT)
+                        {
+                            let action = determineAction(ev.x, ev.y);
+                            if (action)
+                                return doAction(action, ev);
+                        }
+                        break;
+                }
+                break;
+
+            case INPUT_BUILDING_PLACEMENT:
+                switch (ev.type)
+                {
+                    case "mousemotion":
+
+                        placementSupport.position = Engine.GetTerrainAtScreenPoint(ev.x, ev.y);
+
+                        if (placementSupport.mode === "wall")
+                        {
+                            // Including only the on-screen towers in the next snap candidate list is sufficient here, since the user is
+                            // still selecting a starting point (which must necessarily be on-screen). (The update of the snap entities
+                            // itself happens in the call to updateBuildingPlacementPreview below).
+                            placementSupport.wallSnapEntitiesIncludeOffscreen = false;
+                            updateBuildingPlacementPreview();
                         }
                         else
-                            // Triple click
-                            // Select units matching exact template name (same rank)
-                            templateToMatch = GetEntityState(clickedEntity).template;
-
-                        // TODO: Should we handle "control all units" here as well?
-                        ents = Engine.PickSimilarPlayerEntities(templateToMatch, showOffscreen, matchRank, false);
-                    }
-
-                    // Update the list of selected units
-                    if (Engine.HotkeyIsPressed("selection.add"))
-                        g_Selection.addList(ents);
-                    else if (Engine.HotkeyIsPressed("selection.remove"))
-                        g_Selection.removeList(ents);
-                    else
-                    {
-                        g_Selection.reset();
-                        g_Selection.addList(ents);
-                    }
-
-                    inputState = INPUT_NORMAL;
-                    return true;
-                }
-                break;
-            }
-            break;
-
-        case INPUT_UNIT_POSITION_START:
-            switch (ev.type)
-            {
-            case "mousemotion":
-                // If the mouse moved further than a limit, switch to unit position mode
-                if (g_DragStart.distanceToSquared(ev) >= Math.square(g_MaxDragDelta))
-                {
-                    inputState = INPUT_UNIT_POSITION;
-                    return false;
-                }
-                break;
-            case "mousebuttonup":
-                inputState = INPUT_NORMAL;
-                if (ev.button == SDL_BUTTON_RIGHT)
-                {
-                    let action = determineAction(ev.x, ev.y);
-                    if (action)
-                        return doAction(action, ev);
-                }
-                break;
-            }
-            break;
-
-        case INPUT_BUILDING_PLACEMENT:
-            switch (ev.type)
-            {
-            case "mousemotion":
-
-                placementSupport.position = Engine.GetTerrainAtScreenPoint(ev.x, ev.y);
-
-                if (placementSupport.mode === "wall")
-                {
-                    // Including only the on-screen towers in the next snap candidate list is sufficient here, since the user is
-                    // still selecting a starting point (which must necessarily be on-screen). (The update of the snap entities
-                    // itself happens in the call to updateBuildingPlacementPreview below).
-                    placementSupport.wallSnapEntitiesIncludeOffscreen = false;
-                    updateBuildingPlacementPreview();
-                }
-                else
-                {
-                    // cancel if not enough resources
-                    if (placementSupport.template && Engine.GuiInterfaceCall("GetNeededResources", { "cost": GetTemplateData(placementSupport.template).cost }))
-                    {
-                        placementSupport.Reset();
-                        inputState = INPUT_NORMAL;
-                        return true;
-                    }
-                    var snapToEdge = !Engine.HotkeyIsPressed("autociv.session.snaptoedgeOff") &&
-                        Engine.ConfigDB_GetValue("user", "autociv.session.snaptoedge.enabled") === "true";
-                    var snapData = Engine.GuiInterfaceCall("GetFoundationSnapData", {
-                        "template": placementSupport.template,
-                        "x": placementSupport.position.x,
-                        "z": placementSupport.position.z,
-                        "snapToEdgeEntities": snapToEdge && Engine.PickPlayerEntitiesOnScreen(g_ViewedPlayer)
-                    });
-                    if (snapData)
-                    {
-                        placementSupport.angle = snapData.angle;
-                        placementSupport.position.x = snapData.x;
-                        placementSupport.position.z = snapData.z;
-                    }
-
-                    // If snap position can't place use mouse position
-                    let success = updateBuildingPlacementPreview();
-                    if (!success && snapToEdge)
-                    {
-                        placementSupport.position = Engine.GetTerrainAtScreenPoint(ev.x, ev.y);
-                        updateBuildingPlacementPreview();
-                    }
-                }
-
-                return false; // continue processing mouse motion
-
-            case "mousebuttondown":
-                if (ev.button == SDL_BUTTON_LEFT)
-                {
-                    if (placementSupport.mode === "wall")
-                    {
-                        var validPlacement = updateBuildingPlacementPreview();
-                        if (validPlacement !== false)
-                            inputState = INPUT_BUILDING_WALL_CLICK;
-                    }
-                    else
-                    {
-                        placementSupport.position = Engine.GetTerrainAtScreenPoint(ev.x, ev.y);
-
-                        var snapToEdge = !Engine.HotkeyIsPressed("autociv.session.snaptoedgeOff") &&
-                            Engine.ConfigDB_GetValue("user", "autociv.session.snaptoedge.enabled") === "true";
-                        if (snapToEdge)
                         {
+                            // cancel if not enough resources
+                            if (placementSupport.template && Engine.GuiInterfaceCall("GetNeededResources", { "cost": GetTemplateData(placementSupport.template).cost }))
+                            {
+                                placementSupport.Reset();
+                                inputState = INPUT_NORMAL;
+                                return true;
+                            }
+                            var snapToEdge = autociv_SnapToEdge_IsActive();
                             var snapData = Engine.GuiInterfaceCall("GetFoundationSnapData", {
                                 "template": placementSupport.template,
                                 "x": placementSupport.position.x,
                                 "z": placementSupport.position.z,
-                                "snapToEdgeEntities": Engine.PickPlayerEntitiesOnScreen(g_ViewedPlayer)
+                                "snapToEdgeEntities": snapToEdge && Engine.PickPlayerEntitiesOnScreen(g_ViewedPlayer)
                             });
                             if (snapData)
                             {
@@ -672,49 +642,90 @@ function autociv_input_D2079_8905_LoadSnappingEdges()
                                 placementSupport.position.x = snapData.x;
                                 placementSupport.position.z = snapData.z;
                             }
+
+                            // If snap position can't place use mouse position
+                            let success = updateBuildingPlacementPreview();
+                            if (!success && snapToEdge)
+                            {
+                                placementSupport.position = Engine.GetTerrainAtScreenPoint(ev.x, ev.y);
+                                updateBuildingPlacementPreview();
+                            }
                         }
 
-                        // If snap position can't place use mouse position
-                        let success = updateBuildingPlacementPreview();
-                        if (!success && snapToEdge)
+                        return false; // continue processing mouse motion
+
+                    case "mousebuttondown":
+                        if (ev.button == SDL_BUTTON_LEFT)
                         {
-                            placementSupport.position = Engine.GetTerrainAtScreenPoint(ev.x, ev.y);
-                            updateBuildingPlacementPreview();
+                            if (placementSupport.mode === "wall")
+                            {
+                                var validPlacement = updateBuildingPlacementPreview();
+                                if (validPlacement !== false)
+                                    inputState = INPUT_BUILDING_WALL_CLICK;
+                            }
+                            else
+                            {
+                                placementSupport.position = Engine.GetTerrainAtScreenPoint(ev.x, ev.y);
+
+                                var snapToEdge = !Engine.HotkeyIsPressed("autociv.session.snaptoedgeOff") &&
+                                    Engine.ConfigDB_GetValue("user", "autociv.session.snaptoedge.enabled") === "true";
+                                if (snapToEdge)
+                                {
+                                    var snapData = Engine.GuiInterfaceCall("GetFoundationSnapData", {
+                                        "template": placementSupport.template,
+                                        "x": placementSupport.position.x,
+                                        "z": placementSupport.position.z,
+                                        "snapToEdgeEntities": Engine.PickPlayerEntitiesOnScreen(g_ViewedPlayer)
+                                    });
+                                    if (snapData)
+                                    {
+                                        placementSupport.angle = snapData.angle;
+                                        placementSupport.position.x = snapData.x;
+                                        placementSupport.position.z = snapData.z;
+                                    }
+                                }
+
+                                // If snap position can't place use mouse position
+                                let success = updateBuildingPlacementPreview();
+                                if (!success && snapToEdge)
+                                {
+                                    placementSupport.position = Engine.GetTerrainAtScreenPoint(ev.x, ev.y);
+                                    updateBuildingPlacementPreview();
+                                }
+
+                                g_DragStart = new Vector2D(ev.x, ev.y);
+                                inputState = INPUT_BUILDING_CLICK;
+                            }
+                            return true;
                         }
+                        else if (ev.button == SDL_BUTTON_RIGHT)
+                        {
+                            // Cancel building
+                            placementSupport.Reset();
+                            inputState = INPUT_NORMAL;
+                            return true;
+                        }
+                        break;
 
-                        g_DragStart = new Vector2D(ev.x, ev.y);
-                        inputState = INPUT_BUILDING_CLICK;
-                    }
-                    return true;
-                }
-                else if (ev.button == SDL_BUTTON_RIGHT)
-                {
-                    // Cancel building
-                    placementSupport.Reset();
-                    inputState = INPUT_NORMAL;
-                    return true;
-                }
-                break;
+                    case "hotkeydown":
 
-            case "hotkeydown":
+                        var rotation_step = Math.PI / 12; // 24 clicks make a full rotation
 
-                var rotation_step = Math.PI / 12; // 24 clicks make a full rotation
+                        switch (ev.hotkey)
+                        {
+                            case "session.rotate.cw":
+                                placementSupport.angle += rotation_step;
+                                updateBuildingPlacementPreview();
+                                break;
+                            case "session.rotate.ccw":
+                                placementSupport.angle -= rotation_step;
+                                updateBuildingPlacementPreview();
+                                break;
+                        }
+                        break;
 
-                switch (ev.hotkey)
-                {
-                case "session.rotate.cw":
-                    placementSupport.angle += rotation_step;
-                    updateBuildingPlacementPreview();
-                    break;
-                case "session.rotate.ccw":
-                    placementSupport.angle -= rotation_step;
-                    updateBuildingPlacementPreview();
-                    break;
                 }
                 break;
-
-            }
-            break;
         }
         return false;
     }
