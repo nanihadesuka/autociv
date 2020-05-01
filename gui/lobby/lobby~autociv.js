@@ -33,7 +33,7 @@ var g_autociv_addChatMessage = {
 		"count": 0,
 		"is": text => /<.*>/.test(text)
 	},
-	"currentTick" : 0,
+	"currentTick": 0,
 	"updateAfterTick": 3,
 	"updateAfterTickRenderOnce": function ()
 	{
@@ -253,6 +253,20 @@ autociv_patchApplyN("reconnectMessageBox", function (target, that, args)
 		translate("Confirmation"),
 		[translate("No"), translate("Yes")],
 		[null, autociv_reconnect]);
+})
+
+autociv_patchApplyN("updateGameList", function (target, that, args)
+{
+	let result = target.apply(that, args);
+
+	if (Engine.ConfigDB_GetValue("user", "autociv.lobby.gamelist.markStunGames") == "true")
+	{
+		let gamesBox = Engine.GetGUIObjectByName(g_autociv_isFGod ? "gameList" : "gamesBox");
+		gamesBox.list_name = gamesBox.list_name.map((v, i) => `${v} [color="90 90 90"]\\ ${g_GameList[i].stunIP ? "stun" : "port forward"}[/color]`);
+		gamesBox.list = gamesBox.list;
+	}
+
+	return result;
 })
 
 autociv_patchApplyN("init", function (target, that, args)
