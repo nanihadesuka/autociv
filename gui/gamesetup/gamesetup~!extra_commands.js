@@ -154,7 +154,7 @@ var game = {
 		{
 			'name': () => Object.keys(g_PlayerAssignments).map(id => g_PlayerAssignments[id].name)
 		},
-		"numberOfSlots":() => g_GameAttributes.settings.PlayerData.length
+		"numberOfSlots": () => g_GameAttributes.settings.PlayerData.length
 	},
 	'is':
 	{
@@ -283,5 +283,18 @@ g_NetworkCommands['/countdown'] = input =>
 	value = Math.max(0, value);
 	g_autociv_countdown.toggle(true, value)
 };
+
+g_NetworkCommands['/mapdescription'] = () => sendMessage(g_GameAttributes.settings.Description);
+
+g_NetworkCommands['/gameName'] = text =>
+{
+	if (!g_IsController || !Engine.HasNetServer())
+		return;
+
+	g_ServerName = `${text}`;
+	selfMessage(`Game name changed to: ${g_ServerName}`)
+	sendRegisterGameStanzaImmediate();
+}
+
 
 g_NetworkCommands['/team'] = text => game.set.teams(text);
