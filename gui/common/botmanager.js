@@ -244,8 +244,16 @@ BotManager.prototype.setMessageInterface = function (messageInterface)
 }
 
 var botManager = new BotManager();
-var sendMessage = text => botManager.sendMessage(text);
 var selfMessage = text => botManager.selfMessage(text);
+
+var sendMessage = text =>
+{
+	// Messages reduced to the first 255 letters so, send it split if exceeded
+	const numChunks = Math.ceil(text.length / sendMessage.maxChunkLength);
+	for (let i = 0; i < numChunks; ++i)
+		botManager.sendMessage(text.substr(i * sendMessage.maxChunkLength, sendMessage.maxChunkLength));
+}
+sendMessage.maxChunkLength = 256 - 1;
 
 // ********* Bot botManager.addBot order matters ***********
 
