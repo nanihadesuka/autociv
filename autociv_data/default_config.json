@@ -2,6 +2,7 @@
 	"autociv.settings.reset.all": "false",
 	"autociv.lobby.chat.comments.max": 10000,
 	"autociv.lobby.chat.notifications.max": 30,
+	"autociv.lobby.gamelist.markStunGames": "false",
 	"autociv.gamesetup.countdown.enabled": "false",
 	"autociv.gamesetup.countdown.time": 5,
 	"autociv.session.APM.enabled": "false",
