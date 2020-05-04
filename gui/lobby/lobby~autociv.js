@@ -262,7 +262,13 @@ autociv_patchApplyN("updateGameList", function (target, that, args)
 	if (Engine.ConfigDB_GetValue("user", "autociv.lobby.gamelist.markStunGames") == "true")
 	{
 		let gamesBox = Engine.GetGUIObjectByName(g_autociv_isFGod ? "gameList" : "gamesBox");
-		gamesBox.list_name = gamesBox.list_name.map((v, i) => `${v} [color="90 90 90"]\\ ${g_GameList[i].stunIP ? "stun" : "port forward"}[/color]`);
+		gamesBox.list_name = gamesBox.list_name.map((v, i) =>
+		{
+			if (i > g_GameList.length - 1)
+				return v;
+
+			return `${v} [color="90 90 90"]\\ ${g_GameList[i].stunIP ? "stun" : "port forward"}[/color]`;
+		});
 		gamesBox.list = gamesBox.list;
 	}
 
