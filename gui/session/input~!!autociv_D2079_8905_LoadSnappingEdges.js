@@ -280,12 +280,13 @@ function autociv_input_D2079_8905_LoadSnappingEdges()
                             placementSupport.SetDefaultAngle();
                         }
 
+                        let snapToEdge = autociv_SnapToEdge_IsActive();
                         var snapData = Engine.GuiInterfaceCall("GetFoundationSnapData", {
                             "template": placementSupport.template,
                             "x": placementSupport.position.x,
                             "z": placementSupport.position.z,
                             "angle": placementSupport.angle,
-                            "snapToEdgeEntities": autociv_SnapToEdge_IsActive() && Engine.PickPlayerEntitiesOnScreen(g_ViewedPlayer)
+                            "snapToEdgeEntities": snapToEdge && Engine.PickPlayerEntitiesOnScreen(g_ViewedPlayer)
                         });
                         if (snapData)
                         {

@@ -38,6 +38,15 @@ function autociv_patchSession()
 	})
 }
 
+function autociv_SetChatTextFromConfig()
+{
+	if (Engine.ConfigDB_GetValue("user", "autociv.session.chatPanel.size.change") == "true")
+		Engine.GetGUIObjectByName("chatPanel").size = Engine.ConfigDB_GetValue("user", "autociv.session.chatPanel.size");
+
+	if (Engine.ConfigDB_GetValue("user", "autociv.session.chatText.font.change") == "true")
+		Engine.GetGUIObjectByName("chatText").font = Engine.ConfigDB_GetValue("user", "autociv.session.chatText.font");
+}
+
 autociv_patchApplyN("onTick", function (target, that, args)
 {
 	autociv_APM.onTick();
@@ -56,5 +65,6 @@ autociv_patchApplyN("init", function (target, that, args)
 	autociv_saveStanzaSession();
 	autociv_SetCorpsesMax(Engine.ConfigDB_GetValue("user", "autociv.session.graphics.corpses.max"));
 	autociv_SetStatusBar_showNumberOfGatherers(Engine.ConfigDB_GetValue("user", "autociv.session.StatusBar.NumberOfGatherers.show") == "true");
+	autociv_SetChatTextFromConfig();
 	return result;
 })
