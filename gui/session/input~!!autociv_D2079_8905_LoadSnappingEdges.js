@@ -668,8 +668,7 @@ function autociv_input_D2079_8905_LoadSnappingEdges()
                             {
                                 placementSupport.position = Engine.GetTerrainAtScreenPoint(ev.x, ev.y);
 
-                                var snapToEdge = !Engine.HotkeyIsPressed("autociv.session.snaptoedgeOff") &&
-                                    Engine.ConfigDB_GetValue("user", "autociv.session.snaptoedge.enabled") === "true";
+                                var snapToEdge = autociv_SnapToEdge_IsActive();
                                 if (snapToEdge)
                                 {
                                     var snapData = Engine.GuiInterfaceCall("GetFoundationSnapData", {
