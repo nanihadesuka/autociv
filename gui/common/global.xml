@@ -107,6 +107,28 @@
 		</action>
 
 		<!-- ==========================================
+		- MINIMAP FLARE - USED TO SHOW FLARE IN MINIMAP ==========================================
+		-->
+		<object name="gl_autociv_MinimapFlare"
+			hidden="true"
+			ghost="true"
+			size="0 0 0% 0%"
+			z="800">
+			<object type="image"
+				sprite="stretched:color:255 0 0:textureAsMask:session/icons/corners.png"
+				size="-17 -17 0%+17 0%+17" />
+		</object>
+
+		<!-- ==========================================
+		- WINDOW SIZE - USED TO CALCULATE CURRENT WINDOW SIZE ==========================================
+		-->
+
+		<object name="gl_autociv_WindowSize"
+			size="0 0 100% 100%"
+			hidden="true"
+			ghost="true"/>
+
+		<!-- ==========================================
 		- RESIZE BAR - USED FOR VISUALIZING OBJECT RESIZE BAR ==========================================
 		-->
 

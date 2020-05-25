@@ -47,9 +47,55 @@ function autociv_SetChatTextFromConfig()
 		Engine.GetGUIObjectByName("chatText").font = Engine.ConfigDB_GetValue("user", "autociv.session.chatText.font");
 }
 
+
+function autociv_patchMinimapFlare()
+{
+	autociv_patchApplyN("handleMinimapEvent", function (target, that, args)
+	{
+		if (Engine.HotkeyIsPressed("autociv.minimap.mode.flare"))
+		{
+			let [ev] = args;
+			Engine.PostNetworkCommand({
+				"type": "dialog-answer",
+				"autociv_minimap_flare": true,
+				"mapPos": {
+					"x": ev.x,
+					"z": ev.z
+				}
+			})
+
+			return;
+		}
+
+		return target.apply(that, args);
+	})
+}
+
+// Might get wrong values when camera is near map border
+function autociv_getCameraAngle()
+{
+	let p1 = new Vector2D(Engine.CameraGetX(), Engine.CameraGetZ());
+
+	let windowSize = Engine.GetGUIObjectByName("gl_autociv_WindowSize").getComputedSize();
+	let data = Engine.GetTerrainAtScreenPoint(windowSize.right / 2, windowSize.bottom);
+	let p2 = new Vector2D(data.x, data.z);
+
+	let dir1 = new Vector2D(1, 0);
+	let dir2 = new Vector2D(p2.x - p1.x, p2.y - p1.y);
+
+	return dir1.angleTo(dir2);
+}
+
+// Assumes 1 size unit = 4 tiles = 4 coordinates units
+function autociv_getMapSizeInTiles()
+{
+	return g_GameAttributes.settings.Size * 4;
+}
+
 autociv_patchApplyN("onTick", function (target, that, args)
 {
 	autociv_APM.onTick();
+
 	return target.apply(that, args);
 })
 
@@ -66,5 +112,6 @@ autociv_patchApplyN("init", function (target, that, args)
 	autociv_SetCorpsesMax(Engine.ConfigDB_GetValue("user", "autociv.session.graphics.corpses.max"));
 	autociv_SetStatusBar_showNumberOfGatherers(Engine.ConfigDB_GetValue("user", "autociv.session.StatusBar.NumberOfGatherers.show") == "true");
 	autociv_SetChatTextFromConfig();
+	autociv_patchMinimapFlare();
 	return result;
 })
