@@ -52,7 +52,7 @@ function autociv_patchMinimapFlare()
 {
 	autociv_patchApplyN("handleMinimapEvent", function (target, that, args)
 	{
-		if (Engine.HotkeyIsPressed("autociv.minimap.mode.flare"))
+		if (!g_IsObserver && Engine.HotkeyIsPressed("autociv.minimap.mode.flare"))
 		{
 			let [ev] = args;
 			Engine.PostNetworkCommand({

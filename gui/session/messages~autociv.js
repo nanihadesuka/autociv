@@ -13,7 +13,7 @@ g_NotificationsTypes["autociv_autotrain"] = function (notification, player)
 
 g_NotificationsTypes["autociv_minimap_flare"] = function (notification, player)
 {
-    if (!GetSimState().players[Engine.GetPlayerID()].isMutualAlly[player])
+    if (g_IsObserver || !GetSimState().players[Engine.GetPlayerID()].isMutualAlly[player])
         return;
 
     let minimap = Engine.GetGUIObjectByName("minimapPanel").children[0];
