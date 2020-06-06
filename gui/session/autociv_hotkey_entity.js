@@ -5,7 +5,8 @@ var g_autociv_hotkey_entity = {
         if (this.by.rate.rate(expression))
             return;
 
-        // [["filter1", "param1", "param2"], ["filter2", "param1", ...], ...]
+        // "filter1.parameter1.parameter2.by.filter2.parameter1" ... =>
+        // [["filter1", "parameter1", "parameter2"], ["filter2", "parameter1", ...], ...]
         let filters = expression.split(".by.").map(v => v.split("."));
 
         let list = Engine.GuiInterfaceCall("GetPlayerEntities");
@@ -14,7 +15,7 @@ var g_autociv_hotkey_entity = {
             if (filter in g_autociv_hotkey_entity_by_filter)
                 list = g_autociv_hotkey_entity_by_filter[filter](ev, list, parameters);
             else
-                warn(`Hotkey "${ev.hotkey}" with has invalid filter "${filter}"`);
+                warn(`Hotkey "${ev.hotkey}" has invalid filter "${filter}"`);
         }
         g_Selection.reset();
         g_Selection.addList(list);
