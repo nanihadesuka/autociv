@@ -27,6 +27,10 @@ g_NotificationsTypes["autociv_minimap_flare"] = function (notification, player)
     // Rotate acording to camera rotation
     let p = new Vector2D(nx, nz).rotate(autociv_getCameraAngle());
 
+    // Scale (smaller) if map is squared
+    if (!g_GameAttributes.settings.CircularMap)
+        p.div(Math.sqrt(2));
+
     // Move coordinate system origin top left corner with range [0,1]
     p.x = (p.x + 1) / 2;
     p.y = (p.y + 1) / 2;
