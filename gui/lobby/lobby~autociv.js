@@ -26,12 +26,12 @@ var g_autociv_addChatMessage = {
 	"notifications": {
 		"max": +Engine.ConfigDB_GetValue("user", "autociv.lobby.chat.notifications.max"),
 		"count": 0,
-		"is": text => !(/<.*>/.test(text))
+		"is": text => !g_autociv_addChatMessage.comments.is(text)
 	},
 	"comments": {
 		"max": +Engine.ConfigDB_GetValue("user", "autociv.lobby.chat.comments.max"),
 		"count": 0,
-		"is": text => /<.*>/.test(text)
+		"is": text => (/<.*>/.test(text) || text.indexOf("*") != -1)
 	},
 	"currentTick": 0,
 	"updateAfterTick": 3,
