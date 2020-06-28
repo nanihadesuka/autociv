@@ -116,7 +116,13 @@
 			z="800">
 			<object type="image"
 				sprite="stretched:color:255 0 0:textureAsMask:session/icons/corners.png"
-				size="-17 -17 0%+17 0%+17" />
+				size="-17 -17 0%+17 0%+17"/>
+			<object type="image"
+				sprite="color:255 0 0"
+				size="-4 -1 0%+4 0%+1"/>
+			<object type="image"
+				sprite="color:255 0 0"
+				size="-1 -4 0%+1 0%+4"/>
 		</object>
 
 		<!-- ==========================================
