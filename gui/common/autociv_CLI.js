@@ -510,7 +510,10 @@ Autociv_CLI.prototype.getEntry = function (text)
 	let prefix = "";
 	let prefixColored = "";
 
-	let entry = {};
+	let entry = {
+		"root" : true,
+		"type": "undefined"
+	};
 
 	// Dive into the nested object or array (but don't process last token)
 	for (let i = 0; i < tokens.length - 1; ++i)
@@ -686,7 +689,7 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 	}
 };
 
-Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
+Autociv_CLI.prototype.getFormattedSuggestionList = function (entry, suggestions)
 {
 	let truncate = (text, start) =>
 	{
@@ -695,8 +698,7 @@ Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
 		return alloted < text.length ? text.slice(0, alloted) + "..." : text;
 	}
 
-	let isString = entry.entry.type != "array";
-	this.GUI.suggestions.list = suggestions.map(value =>
+	return suggestions.map(value =>
 	{
 		if (entry.token.access == "parenthesis")
 		{
@@ -708,7 +710,7 @@ Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
 
 		let type = this.getType(entry.parent[value]);
 		let text = entry.prefixColored;
-		text += this.accessFormat(value, entry.token.access, isString, true, type);
+		text += this.accessFormat(value, entry.token.access, entry.entry.type != "array", true, type);
 
 		// Show variable type
 		text += ` [color="${this.style.typeTag}"]\\[${type}\\][/color]`;
@@ -722,13 +724,19 @@ Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
 
 		return text;
 	});
+}
+
+Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
+{
+	this.GUI.suggestions.list = this.getFormattedSuggestionList(entry, suggestions);
 	this.list_data = [];
 	this.prefix = entry.prefix;
 
 	this.GUI.suggestions.size = Object.assign(this.GUI.suggestions.size, {
 		"bottom": Math.min(suggestions.length * this.vlineSize, this.suggestionsMaxVisibleSize)
 	});
-	this.list_data = suggestions.map(value => this.accessFormat(value, entry.token.access, isString));
+
+	this.list_data = suggestions.map(value => this.accessFormat(value, entry.token.access, entry.entry.type != "array"));
 }
 
 Autociv_CLI.prototype.processPrefixes = function (text)
