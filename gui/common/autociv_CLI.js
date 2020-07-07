@@ -522,18 +522,18 @@ Autociv_CLI.prototype.getEntry = function (text)
 			"prefix": prefix,
 			"prefixColored": prefixColored,
 			"token": token,
-			"index": i
+			"index": i,
+			"type": this.getType(object)
 		};
 
 		// "word" access must and can only be on the first token
-		if (i == 0 ^ token.access == "word")
+		if ((i == 0) ^ (token.access == "word"))
 			return;
 
-		let parentType = this.getType(object);
-		let isMapGet = parentType == "Map" && token.value == "get";
-		let validType = parentType == "array" ||
-			parentType == "object" ||
-			parentType == "function" ||
+		let isMapGet = entry.type == "Map" && token.value == "get";
+		let validType = entry.type == "array" ||
+			entry.type == "object" ||
+			entry.type == "function" ||
 			isMapGet;
 
 		if (!token.valid || !validType)
@@ -545,8 +545,8 @@ Autociv_CLI.prototype.getEntry = function (text)
 		else
 			object = object[token.value];
 
-		prefix += this.accessFormat(token.value, token.access, parentType != "array");
-		prefixColored += this.accessFormat(token.value, token.access, parentType != "array", true, parentType);
+		prefix += this.accessFormat(token.value, token.access, entry.type != "array");
+		prefixColored += this.accessFormat(token.value, token.access, entry.type != "array", true, entry.type);
 	}
 
 	return {
@@ -555,7 +555,8 @@ Autociv_CLI.prototype.getEntry = function (text)
 		"prefix": prefix,
 		"prefixColored": prefixColored,
 		"token": tokens[tokens.length - 1],
-		"index": tokens.length - 1
+		"index": tokens.length - 1,
+		"type": this.getType(object)
 	};
 };
 
@@ -604,9 +605,10 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 		if (entry.index == 0)
 			return;
 
-		let parentType = this.getType(entry.parent);
-		if (parentType != "object" && parentType != "function" && parentType != "array" &&
-			parentType != "Map")
+		if (entry.entry.type != "object" &&
+			entry.entry.type != "function" &&
+			entry.entry.type != "array" &&
+			entry.entry.type != "Map")
 			return
 
 		let candidates = this.getCandidates(entry.parent, entry.token.access);
@@ -623,8 +625,8 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 		if (entry.index == 0)
 			return;
 
-		let parentType = this.getType(entry.parent);
-		if (parentType == "object" || parentType == "function")
+		if (entry.entry.type == "object" ||
+			entry.entry.type == "function")
 		{
 			let candidates = this.getCandidates(entry.parent);
 			let results = entry.token.hasValue ?
@@ -635,7 +637,7 @@ Autociv_CLI.prototype.getSuggestions = function (entry)
 				results = [];
 			return results;
 		}
-		else if (parentType == "array")
+		else if (entry.entry.type == "array")
 		{
 			let candidates = this.getCandidates(entry.parent, entry.token.access);
 			let results = entry.token.hasValue ?
@@ -693,7 +695,7 @@ Autociv_CLI.prototype.updateSuggestionList = function (entry, suggestions)
 		return alloted < text.length ? text.slice(0, alloted) + "..." : text;
 	}
 
-	let isString = this.getType(entry.parent) != "array";
+	let isString = entry.entry.type != "array";
 	this.GUI.suggestions.list = suggestions.map(value =>
 	{
 		if (entry.token.access == "parenthesis")
@@ -827,7 +829,7 @@ Autociv_CLI.prototype.getObjectRepresentation = function (obj, depth = this.show
 	const childPrefix = prefix + this.spacing;
 	const representChild = child => this.getObjectRepresentation(child, depth - 1, childPrefix, format);
 	const esc = text => format ? this.escape(text) : text;
-	const interate = (list, func, intro, outro) =>
+	const iterate = (list, func, intro, outro) =>
 	{
 		if (!list.length)
 			return esc(intro) + " " + esc(outro);
@@ -872,27 +874,27 @@ Autociv_CLI.prototype.getObjectRepresentation = function (obj, depth = this.show
 				(this.getType(val) == "object" ? index + " : " : "") +
 				representChild(val);
 
-			return interate(obj, child, "[", "]");
+			return iterate(obj, child, "[", "]");
 		}
 		case "object": {
 			let list = this.getCandidates(obj);
 			let child = key => childPrefix + esc(key) + " : " +
 				representChild(obj[key]);
 
-			return interate(list, child, "{", "}");
+			return iterate(list, child, "{", "}");
 		}
 		case "Set": {
 			let list = Array.from(obj);
 			let child = value => childPrefix + representChild(value);
 
-			return interate(list, child, "Set {", "}");
+			return iterate(list, child, "Set {", "}");
 		}
 		case "Map": {
 			let list = Array.from(obj);
 			let child = ([key, value]) => childPrefix + representChild(key) +
 				" => " + representChild(value);
 
-			return interate(list, child, "Map {", "}");
+			return iterate(list, child, "Map {", "}");
 		}
 		case "Int8Array":
 		case "Uint8Array":
@@ -905,7 +907,7 @@ Autociv_CLI.prototype.getObjectRepresentation = function (obj, depth = this.show
 		case "Float64Array": {
 			let list = Array.from(obj);
 			let child = (val, index) => childPrefix + colorize("number", val);
-			return interate(list, child, "[", "]");
+			return iterate(list, child, "[", "]");
 		}
 		default: return typeTag;
 	}
