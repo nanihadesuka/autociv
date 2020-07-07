@@ -76,7 +76,7 @@ g_ChatCommands["pingall"] = {
 	"handler": function (args)
 	{
 		let selfNick = Engine.LobbyGetNick();
-		let ignore = new Set([selfNick, "Ratings", "WFGbot", "Triumvir", "user1", "Dunedan"]);
+		let ignore = new Set([selfNick, "Ratings", "WFGbot", "Triumvir", "user1", "Dunedan", "Rollo"]);
 		let candidatesToAnnoy = new Set();
 
 		for (let host of g_GameList)
