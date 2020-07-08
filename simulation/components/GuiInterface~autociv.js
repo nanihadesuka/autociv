@@ -432,6 +432,8 @@ GuiInterface.prototype.autociv_D2079_8905_LoadSnappingEdges = function ()
     Engine.RegisterGlobal("GetObstructionEdges", GetObstructionEdges);
 };
 
+let autociv_CLI_interface = new Autociv_CLI_interface();
+
 // Original variable declaration is prefixed with let instead of var so we can't
 // just add new entries directly (global let declaration rules)
 var autociv_exposedFunctions = {
