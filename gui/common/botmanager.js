@@ -122,7 +122,6 @@ BotManager.prototype.pipeWith = {
 					"type": "chat",
 					"receiver": splitRatingFromNick(g_PlayerAssignments[Engine.GetPlayerGUID()].name).nick,
 					"sender": splitRatingFromNick(g_PlayerAssignments[msg.guid].name).nick,
-					"rating": splitRatingFromNick(g_PlayerAssignments[msg.guid].name).rating,
 					"message": msg.text
 				};
 			},
@@ -376,16 +375,14 @@ botManager.addBot("autociv", {
 		if (game.get.players.name().some(name => firstWord == clean(name)))
 			return;
 
-		let fullName = data.sender + (!!data.rating ? ` (${data.rating})` : "");
-
 		// Special case: spec makes a player observer.
 		if (firstWord == "spec")
 		{
-			game.set.player.observer(fullName);
+			game.set.player.observer(data.sender);
 			return;
 		}
 
-		game.set.player.civ(fullName, this.searchForCivInText(firstWord));
+		game.set.player.civ(data.sender, this.searchForCivInText(firstWord));
 	},
 	"generateFuzzySearcher": function ()
 	{

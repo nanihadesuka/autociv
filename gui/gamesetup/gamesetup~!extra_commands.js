@@ -128,8 +128,16 @@ var game = {
 	{
 		'player':
 		{
-			// Returns undefined if no player with that name
-			'id': playerName => Object.keys(g_PlayerAssignments).find(id => g_PlayerAssignments[id].name == playerName),
+			// Returns undefined if no player with that name (no rating included)
+			'id': playerName =>
+			{
+				return Object.keys(g_PlayerAssignments).find(id =>
+				{
+					let nick1 = splitRatingFromNick(g_PlayerAssignments[id].name).nick;
+					let nick2 = splitRatingFromNick(playerName).nick;
+					return nick1 == nick2;
+				});
+			},
 			// Returns -1 in case of observer  and undefined if player doesn't exist
 			'pos': playerName =>
 			{
@@ -139,7 +147,7 @@ var game = {
 
 				return g_PlayerAssignments[playerId].player
 			},
-			'selfName': () => g_PlayerAssignments[Engine.GetPlayerGUID()].name,
+			'selfName': () => splitRatingFromNick(g_PlayerAssignments[Engine.GetPlayerGUID()].name).nick,
 			"status": function (playerName)
 			{
 				switch (g_PlayerAssignments[this.id(playerName)].status)
@@ -152,7 +160,7 @@ var game = {
 		},
 		'players':
 		{
-			'name': () => Object.keys(g_PlayerAssignments).map(id => g_PlayerAssignments[id].name)
+			'name': () => Object.keys(g_PlayerAssignments).map(id => splitRatingFromNick(g_PlayerAssignments[id].name).nick)
 		},
 		"numberOfSlots": () => g_GameAttributes.settings.PlayerData.length
 	},
