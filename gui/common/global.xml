@@ -220,7 +220,7 @@
 			z="799"
 			hotkey="autociv.CLI.toggle">
 			<action on="Load">
-				global["g_autociv_CLI"] = new Autociv_CLI(this);
+				global["g_autociv_CLI_GUI"] = new Autociv_CLI_GUI(this);
 			</action>
 
 			<object size="0% 0% 100% 100%+20"
