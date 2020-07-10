@@ -231,6 +231,7 @@ g_NetworkCommands['/help'] = () =>
 	selfMessage(text);
 }
 g_NetworkCommands['/resources'] = value => game.set.resources(value);
+g_NetworkCommands['/resourcesUnlimited'] = value => game.set.resources(Infinity);
 g_NetworkCommands['/population'] = value => game.set.population(value);
 g_NetworkCommands['/mapsize'] = value => game.set.mapsize(value);
 g_NetworkCommands['/mapcircular'] = () => game.set.mapcircular(true);
