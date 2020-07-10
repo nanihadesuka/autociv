@@ -511,8 +511,8 @@ Autociv_CLI.prototype.getEntry = function (text)
 	let prefixColored = "";
 
 	let entry = {
-		"root" : true,
-		"type": "undefined"
+		"root": true,
+		"type": this.getType(object)
 	};
 
 	// Dive into the nested object or array (but don't process last token)
@@ -525,18 +525,18 @@ Autociv_CLI.prototype.getEntry = function (text)
 			"prefix": prefix,
 			"prefixColored": prefixColored,
 			"token": token,
-			"index": i,
-			"type": this.getType(object)
+			"index": i
 		};
 
 		// "word" access must and can only be on the first token
 		if ((i == 0) ^ (token.access == "word"))
 			return;
 
-		let isMapGet = entry.type == "Map" && token.value == "get";
-		let validType = entry.type == "array" ||
-			entry.type == "object" ||
-			entry.type == "function" ||
+		let parentType = entry.entry.type;
+		let isMapGet = parentType == "Map" && token.value == "get";
+		let validType = parentType == "array" ||
+			parentType == "object" ||
+			parentType == "function" ||
 			isMapGet;
 
 		if (!token.valid || !validType)
@@ -548,8 +548,10 @@ Autociv_CLI.prototype.getEntry = function (text)
 		else
 			object = object[token.value];
 
-		prefix += this.accessFormat(token.value, token.access, entry.type != "array");
-		prefixColored += this.accessFormat(token.value, token.access, entry.type != "array", true, entry.type);
+		entry.type = this.getType(object);
+
+		prefix += this.accessFormat(token.value, token.access, parentType != "array");
+		prefixColored += this.accessFormat(token.value, token.access, parentType != "array", true, parentType);
 	}
 
 	return {
@@ -559,7 +561,6 @@ Autociv_CLI.prototype.getEntry = function (text)
 		"prefixColored": prefixColored,
 		"token": tokens[tokens.length - 1],
 		"index": tokens.length - 1,
-		"type": this.getType(object)
 	};
 };
 
