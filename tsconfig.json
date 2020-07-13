@@ -13,7 +13,6 @@
 		"noEmit": true
 	},
 	"include": [
-		"./",
-		"./../pyrogenesis.d.ts"
+		"./"
 	]
 }

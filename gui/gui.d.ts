@@ -1,8 +1,5 @@
 declare namespace Engine
 {
-	// ProfileStart
-	// ProfileStop
-	// ProfileAttribute
 	// ConfigDB_HasChanges
 	// ConfigDB_SetChanges
 	function ConfigDB_GetValue(config: string, key: string): string
@@ -226,13 +223,10 @@ declare namespace Engine
 	// GetUserReportStatus
 	// GetUserReportLogPath
 	// GetUserReportConfigPath
-	// ListDirectoryFiles
-	function FileExists(filePath: string): boolean;
 	// GetFileMTime
 	// GetFileSize
 	// ReadFile
 	// ReadFileLines
-	function ReadJSONFile(filePath: string): object;
 	function WriteJSONFile(filePath: string, JSONObject: object): void;
 	// GetReplays
 	// DeleteReplay
@@ -281,5 +275,3 @@ declare class GUISize
 
 declare function setTimeout(callback: Function, time: number): void
 declare function saveSettingAndWriteToUserConfig(key: string, value: string): void
-declare function warn(text: string | number): void
-declare function error(text: string | number): void
