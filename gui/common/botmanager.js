@@ -350,16 +350,25 @@ botManager.addBot("vote", {
 botManager.addBot("autociv", {
 	"name": "AutoCiv bot",
 	"fuzzySearch": { /* Will be populated with a FuzzySet instance for each civ code on load*/ },
+	// Returns returns the civ code if civ name is found, otherwise undefined
 	"searchForCivInText": function (text)
 	{
 		// Lazy load
 		if (!this.generateFuzzySearcher.loaded)
 			this.generateFuzzySearcher();
 
-		// Returns returns the civ code if civ name is found, otherwise undefined
 		for (let id in this.fuzzySearch)
-			if (this.fuzzySearch[id].get(text, false, 0.7))
+		{
+			let res = this.fuzzySearch[id].get(text, false, 0.7);
+			if (!res)
+				continue;
+
+			// Check two first letters match
+			let t1 = text.slice(0, 2).toLowerCase();
+			let t2 = res[0][1].slice(0, 2).toLowerCase();
+			if (t1 == t2)
 				return id;
+		}
 	},
 	"react": function (data)
 	{
