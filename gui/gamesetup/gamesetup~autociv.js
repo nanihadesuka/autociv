@@ -147,10 +147,19 @@ function autociv_patchModFilter()
 		Engine.SendRegisterGame(stanza);
 	};
 
-	autociv_patchApplyN("sendRegisterGameStanzaImmediate", function (target, that, args)
+	autociv_patchApplyN("savePersistMatchSettings", function (target, that, args)
 	{
 		let result = target.apply(that, args);
-		g_autociv_stanza.setValue("gamesetup", g_LastGameStanza);
+		if (g_IsController && g_LastGameStanza != undefined)
+			g_autociv_stanza.setValue("gamesetup", g_LastGameStanza);
+		return result;
+	})
+
+	autociv_patchApplyN("initGUIObjects", function (target, that, args)
+	{
+		let result = target.apply(that, args);
+		if (g_IsController && g_LastGameStanza != undefined)
+			g_autociv_stanza.setValue("gamesetup", g_LastGameStanza);
 		return result;
 	})
 }
