@@ -1,5 +1,6 @@
 {
 	"autociv.settings.reset.all": "false",
+	"autociv.settings.autociv_readme.seen": "false",
 	"autociv.lobby.chat.comments.max": 10000,
 	"autociv.lobby.chat.notifications.max": 30,
 	"autociv.lobby.gamelist.markStunGames": "false",
@@ -18,6 +19,7 @@
 	"autociv.session.chatText.font.change": "false",
 	"autociv.session.chatText.font": "sans-bold-stroke-14",
 	"hotkey.autociv.open.test": "Ctrl+A+T",
+	"hotkey.autociv.open.autociv_readme": "Shift+F4",
 	"hotkey.autociv.open.autociv_settings": "F4",
 	"hotkey.autociv.gamesetup.openMapBrowser": "Alt+O",
 	"hotkey.autociv.lobby.openMapBrowser": "Alt+B",

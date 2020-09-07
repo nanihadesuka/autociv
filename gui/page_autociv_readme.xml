@@ -9,5 +9,5 @@
 	<include>common/styles.xml</include>
 
 	<include>common/global.xml</include>
-	<include>test/test.xml</include>
+	<include>autociv_readme/autociv_readme.xml</include>
 </page>

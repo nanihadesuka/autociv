@@ -2,14 +2,14 @@ function autociv_initCheck()
 {
     let state = {
         "needsRestart": false,
-        "reasons": new Set()
+        "reasons": new Set(),
+        "showReadme": false
     };
 
     let configSaveToMemoryAndToDisk = (key, value) =>
     {
         Engine.ConfigDB_CreateValue("user", key, value);
         Engine.ConfigDB_WriteValueToFile("user", key, value, "config/user.cfg");
-        state.needsRestart = true;
     }
 
     // Reorder mods so FGod is always before AutoCiv
@@ -23,6 +23,7 @@ function autociv_initCheck()
             [mods[iFGod], mods[iAutociv]] = [mods[iAutociv], mods[iFGod]];
             Engine.SetMods(mods);
             configSaveToMemoryAndToDisk("mod.enabledmods", mods.join(" "));
+            state.needsRestart = true;
             state.reasons.add("Detected wrong mod order. Fixed. FGod needs to be loaded before AutoCiv.");
         }
     }
@@ -33,6 +34,7 @@ function autociv_initCheck()
         // Reset all autociv settings to default. Custom autociv settings added won't be affected.
         if (Engine.ConfigDB_GetValue("user", "autociv.settings.reset.all") === "true")
         {
+            state.needsRestart = true;
             for (let key in settings)
                 configSaveToMemoryAndToDisk(key, settings[key]);
             state.reasons.add("AutoCiv settings reseted by user.");
@@ -43,9 +45,20 @@ function autociv_initCheck()
         for (let key in settings)
             if (!Engine.ConfigDB_GetValue("user", key))
             {
+                state.needsRestart = true;
                 configSaveToMemoryAndToDisk(key, settings[key]);
                 state.reasons.add("New AutoCiv settings added.");
             }
+    }
+
+    // Check if show readme (first time user case)
+    {
+        const key = "autociv.settings.autociv_readme.seen"
+        if (Engine.ConfigDB_GetValue("user", key) == "false")
+        {
+            state.showReadme = true
+            configSaveToMemoryAndToDisk(key, "true")
+        }
     }
 
     return state;
@@ -53,18 +66,26 @@ function autociv_initCheck()
 
 autociv_patchApplyN("init", function (target, that, args)
 {
-    let state = autociv_initCheck();
-    if (state.needsRestart)
-    {
-        let message = ["0 A.D needs to restart.\n", "Reasons:\n"].
-            concat(Array.from(state.reasons).map(v => ` · ${v}`)).
-            join("\n");
+    // autocivCL.Engine.PushGuiPage("page_autociv_readme.xml");
 
-        messageBox(500, 300, message,
-            "AutoCiv mod notice",
-            ["Cancel", "Restart"],
-            [() => { }, () => Engine.RestartEngine()]
-        );
+    let state = autociv_initCheck();
+    if (state.needsRestart || state.showReadme)
+    {
+        if (state.needsRestart)
+        {
+            let message = ["0 A.D needs to restart.\n", "Reasons:\n"].
+                concat(Array.from(state.reasons).map(v => ` · ${v}`)).
+                join("\n");
+
+            messageBox(500, 300, message,
+                "AutoCiv mod notice",
+                ["Cancel", "Restart"],
+                [() => { }, () => Engine.RestartEngine()]
+            );
+        }
+
+        if (state.showReadme)
+            autocivCL.Engine.PushGuiPage("page_autociv_readme.xml");
 
         let hasFgodAutoStartup = Engine.ConfigDB_GetValue("user", "gui.startintolobby") === "true";
         if (hasFgodAutoStartup)
@@ -82,11 +103,11 @@ var g_autociv_hotkeys = {
     "autociv.open.autociv_settings": function (ev)
     {
         autocivCL.Engine.PushGuiPage("page_autociv_settings.xml");
+    },
+    "autociv.open.autociv_readme": function (ev)
+    {
+        autocivCL.Engine.PushGuiPage("page_autociv_readme.xml");
     }
-    // ,"autociv.open.test": function (ev)
-    // {
-    //     autocivCL.Engine.PushGuiPage("page_test.xml");
-    // }
 };
 
 function handleInputBeforeGui(ev)

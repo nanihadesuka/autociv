@@ -107,6 +107,10 @@ var g_autociv_hotkeys = {
 		autocivCL.Engine.PushGuiPage("page_autociv_settings.xml");
 		return true;
 	},
+	"autociv.open.autociv_readme": function (ev)
+	{
+		autocivCL.Engine.PushGuiPage("page_autociv_readme.xml");
+	},
 	"autociv.session.production.queue.clear": function (ev)
 	{
 		autociv_clearSelectedProductionQueues();

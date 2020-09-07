@@ -142,7 +142,8 @@ var g_autociv_hotkeys = {
 	"autociv.lobby.focus.chatInput": autociv_focus.chatInput,
 	"autociv.lobby.focus.gameList": autociv_focus.gameList,
 	"autociv.lobby.gameList.selected.join": joinButton,
-	"autociv.open.autociv_settings": ev => autocivCL.Engine.PushGuiPage("page_autociv_settings.xml")
+	"autociv.open.autociv_settings": ev => autocivCL.Engine.PushGuiPage("page_autociv_settings.xml"),
+	"autociv.open.autociv_readme": ev => autocivCL.Engine.PushGuiPage("page_autociv_readme.xml")
 };
 
 function handleInputBeforeGui(ev)
