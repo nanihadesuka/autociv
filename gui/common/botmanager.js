@@ -365,6 +365,8 @@ botManager.addBot("autociv", {
 
 			// Check two first letters match
 			let t1 = text.slice(0, 2).toLowerCase();
+			if (typeof res[0][1] != "string")
+				continue
 			let t2 = res[0][1].slice(0, 2).toLowerCase();
 			if (t1 == t2)
 				return id;

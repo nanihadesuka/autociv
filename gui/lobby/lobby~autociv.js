@@ -115,12 +115,18 @@ g_ChatCommands["playing"] = {
 	}
 };
 
-g_NetMessageTypes["chat"]["subject"] = msg =>
+autociv_patchApplyN(g_NetMessageTypes["chat"], "subject", function (target, that, args)
 {
-	// Don't add subject kilometric message
-	updateSubject(msg.subject);
-	return false;
-};
+	if (Engine.ConfigDB_GetValue("user", "autociv.lobby.chat.subject.hide") == "true")
+	{
+		let [msg] = args;
+		// Don't add subject kilometric message
+		updateSubject(msg.subject);
+		return false;
+	}
+
+	return target.apply(that, args);
+})
 
 var autociv_focus = {
 	"gameList": function ()
