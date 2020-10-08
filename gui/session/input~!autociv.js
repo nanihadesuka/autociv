@@ -91,6 +91,17 @@ function autociv_clearSelectedProductionQueues()
 	return true;
 }
 
+var g_autociv_hotkeys_beforeGui = {
+	"selection.cancel": function (ev)
+	{
+		if (autociv_minimapExpand.expanded)
+		{
+			autociv_minimapExpand.toggle()
+			return true
+		}
+	}
+}
+
 var g_autociv_hotkeys = {
 	"autociv.session.building.autotrain.enable": function (ev)
 	{
@@ -175,6 +186,12 @@ autociv_patchApplyN("handleInputBeforeGui", function (target, that, args)
 {
 	let [ev] = args;
 	autociv_APM.add(ev);
+	if ("hotkey" in ev && ev.type == "hotkeydown")
+	{
+		// Hotkey with normal behaviour
+		if (ev.hotkey in g_autociv_hotkeys_beforeGui)
+			return !!g_autociv_hotkeys_beforeGui[ev.hotkey](ev);
+	}
 	return target.apply(that, args);
 })
 
