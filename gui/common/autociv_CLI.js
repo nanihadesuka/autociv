@@ -205,7 +205,7 @@ Autociv_CLI.prototype.stdoutToggle = function ()
 	let nLines1 = (result.match(/\n/g) || '').length + 1;
 	let nLines2 = Math.ceil(result.length / 100);
 	this.GUI.stdout.size = Object.assign(this.GUI.stdout.size, {
-		"top": -Math.min(Math.max(nLines1, nLines2) * this.vlineSize, this.stdOutMaxVisibleSize) - 5
+		"top": -Math.min(Math.max(nLines1, nLines2) * this.vlineSize, this.stdOutMaxVisibleSize) - 10
 	});
 
 	this.GUI.stdout.caption = result;
@@ -223,7 +223,7 @@ Autociv_CLI.prototype.stdoutEval = function ()
 	let nLines1 = (result.match(/\n/g) || '').length + 1;
 	let nLines2 = Math.ceil(result.length / 100);
 	this.GUI.stdout.size = Object.assign(this.GUI.stdout.size, {
-		"top": -Math.min(Math.max(nLines1, nLines2) * this.vlineSize, this.stdOutMaxVisibleSize) - 5
+		"top": -Math.min(Math.max(nLines1, nLines2) * this.vlineSize, this.stdOutMaxVisibleSize) - 10
 	});
 
 	this.GUI.stdout.caption = result;
