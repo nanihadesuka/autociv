@@ -93,6 +93,24 @@ var g_autociv_hotkey_entity_by_filter = {
             let entityState = GetEntityState(entity);
             return entityState && entityState.identity && evalExpression([entityState.identity.rank]);
         });
+    },
+    "group": function (ev, list, parameters)
+    {
+        let [expression] = parameters;
+        switch (expression)
+        {
+            case "none": {
+                let entitiesNotGrouped = new Set(list)
+                for (let group of g_Groups.groups)
+                    for (let entity in group.ents)
+                        entitiesNotGrouped.delete(+entity)
+
+                return Array.from(entitiesNotGrouped)
+            }
+            default:
+                error(`Invalid hotkey "${ev.hotkey}" for by.group. parameter "${expression}"`);
+                return list;
+        }
     }
 };
 
