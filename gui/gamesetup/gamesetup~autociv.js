@@ -12,6 +12,11 @@ var g_autociv_hotkeys = {
 	"autociv.open.autociv_readme": function (ev)
 	{
 		autocivCL.Engine.PushGuiPage("page_autociv_readme.xml");
+	},
+	"autociv.gamesetup.focus.chatInput": function (ev)
+	{
+		Engine.GetGUIObjectByName("chatInput").blur();
+		Engine.GetGUIObjectByName("chatInput").focus();
 	}
 };
 
@@ -167,17 +172,6 @@ function autociv_patchModFilter()
 		return result;
 	})
 }
-
-autociv_patchApplyN("selectPanel", function (target, that, args)
-{
-	let result = target.apply(that, args);
-	if (args[0] === undefined)
-	{
-		Engine.GetGUIObjectByName("chatInput").blur();
-		Engine.GetGUIObjectByName("chatInput").focus();
-	}
-	return result;
-})
 
 autociv_patchApplyN("init", function (target, that, args)
 {
