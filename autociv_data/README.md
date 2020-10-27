@@ -3,8 +3,8 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 
 ## Feature list
 - General
-	- Readme: press Shift + F4 to open it
-	- Hotkey viewer & editor: press F4 to open it
+	- Readme: press Shift + F4 to open
+	- Hotkey viewer & editor: press F4 to open
 	- Player mute
 	- Player reminder (show a written note when a certain player joins)
 	- Link opener (opens URL links from the chat)
@@ -70,6 +70,9 @@ The mod is compatible with:
 - 0 A.D 24 svn (work in progress)
 - FGod (version 1.6.22 & 1.6.23)
 - ffm_visibility mod
+- balanced_maps mod
+- spec_mod mod
+- custom_rating mod
 - Should work with all mods that don't have heavy code changes.
 
 
