@@ -182,26 +182,9 @@ var g_autociv_hotkeysPrefixes = {
 if (!g_autociv_is24)
 	autociv_D2079_8905_LoadSnappingEdges();
 
-
-var g_autociv_handleInputBeforeGui_keydown = new Set()
-
 autociv_patchApplyN("handleInputBeforeGui", function (target, that, args)
 {
 	let [ev] = args;
-
-	// Ignore repeated keydown events, might break something but improves performance
-	switch (ev.type)
-	{
-		// case "(unknown)": return true  // breaks mouse scroll zoom and possibly more
-		case "keydown":
-			if (g_autociv_handleInputBeforeGui_keydown.has(ev.keysym.sym)) return true
-			else g_autociv_handleInputBeforeGui_keydown.add(ev.keysym.sym)
-			break;
-		case "keyup":
-			g_autociv_handleInputBeforeGui_keydown.delete(ev.keysym.sym)
-			break;
-	}
-
 	autociv_APM.add(ev);
 	if ("hotkey" in ev && ev.type == "hotkeydown")
 	{
