@@ -21,7 +21,8 @@
 		<!-- Main title -->
 		<object type="text"
 			style="ModernLabelText"
-			size="50%-128 -18 50%+128 14">Autociv readme</object>
+			size="50%-128 -18 50%+128 14">Autociv readme
+		</object>
 		<!-- Main text -->
 		<object type="text"
 			style="ModernText"

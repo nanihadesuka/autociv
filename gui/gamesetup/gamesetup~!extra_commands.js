@@ -307,3 +307,32 @@ g_NetworkCommands['/gameName'] = text =>
 
 
 g_NetworkCommands['/team'] = text => game.set.teams(text);
+
+g_NetworkCommands['/randomCivs'] = function (excludedCivs)
+{
+	if (!g_IsController)
+		return;
+
+
+	let excludeCivList = excludedCivs.trim().toLowerCase().split(/\s+/)
+
+	let civList = new Map(g_PlayerCivList.code
+		.map((code, i) => [g_PlayerCivList.name[i].toLowerCase(), code])
+		.filter(e => e[1] != "random"))
+
+	excludeCivList.forEach(civ => civList.delete(civ))
+
+	civList = Array.from(civList)
+
+	const getRandIndex = () => Math.floor(Math.random() * civList.length)
+
+	for (let slot = 1; slot <= game.get.numberOfSlots(); ++slot)
+	{
+		let civCode = civList[getRandIndex()][1]
+		let civCodeIndex = g_PlayerCivList.code.indexOf(civCode);
+		if (civCodeIndex == -1)
+			return;
+		g_PlayerDropdowns.playerCiv.select(civCodeIndex, slot - 1);
+	}
+	updateGameAttributes();
+}
