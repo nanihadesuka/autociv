@@ -9,7 +9,7 @@ var g_autociv_countdown = {
 		if (this.time < 0)
 		{
 			this.stopCountdown()
-			// launchGame()
+			launchGame()
 			return
 		}
 
