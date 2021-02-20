@@ -16,7 +16,6 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 	- Custom population limit
 	- Custom starting resources
 	- Custom map size
-	- Map browser
 	- Countdown to start the game
 - In Game
 	- Hotkeys for (see hotkeys with hotkey viewer)

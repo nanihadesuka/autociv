@@ -1,10 +1,6 @@
 var g_autociv_stanza = new ConfigJSON("stanza", false);
 
 var g_autociv_hotkeys = {
-	"autociv.gamesetup.openMapBrowser": function (ev)
-	{
-		autociv_openMapBrowser();
-	},
 	"autociv.open.autociv_settings": function (ev)
 	{
 		autocivCL.Engine.PushGuiPage("page_autociv_settings.xml");
@@ -18,60 +14,6 @@ var g_autociv_hotkeys = {
 		Engine.GetGUIObjectByName("chatInput").blur();
 		Engine.GetGUIObjectByName("chatInput").focus();
 	}
-};
-
-
-function autociv_openMapBrowser()
-{
-	autocivCL.Engine.PushGuiPage("page_mapbrowser.xml", {
-		"map": {
-			"type": g_GameAttributes.mapType,
-			"filter": g_GameAttributes.mapFilter,
-			"name": g_GameAttributes.map // includes the map path
-		}
-	}, autociv_mapBrowserCallback);
-}
-
-function autociv_mapBrowserCallback(data)
-{
-	if (!g_IsController ||
-		!data ||
-		!data.map ||
-		!data.map.type ||
-		!data.map.filter ||
-		!data.map.type ||
-		!data.map.name)
-		return;
-
-	if (g_Dropdowns.mapType.get() != data.map.type)
-	{
-		let typeIndex = g_Dropdowns.mapType.ids().indexOf(data.map.type);
-		if (typeIndex == -1)
-			return
-		g_Dropdowns.mapType.select(typeIndex);
-	}
-
-	let filterIndex = g_Dropdowns.mapFilter.ids().indexOf(data.map.filter);
-	if (filterIndex == -1)
-		return;
-	g_Dropdowns.mapFilter.select(filterIndex);
-
-	let mapIndex = g_Dropdowns.mapSelection.ids().indexOf(data.map.path + data.map.name);
-	if (mapIndex == -1)
-		return;
-	g_Dropdowns.mapSelection.select(mapIndex);
-
-	updateGameAttributes();
-}
-
-g_MiscControls["glMapBrowser"] = {
-	"tooltip": () =>
-	{
-		let hotkey = colorizeHotkey("%(hotkey)s", "autociv.gamesetup.openMapBrowser");
-		return sprintf(translate("%(hotkey)s : Open map browser."), { "hotkey": hotkey });
-	},
-	"onMouseLeftRelease": () => autociv_openMapBrowser,
-	"hidden": () => false
 };
 
 function handleInputBeforeGui(ev)

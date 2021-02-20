@@ -144,7 +144,6 @@ var autociv_focus = {
 }
 
 var g_autociv_hotkeys = {
-	"autociv.lobby.openMapBrowser": autociv_openMapBrowser,
 	"autociv.lobby.focus.chatInput": autociv_focus.chatInput,
 	"autociv.lobby.focus.gameList": autociv_focus.gameList,
 	"autociv.lobby.gameList.selected.join": joinButton,
@@ -160,13 +159,6 @@ function handleInputBeforeGui(ev)
 		return !!g_autociv_hotkeys[ev.hotkey](ev);
 
 	return false;
-}
-
-function autociv_mapBrowserCallback() { }
-
-function autociv_openMapBrowser()
-{
-	autocivCL.Engine.PushGuiPage("page_mapbrowser.xml", {}, autociv_mapBrowserCallback);
 }
 
 function autociv_InitBots()

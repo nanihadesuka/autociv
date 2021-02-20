@@ -146,26 +146,6 @@
 			z="800" />
 
 		<!-- ==========================================
-		- MAP BROWSER BUTTON - USED IN GAMESETUP TO OPEN THE MAP BROWSER PAGE ==========================================
-		-->
-
-		<object name="glMapBrowser"
-			type="button"
-			sprite="stretched:autociv_mapbrowser/map_button.png"
-			sprite_over="stretched:color:255 255 255 50:textureAsMask:autociv_mapbrowser/map_button.png"
-			sprite_pressed="stretched:color:255 255 255 100:textureAsMask:autociv_mapbrowser/map_button.png"
-			sprite_disabled="stretched:grayscale:autociv_mapbrowser/map_button.png"
-			hidden="true"
-			font="sans-bold-stroke-13"
-			size="100%-45-64 0%+320-64 100%-45-0 0%+320+0"
-			z="799"
-			textcolor="200 200 200"
-			text_align="center"
-			text_valign="center">
-			<translatableAttribute id="caption">Map Browser</translatableAttribute>
-		</object>
-
-		<!-- ==========================================
 		- APM STATS AREA - USED IN SESSION TO SHOW APM STATS ==========================================
 		-->
 
