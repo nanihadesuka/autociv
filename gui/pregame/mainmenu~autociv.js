@@ -100,10 +100,6 @@ autociv_patchApplyN("init", function (target, that, args)
 })
 
 var g_autociv_hotkeys = {
-    "autociv.open.autociv_settings": function (ev)
-    {
-        autocivCL.Engine.PushGuiPage("page_autociv_settings.xml");
-    },
     "autociv.open.autociv_readme": function (ev)
     {
         autocivCL.Engine.PushGuiPage("page_autociv_readme.xml");

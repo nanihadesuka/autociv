@@ -113,11 +113,6 @@ var g_autociv_hotkeys = {
 		autociv_SetAutotrain(false);
 		return true;
 	},
-	"autociv.open.autociv_settings": function (ev)
-	{
-		autocivCL.Engine.PushGuiPage("page_autociv_settings.xml");
-		return true;
-	},
 	"autociv.open.autociv_readme": function (ev)
 	{
 		autocivCL.Engine.PushGuiPage("page_autociv_readme.xml");

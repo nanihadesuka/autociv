@@ -4,7 +4,6 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 ## Feature list
 - General
 	- Readme: press Shift + F4 to open
-	- Hotkey viewer & editor: press F4 to open
 	- Player mute
 	- Player reminder (show a written note when a certain player joins)
 	- Link opener (opens URL links from the chat)
