@@ -31,7 +31,6 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 			- class
 	- APM (actions per minute) with chart (disabled by default, change in user.cfg)
 	- Current/Max gatherers status bar for your own fields (Tab or hover to view)
-	- Snap to edges for buildings (backport for a23 https://code.wildfiregames.com/D2079)
 	- Minimap flare (only visible to people using the mod) [ Alt + Mouse right click  in minimap]
 - Graphics
 	- FXAA [Anti-aliasing] (unmark post-processing graphics to disable)

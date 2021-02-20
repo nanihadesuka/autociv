@@ -11,9 +11,7 @@
 	"autociv.session.graphics.corpses.max": 50,
 	"autociv.session.APM.chart.enabled": "false",
 	"autociv.session.StatusBar.NumberOfGatherers.show": "false",
-	"autociv.session.snaptoedge.enabled": "true",
 	"autociv.session.kill.nowarning": "false",
-	"autociv.session.snaptoedgeOff.invert": "true",
 	"autociv.resizebar.enabled": "true",
 	"autociv.session.chatPanel.size.change": "false",
 	"autociv.session.chatPanel.size": "0 130 100% 100%-240",
@@ -152,7 +150,6 @@
 	"hotkey.autociv.session.stance.set.defensive": "Alt+3",
 	"hotkey.autociv.session.stance.set.passive": "Alt+4",
 	"hotkey.autociv.session.stance.set.standground": "Alt+5",
-	"hotkey.autociv.session.snaptoedgeOff": "Alt",
 	"hotkey.autociv.group.button.garrison": "Ctrl",
 	"hotkey.autociv.minimap.mode.flare": "Alt"
 }
