@@ -25,7 +25,6 @@ var g_autociv_SharedCommands = {
 			let nick = splitRatingFromNick(player).nick;
 			botManager.get("mute").instance.setValue(nick, nick);
 			selfMessage(`You have muted ${nick}.`);
-			return true;
 		}
 	},
 	"unmute": {
@@ -37,7 +36,6 @@ var g_autociv_SharedCommands = {
 			let nick = splitRatingFromNick(player).nick;
 			botManager.get("mute").instance.removeValue(nick);
 			selfMessage(`You have unmuted ${nick}.`);
-			return true;
 		}
 	},
 	"muteclear": {
@@ -46,7 +44,6 @@ var g_autociv_SharedCommands = {
 		{
 			botManager.get("mute").instance.removeAllValues();
 			selfMessage("You have cleared muted list.");
-			return true;
 		}
 	},
 	"mutelist": {
@@ -57,8 +54,6 @@ var g_autociv_SharedCommands = {
 			selfMessage(`Muted ${list.length} people`);
 			for (let name of list)
 				selfMessage("| " + name);
-
-			return true;
 		}
 	},
 	"linklist": {
@@ -66,7 +61,6 @@ var g_autociv_SharedCommands = {
 		"handler": () =>
 		{
 			selfMessage(botManager.get("link").getInfo());
-			return true;
 		}
 	},
 	"link": {
@@ -76,7 +70,6 @@ var g_autociv_SharedCommands = {
 			let err = botManager.get("link").openLink(index);
 			if (err)
 				selfMessage(err);
-			return true;
 		}
 	},
 	"vote": {
@@ -84,7 +77,6 @@ var g_autociv_SharedCommands = {
 		"handler": (votingChoices) =>
 		{
 			botManager.get("vote").toggle(votingChoices);
-			return true;
 		}
 	},
 	"votereset": {
@@ -93,7 +85,6 @@ var g_autociv_SharedCommands = {
 		{
 			botManager.get("vote").resetVoting();
 			botManager.get("vote").printVoting();
-			return true;
 		}
 	},
 	"voteshow": {
@@ -101,7 +92,6 @@ var g_autociv_SharedCommands = {
 		"handler": () =>
 		{
 			botManager.get("vote").printVoting();
-			return true;
 		}
 	},
 	"playerReminderToggle": {
@@ -110,7 +100,6 @@ var g_autociv_SharedCommands = {
 		{
 			botManager.get("playerReminder").toggle();
 			selfMessage(`playerReminder has been ${botManager.get("playerReminder").active ? "enabled" : "disabled"}.`)
-			return true;
 		}
 	},
 	"playerReminder": {
@@ -123,7 +112,6 @@ var g_autociv_SharedCommands = {
 
 			botManager.get("playerReminder").instance.setValue(data.name, data.text);
 			selfMessage(`Player ${data.name} has been added to playerReminder list.`);
-			return true;
 		}
 	},
 	"playerReminderRemove": {
@@ -139,7 +127,6 @@ var g_autociv_SharedCommands = {
 
 			botManager.get("playerReminder").instance.removeValue(nick);
 			selfMessage(`Player ${nick} has been removed from playerReminder list.`);
-			return true;
 		}
 	},
 	"playerReminderList": {
@@ -149,15 +136,10 @@ var g_autociv_SharedCommands = {
 			let bot = botManager.get("playerReminder").instance;
 			let players = bot.getIds();
 			if (!players.length)
-			{
-				selfMessage(`No playerReminder added.`)
-				return true;
-			}
+				return selfMessage(`No playerReminder added.`)
 
 			for (let player of players)
 				selfMessage(`Reminder == ${player} : ${bot.getValue(player)}`);
-
-			return true;
 		}
 	}
 }
@@ -176,7 +158,11 @@ autociv_InitSharedCommands.pipe = {
 	{
 		ChatCommandHandler.prototype.ChatCommands[key] = {
 			"description": g_autociv_SharedCommands[key].description,
-			"handler": text => g_autociv_SharedCommands[key].handler(text)
+			"handler": text =>
+			{
+				g_autociv_SharedCommands[key].handler(text)
+				return true
+			}
 		}
 	},
 	"gamesetup": key =>

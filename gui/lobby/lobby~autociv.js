@@ -52,7 +52,7 @@ autociv_patchApplyN("init", function (target, that, args)
 	for (let hotkey in g_autociv_hotkeys)
 		Engine.SetGlobalHotkey(hotkey, "Press", g_autociv_hotkeys[hotkey]);
 
-	// React to chat commands
+	// React to chat and messages
 	for (let level of XmppMessages.prototype.MessageTypes["chat"])
 		g_LobbyHandler.xmppMessages.registerXmppMessageHandler("chat", level, msg => botManager.react(msg))
 
