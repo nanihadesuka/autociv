@@ -40,7 +40,7 @@
 	"hotkey.autociv.session.building.place.Storehouse": "Space+S",
 	"hotkey.autociv.session.building.place.Defense_Tower": "Space+D",
 	"hotkey.autociv.session.building.place.Field": "Space+F",
-	"hotkey.autociv.session.building.place.Farmstead": "Shift+Space+F",
+	"hotkey.autociv.session.building.place.Farmstead": "Space+J",
 	"hotkey.autociv.session.building.place.Dock": "Space+G",
 	"hotkey.autociv.session.building.place.House": "Space+H",
 	"hotkey.autociv.session.building.place.Siege_Wall": "Space+E",

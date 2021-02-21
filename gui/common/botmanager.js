@@ -199,11 +199,12 @@ BotManager.prototype.setMessageInterface = function (messageInterface)
 				Engine.LobbySendMessage(text);
 		};
 
-		this.selfMessage = text => addChatMessage({
-			"type": "system",
-			"isSpecial": true,
-			"text": "/special " + text
-		});
+		this.selfMessage = text =>
+		{
+			let ftext = setStringTags(`=== ${escapeText(text)}`, { "font": "sans-bold-13" })
+			g_LobbyHandler.lobbyPage.lobbyPage.panels.chatPanel.chatMessagesPanel.
+				addText(Date.now() / 1000, ftext);
+		}
 	}
 	else if ("gamesetup" == this.messageInterface)
 	{
