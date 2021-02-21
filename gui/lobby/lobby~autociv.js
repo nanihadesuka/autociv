@@ -38,6 +38,13 @@ function autociv_InitBots()
 
 autociv_patchApplyN("init", function (target, that, args)
 {
+	// setTimeout doesn't have tick update in lobby -> make one
+	Engine.GetGUIObjectByName("middlePanel").onTick = () =>
+	{
+		g_Time = Date.now();
+		updateTimers()
+	}
+
 	autociv_InitBots();
 
 	// SEND PATCH TO PHAB

@@ -4,9 +4,14 @@ function autociv_reregister()
 
 	if (!autociv_stanza.hasValue("gamesetup"))
 		return;
+
 	const gamesetup = autociv_stanza.getValue("gamesetup");
 
-	const registered = () => g_GameList.findIndex(entry => entry.hostUsername == gamesetup.hostUsername) != -1;
+	const registered = () =>
+	{
+		g_LobbyHandler.lobbyPage.lobbyPage.panels.gameList.gameList.
+			some(entry => entry.stanza.hostUsername == gamesetup.hostUsername);
+	}
 
 	setTimeout(() =>
 	{
@@ -28,7 +33,7 @@ function autociv_reregister()
 				return;
 
 			warn("Autociv: Sending last game changes")
-			let session = autociv_stanza.getValue("session");
+			const session = autociv_stanza.getValue("session");
 			Engine.SendChangeStateGame(session.connectedPlayers, session.minPlayerData);
 
 		}, 2500)
