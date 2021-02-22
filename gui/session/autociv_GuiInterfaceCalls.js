@@ -10,9 +10,3 @@ function autociv_SetAutotrain(active, entities = g_Selection.toList())
         "entities": entities
     });
 }
-
-function autociv_SetStatusBar_showNumberOfGatherers(show)
-{
-    Engine.GuiInterfaceCall("autociv_SetStatusBar_showNumberOfGatherers", show);
-    recalculateStatusBarDisplay(show)
-}

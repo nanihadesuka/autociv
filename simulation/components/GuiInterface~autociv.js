@@ -8,18 +8,10 @@ autociv_patchApplyN(GuiInterface.prototype, "Init", function (target, that, args
         corpse: {
             "entities": new Set(),
             "max": Infinity
-        },
-        StatusBar: {
-            "showNumberOfGatherers": false,
         }
     };
     return target.apply(that, args);
 })
-
-GuiInterface.prototype.autociv_SetStatusBar_showNumberOfGatherers = function (player, show)
-{
-    this.autociv.StatusBar.showNumberOfGatherers = !!show;
-}
 
 GuiInterface.prototype.autociv_CorpseUpdate = function ()
 {
@@ -180,7 +172,6 @@ var autociv_exposedFunctions = {
     "autociv_FindEntitiesWithClasses": 1,
     "autociv_FindEntitiesWithClassesExpression": 1,
     "autociv_SetCorpsesMax": 1,
-    "autociv_SetStatusBar_showNumberOfGatherers": 1,
 };
 
 autociv_patchApplyN(GuiInterface.prototype, "ScriptCall", function (target, that, args)

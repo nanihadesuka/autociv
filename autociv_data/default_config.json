@@ -10,7 +10,6 @@
 	"autociv.session.APM.enabled": "false",
 	"autociv.session.graphics.corpses.max": 50,
 	"autociv.session.APM.chart.enabled": "false",
-	"autociv.session.StatusBar.NumberOfGatherers.show": "false",
 	"autociv.session.kill.nowarning": "false",
 	"autociv.resizebar.enabled": "true",
 	"autociv.session.chatPanel.size.change": "false",
