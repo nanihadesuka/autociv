@@ -3,9 +3,11 @@ Hi if you are reading this :)
 
 
 Alpha 24 pending:
+- Global
+    - Chat mute doesn't work for now
 - Lobby
     - Chat filter
--Session
+- Session
     - APM
     - Minimap flare
     - Number of gatherers (removed for good)
