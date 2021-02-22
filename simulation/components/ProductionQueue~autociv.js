@@ -18,7 +18,8 @@ autociv_patchApplyN(ProductionQueue.prototype, "SpawnUnits", function (target, t
 
 autociv_patchApplyN(ProductionQueue.prototype, "OnDestroy", function (target, that, args)
 {
-	autociv_ProductionQueue_autotrain.delete(that.entity)
+	const cmpGUIInterface = Engine.QueryInterface(SYSTEM_ENTITY, IID_GuiInterface);
+	cmpGUIInterface.autociv.ProductionQueue_autotrain.delete(that.entity)
 	return target.apply(that, args);
 })
 
