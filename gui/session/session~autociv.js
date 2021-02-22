@@ -109,6 +109,5 @@ autociv_patchApplyN("init", function (target, that, args)
 	autociv_SetCorpsesMax(Engine.ConfigDB_GetValue("user", "autociv.session.graphics.corpses.max"));
 	autociv_SetStatusBar_showNumberOfGatherers(Engine.ConfigDB_GetValue("user", "autociv.session.StatusBar.NumberOfGatherers.show") == "true");
 	autociv_SetChatTextFromConfig();
-	autociv_patchMinimapFlare();
 	return result;
 })

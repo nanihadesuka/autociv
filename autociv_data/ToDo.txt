@@ -1,2 +1,10 @@
 Hi if you are reading this :)
 1) FPS view mode
+
+
+Alpha 24 pending:
+- Lobby
+    - Chat filter
+-Session
+    - APM
+    - Minimap flare
