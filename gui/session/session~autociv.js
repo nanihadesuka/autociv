@@ -94,8 +94,6 @@ function autociv_getMapSizeInTiles()
 
 autociv_patchApplyN("onTick", function (target, that, args)
 {
-	autociv_APM.onTick();
-
 	return target.apply(that, args);
 })
 
@@ -107,7 +105,6 @@ autociv_patchApplyN("init", function (target, that, args)
 	autociv_bugFix_openChat();
 	autociv_bugFix_entity_unkown_reason();
 	autociv_addVersionLabel();
-	autociv_APM.init();
 	autociv_saveStanzaSession();
 	autociv_SetCorpsesMax(Engine.ConfigDB_GetValue("user", "autociv.session.graphics.corpses.max"));
 	autociv_SetStatusBar_showNumberOfGatherers(Engine.ConfigDB_GetValue("user", "autociv.session.StatusBar.NumberOfGatherers.show") == "true");

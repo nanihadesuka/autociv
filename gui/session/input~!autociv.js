@@ -177,7 +177,6 @@ var g_autociv_hotkeysPrefixes = {
 autociv_patchApplyN("handleInputBeforeGui", function (target, that, args)
 {
 	let [ev] = args;
-	autociv_APM.add(ev);
 	if ("hotkey" in ev && ev.type == "hotkeydown")
 	{
 		// Hotkey with normal behaviour

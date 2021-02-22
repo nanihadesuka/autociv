@@ -1,3 +1,4 @@
+// TODO: Make it work with a24
 // "actions" per minute counter, time in microseconds
 var autociv_APM = {
     "total": { "start": Engine.GetMicroseconds() / 1000000, "count": 0 },
