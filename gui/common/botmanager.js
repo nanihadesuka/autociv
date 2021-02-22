@@ -201,7 +201,7 @@ BotManager.prototype.setMessageInterface = function (messageInterface)
 
 		this.selfMessage = text =>
 		{
-			let ftext = setStringTags(`== ${escapeText(text)}`, { "font": "sans-bold-13" });
+			let ftext = setStringTags(`== ${text}`, { "font": "sans-bold-13" });
 			g_LobbyHandler.lobbyPage.lobbyPage.panels.chatPanel.chatMessagesPanel.
 				addText(Date.now() / 1000, this.formatSelfMessage(ftext));
 		}
@@ -226,18 +226,23 @@ BotManager.prototype.setMessageInterface = function (messageInterface)
 		this.sendMessage = text =>
 		{
 			if (Engine.HasNetClient())
-				Engine.SendNetworkChat(text);
+			{
+				for (let line of text.split("\n"))
+					Engine.SendNetworkChat(line);
+			}
 			else
 				// Only used for offline games.
-				addChatMessage({
+				g_Chat.ChatMessageHandler.handleMessage({
 					"type": "message",
 					"guid": "local",
 					"text": text
 				});
 		};
 
-		this.selfMessage = text => addChatMessage({
-			"type": "system",
+		g_Chat.ChatMessageHandler.registerMessageFormat("autociv_self", new ChatMessageFormatAutocivSelf())
+
+		this.selfMessage = text => g_Chat.ChatMessageHandler.handleMessage({
+			"type": "autociv_self",
 			"text": text
 		});
 	}
