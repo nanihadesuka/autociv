@@ -8,7 +8,8 @@ autociv_patchApplyN(GuiInterface.prototype, "Init", function (target, that, args
         corpse: {
             "entities": new Set(),
             "max": Infinity
-        }
+        },
+        ProductionQueue_autotrain: new Set()
     };
     return target.apply(that, args);
 })
@@ -62,7 +63,10 @@ GuiInterface.prototype.autociv_SetAutotrain = function (player, data)
     {
         let cmpProductionQueue = Engine.QueryInterface(ent, IID_ProductionQueue);
         if (cmpProductionQueue)
-            cmpProductionQueue.autociv_SetAutotrain(data.active);
+        {
+            if (data.active) this.autociv.ProductionQueue_autotrain.add(ent)
+            else this.autociv.ProductionQueue_autotrain.delete(ent)
+        }
     }
 };
 
