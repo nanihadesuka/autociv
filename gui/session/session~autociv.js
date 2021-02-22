@@ -16,7 +16,7 @@ function autociv_addVersionLabel()
 		return;
 	let mod = ([name, version]) => /^AutoCiv.*/i.test(name);
 	let modInfo = Engine.GetEngineInfo().mods.find(mod);
-	let version = modInfo && modInfo[1] && modInfo[1].split(".").slice(1).join(".") || "";
+	let version = modInfo && modInfo[1] && modInfo[1] || "";
 	label.caption = `${label.caption} [color="255 255 255 127"]${version}[/color]`;
 }
 
@@ -27,15 +27,6 @@ function autociv_patchSession()
 		let [msg] = args;
 		return botManager.react(msg) || target.apply(that, args);
 	})
-
-	if (g_autociv_is24)
-		return;
-
-	autociv_patchApplyN("sendLobbyPlayerlistUpdate", function (target, that, args)
-	{
-		autociv_saveStanzaSession();
-		return target.apply(that, args);
-	})
 }
 
 function autociv_SetChatTextFromConfig()
@@ -44,7 +35,7 @@ function autociv_SetChatTextFromConfig()
 		Engine.GetGUIObjectByName("chatPanel").size = Engine.ConfigDB_GetValue("user", "autociv.session.chatPanel.size");
 
 	if (Engine.ConfigDB_GetValue("user", "autociv.session.chatText.font.change") == "true")
-		Engine.GetGUIObjectByName("chatText").font = Engine.ConfigDB_GetValue("user", "autociv.session.chatText.font");
+		Engine.GetGUIObjectByName("chatLines").font = Engine.ConfigDB_GetValue("user", "autociv.session.chatText.font");
 }
 
 
@@ -92,20 +83,12 @@ function autociv_getMapSizeInTiles()
 	return g_GameAttributes.settings.Size * 4;
 }
 
-autociv_patchApplyN("onTick", function (target, that, args)
-{
-	return target.apply(that, args);
-})
-
 autociv_patchApplyN("init", function (target, that, args)
 {
 	let result = target.apply(that, args);
 	autociv_initBots();
 	autociv_patchSession();
-	autociv_bugFix_openChat();
-	autociv_bugFix_entity_unkown_reason();
 	autociv_addVersionLabel();
-	autociv_saveStanzaSession();
 	autociv_SetCorpsesMax(Engine.ConfigDB_GetValue("user", "autociv.session.graphics.corpses.max"));
 	autociv_SetChatTextFromConfig();
 	return result;
