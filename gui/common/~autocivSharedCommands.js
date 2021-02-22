@@ -167,10 +167,18 @@ autociv_InitSharedCommands.pipe = {
 	},
 	"gamesetup": key =>
 	{
-		g_NetworkCommands["/" + key] = g_autociv_SharedCommands[key].handler;
+		g_NetworkCommands["/" + key] = text =>
+		{
+			g_autociv_SharedCommands[key].handler(text)
+			return true
+		}
 	},
 	"ingame": key =>
 	{
-		g_NetworkCommands["/" + key] = g_autociv_SharedCommands[key].handler;
+		g_NetworkCommands["/" + key] = text =>
+		{
+			g_autociv_SharedCommands[key].handler(text)
+			return true
+		}
 	}
 }

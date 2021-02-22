@@ -15,10 +15,6 @@ var g_autociv_hotkeys = {
 function handleInputBeforeGui(ev)
 {
 	resizeBarManager.onEvent(ev);
-
-	if ("hotkey" in ev && ev.hotkey in g_autociv_hotkeys && ev.type == "hotkeydown")
-		return !!g_autociv_hotkeys[ev.hotkey](ev);
-
 	return false;
 }
 
@@ -33,95 +29,28 @@ function autociv_InitBots()
 	autociv_InitSharedCommands()
 }
 
-function autociv_patchModFilter()
-{
-	autociv_patchApplyN("addChatMessage", function (target, that, args)
-	{
-		let [msg] = args;
-		return botManager.react(msg) || target.apply(that, args);
-	})
-
-	if (!global["getFilteredMods"])
-		global["getFilteredMods"] = function () { return Engine.GetEngineInfo().mods };
-
-	// FGod sendRegisterGameStanzaImmediate dependency
-	autociv_patchApplyN("getFilteredMods", function (target, that, args)
-	{
-		let mod = ([name, version]) => !/^FGod.*/i.test(name);
-		return target.apply(that, args).filter(mod);
-	});
-
-	autociv_patchApplyN("getFilteredMods", function (target, that, args)
-	{
-		let mod = ([name, version]) => !/^AutoCiv.*/i.test(name);
-		return target.apply(that, args).filter(mod);
-	});
-
-	sendRegisterGameStanzaImmediate = function ()
-	{
-		if (!g_IsController || !Engine.HasXmppClient())
-			return;
-
-		if (g_GameStanzaTimer !== undefined)
-		{
-			clearTimeout(g_GameStanzaTimer);
-			g_GameStanzaTimer = undefined;
-		}
-
-		let clients = formatClientsForStanza();
-		let stanza = {
-			"name": g_ServerName,
-			"port": g_ServerPort,
-			"hostUsername": Engine.LobbyGetNick(),
-			"mapName": g_GameAttributes.map,
-			"niceMapName": getMapDisplayName(g_GameAttributes.map),
-			"mapSize": g_GameAttributes.mapType == "random" ? g_GameAttributes.settings.Size : "Default",
-			"mapType": g_GameAttributes.mapType,
-			"victoryConditions": g_GameAttributes.settings.VictoryConditions.join(","),
-			"nbp": clients.connectedPlayers,
-			"maxnbp": g_GameAttributes.settings.PlayerData.length,
-			"players": clients.list,
-			"stunIP": g_StunEndpoint ? g_StunEndpoint.ip : "",
-			"stunPort": g_StunEndpoint ? g_StunEndpoint.port : "",
-			"mods": JSON.stringify(getFilteredMods()) // <----- THIS CHANGES
-		};
-
-		// Only send the stanza if the relevant settings actually changed
-		if (g_LastGameStanza && Object.keys(stanza).every(prop => g_LastGameStanza[prop] == stanza[prop]))
-			return;
-
-		g_LastGameStanza = stanza;
-		Engine.SendRegisterGame(stanza);
-	};
-
-	autociv_patchApplyN("savePersistMatchSettings", function (target, that, args)
-	{
-		let result = target.apply(that, args);
-		if (g_IsController && g_LastGameStanza != undefined)
-			g_autociv_stanza.setValue("gamesetup", g_LastGameStanza);
-		return result;
-	})
-
-	autociv_patchApplyN("initGUIObjects", function (target, that, args)
-	{
-		let result = target.apply(that, args);
-		if (g_IsController && g_LastGameStanza != undefined)
-			g_autociv_stanza.setValue("gamesetup", g_LastGameStanza);
-		return result;
-	})
-}
-
 autociv_patchApplyN("init", function (target, that, args)
 {
-	autociv_InitBots();
-	target.apply(that, args);
-	autociv_patchModFilter();
+	Engine.GetGUIObjectByName("chatText").buffer_zone = 2.01
+	Engine.GetGUIObjectByName("chatText").size = Object.assign(Engine.GetGUIObjectByName("chatText").size, {
+		left: 4, top: 4, bottom: -32
+	})
+
 	g_autociv_stanza.removeAllValues();
-	g_autociv_stanza.setValue("gamesetup", g_LastGameStanza);
+	autociv_InitBots();
+
+	target.apply(that, args);
+
+	// React to hotkeys
+	for (let hotkey in g_autociv_hotkeys)
+		Engine.SetGlobalHotkey(hotkey, "Press", g_autociv_hotkeys[hotkey]);
+
+	// React to chat and messages
+	for (let type of NetMessages.prototype.MessageTypes)
+		g_SetupWindow.controls.netMessages.registerNetMessageHandler(type, msg => botManager.react(msg))
+
 	g_autociv_countdown.init();
 
-	// FGod command not working
-	delete g_NetworkCommands['/showip'];
-	// Fix hack for hack fix
-	updateSettingsPanelPosition(-1);
+	Engine.GetGUIObjectByName("chatInput").blur();
+	Engine.GetGUIObjectByName("chatInput").focus();
 })

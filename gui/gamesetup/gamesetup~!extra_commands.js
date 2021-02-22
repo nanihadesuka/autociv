@@ -1,4 +1,7 @@
 var game = {
+	get 'controls'() { return g_SetupWindow.pages.GameSetupPage.gameSettingControlManager.gameSettingControls },
+	get 'panels'() { return g_SetupWindow.pages.GameSetupPage.panels },
+	get 'panelsButtons'() { return g_SetupWindow.pages.GameSetupPage.panelButtons },
 	'set':
 	{
 		'resources': (quantity) =>
@@ -8,17 +11,22 @@ var game = {
 			let val = +quantity;
 			if (quantity === "" || val === NaN)
 				return selfMessage('Invalid starting resources value (must be a number).');
+
 			g_GameAttributes.settings.StartingResources = val;
+			const startingResoruces = game.controls.StartingResources
+			startingResoruces.gameSettingsControl.updateGameAttributes();
+			startingResoruces.gameSettingsControl.setNetworkGameAttributes();
 			sendMessage(`Starting resources set to: ${val}`);
-			updateGameAttributes();
 		},
 		'mapcircular': (circular = true) =>
 		{
 			if (!g_IsController)
 				return;
+
 			g_GameAttributes.settings.CircularMap = !!circular;
+			const startingResoruces = game.controls.StartingResources
+			startingResoruces.gameSettingsControl.setNetworkGameAttributes();
 			sendMessage(`Map shape set to: ${!!circular ? "circular" : "squared"}`);
-			updateGameAttributes();
 		},
 		'population': (quantity) =>
 		{
@@ -27,30 +35,34 @@ var game = {
 			let val = parseInt(quantity);
 			if (!Number.isInteger(val) || val < 0)
 				return selfMessage('Invalid population cap value (must be a number >= 0).');
+
 			g_GameAttributes.settings.PopulationCap = val;
+			const populationCap = game.controls.PopulationCap
+			populationCap.gameSettingsControl.updateGameAttributes();
+			populationCap.gameSettingsControl.setNetworkGameAttributes();
 			sendMessage(`Population cap set to: ${val}`);
-			updateGameAttributes();
+
 		},
 		'mapsize': (mapsize) =>
 		{
 			if (!g_IsController)
 				return;
+			if (g_GameAttributes.mapType != "random")
+				return selfMessage('Size can only be set for random maps');
 			let val = parseInt(mapsize);
 			if (!Number.isInteger(val) || val < 1)
 				return selfMessage('Invalid map size value (must be a number >= 1).');
+
 			g_GameAttributes.settings.Size = val;
+			const mapSize = game.controls.MapSize
+			mapSize.gameSettingsControl.updateGameAttributes();
 			sendMessage(`Map size set to: ${val}`);
-			updateGameAttributes();
 		},
 		"numberOfSlots": (num) =>
 		{
-			let d = g_GameAttributes.settings.PlayerData;
-			g_GameAttributes.settings.PlayerData =
-				num > d.length ?
-					d.concat(clone(g_DefaultPlayerData.slice(d.length, num))) :
-					d.slice(0, num);
-			unassignInvalidPlayers(num);
-			sanitizePlayerData(g_GameAttributes.settings.PlayerData);
+			const playerCount = game.controls.PlayerCount
+			let itemIdx = playerCount.values.indexOf(num)
+			playerCount.onSelectionChange(itemIdx)
 		},
 		'player':
 		{
@@ -60,12 +72,18 @@ var game = {
 				if (playerPos === undefined || playerPos == -1)
 					return;
 
-				let civCodeIndex = g_PlayerCivList.code.indexOf(playerCivCode);
+				let civCodeIndex = Object.keys(g_CivData).indexOf(playerCivCode);
 				if (civCodeIndex == -1)
 					return;
 
-				g_PlayerDropdowns.playerCiv.select(civCodeIndex, playerPos - 1);
-				updateGameAttributes();
+				g_SetupWindow.
+					pages.
+					GameSetupPage.
+					gameSettingControlManager.
+					playerSettingControlManagers[playerPos - 1].
+					playerSettingControls.
+					PlayerCiv.
+					onSelectionChange(civCodeIndex + 1)
 			},
 			'observer': (playerName) =>
 			{
@@ -115,13 +133,13 @@ var game = {
 			for (let team = 0, slot = 0; team < teams.length; ++team)
 				for (let i = 0; i < teams[team]; ++i)
 					g_GameAttributes.settings.PlayerData[slot++].Team = team;
-
-			updateGameAttributes();
 		},
 		"slotName": (slotNumber, name) =>
 		{
 			g_GameAttributes.settings.PlayerData[slotNumber - 1].Name = name;
-			updateGameAttributes();
+			const startingResoruces = game.controls.StartingResources
+			startingResoruces.gameSettingsControl.updateGameAttributes();
+			startingResoruces.gameSettingsControl.setNetworkGameAttributes();
 		}
 	},
 	'get':
@@ -142,10 +160,7 @@ var game = {
 			'pos': playerName =>
 			{
 				let playerId = game.get.player.id(playerName);
-				if (playerId === undefined)
-					return undefined;
-
-				return g_PlayerAssignments[playerId].player
+				return g_PlayerAssignments[playerId]?.player
 			},
 			'selfName': () => splitRatingFromNick(g_PlayerAssignments[Engine.GetPlayerGUID()].name).nick,
 			"status": function (playerName)
@@ -192,23 +207,20 @@ var game = {
 	"reset": {
 		"civilizations": () =>
 		{
-			for (let i in g_GameAttributes.settings.PlayerData)
-				g_GameAttributes.settings.PlayerData[i].Civ = "random";
-
-			updateGameAttributes();
+			game.panels.resetCivsButton.onPress()
 		},
 		"teams": () =>
 		{
-			for (let i in g_GameAttributes.settings.PlayerData)
-				g_GameAttributes.settings.PlayerData[i].Team = -1;
-
-			updateGameAttributes();
+			game.panels.resetTeamsButton.onPress()
 		},
 		"slotNames": () =>
 		{
 			for (let i = 0; i < 8; ++i)
-				g_GameAttributes.settings.PlayerData[i].Name = `Player ${i + 1}`;
-			updateGameAttributes();
+				g_GameAttributes.settings.PlayerData[i].Name = translate(`Player ${i + 1}`);
+
+			const startingResoruces = game.controls.StartingResources
+			startingResoruces.gameSettingsControl.updateGameAttributes();
+			startingResoruces.gameSettingsControl.setNetworkGameAttributes();
 		}
 	}
 };
@@ -230,10 +242,10 @@ g_NetworkCommands['/help'] = () =>
 	}
 	selfMessage(text);
 }
-g_NetworkCommands['/resources'] = value => game.set.resources(value);
-g_NetworkCommands['/resourcesUnlimited'] = value => game.set.resources(Infinity);
-g_NetworkCommands['/population'] = value => game.set.population(value);
-g_NetworkCommands['/mapsize'] = value => game.set.mapsize(value);
+g_NetworkCommands['/resources'] = quantity => game.set.resources(quantity);
+g_NetworkCommands['/resourcesUnlimited'] = () => game.set.resources(Infinity);
+g_NetworkCommands['/population'] = population => game.set.population(population);
+g_NetworkCommands['/mapsize'] = size => game.set.mapsize(size);
 g_NetworkCommands['/mapcircular'] = () => game.set.mapcircular(true);
 g_NetworkCommands['/mapsquare'] = () => game.set.mapcircular(false);
 g_NetworkCommands['/resetcivs'] = () => game.reset.civilizations();
@@ -249,21 +261,7 @@ g_NetworkCommands['/ready'] = () =>
 {
 	if (g_IsController)
 		return;
-
-	toggleReady();
-	toggleReady();
-};
-g_NetworkCommands['/start'] = () =>
-{
-	if (!g_IsController)
-		return;
-
-	for (let playerName of game.get.players.name())
-		if (game.is.player.assigned(playerName) &&
-			game.get.player.status(playerName) == "blank")
-			return selfMessage("Can't start game. Some players not ready.")
-
-	launchGame();
+	game.panelsButtons.readyButton.onPress()
 };
 
 g_NetworkCommands['/start'] = () =>
@@ -274,7 +272,7 @@ g_NetworkCommands['/start'] = () =>
 	if (!game.is.allReady())
 		return selfMessage("Can't start game. Some players not ready.")
 
-	launchGame();
+	game.panelsButtons.startGameButton.onPress()
 };
 
 g_NetworkCommands['/countdown'] = input =>
@@ -293,18 +291,17 @@ g_NetworkCommands['/countdown'] = input =>
 	g_autociv_countdown.toggle(true, value)
 };
 
-g_NetworkCommands['/mapdescription'] = () => sendMessage(g_GameAttributes.settings.Description);
-
 g_NetworkCommands['/gameName'] = text =>
 {
 	if (!g_IsController || !Engine.HasNetServer())
 		return;
-
-	g_ServerName = `${text}`;
+	if (!g_SetupWindow.gameRegisterStanza)
+		return
+	text = `${text}`
+	g_SetupWindow.gameRegisterStanza.serverName = text
 	selfMessage(`Game name changed to: ${g_ServerName}`)
-	sendRegisterGameStanzaImmediate();
+	g_SetupWindow.gameRegisterStanza.sendDelayed()
 }
-
 
 g_NetworkCommands['/team'] = text => game.set.teams(text);
 
@@ -313,11 +310,9 @@ g_NetworkCommands['/randomCivs'] = function (excludedCivs)
 	if (!g_IsController)
 		return;
 
-
-	let excludeCivList = excludedCivs.trim().toLowerCase().split(/\s+/)
-
-	let civList = new Map(g_PlayerCivList.code
-		.map((code, i) => [g_PlayerCivList.name[i].toLowerCase(), code])
+	const excludeCivList = excludedCivs.trim().toLowerCase().split(/\s+/)
+	let civList = new Map(Object.values(g_CivData).
+		map(data => [data.Name.toLowerCase(), data.Code])
 		.filter(e => e[1] != "random"))
 
 	excludeCivList.forEach(civ => civList.delete(civ))
@@ -328,11 +323,18 @@ g_NetworkCommands['/randomCivs'] = function (excludedCivs)
 
 	for (let slot = 1; slot <= game.get.numberOfSlots(); ++slot)
 	{
-		let civCode = civList[getRandIndex()][1]
-		let civCodeIndex = g_PlayerCivList.code.indexOf(civCode);
+		const playerCivCode = civList[getRandIndex()][1]
+		let civCodeIndex = Object.keys(g_CivData).indexOf(playerCivCode);
 		if (civCodeIndex == -1)
 			return;
-		g_PlayerDropdowns.playerCiv.select(civCodeIndex, slot - 1);
+
+		g_SetupWindow.
+			pages.
+			GameSetupPage.
+			gameSettingControlManager.
+			playerSettingControlManagers[slot - 1].
+			playerSettingControls.
+			PlayerCiv.
+			onSelectionChange(civCodeIndex + 1)
 	}
-	updateGameAttributes();
 }

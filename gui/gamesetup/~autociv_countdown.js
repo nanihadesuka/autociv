@@ -9,7 +9,7 @@ var g_autociv_countdown = {
 		if (this.time < 0)
 		{
 			this.stopCountdown()
-			launchGame()
+			game.panelsButtons.startGameButton.onPress()
 			return
 		}
 
@@ -68,29 +68,14 @@ var g_autociv_countdown = {
 	{
 		if (g_IsController && Engine.ConfigDB_GetValue("user", "autociv.gamesetup.countdown.enabled") == "true")
 			g_autociv_countdown.toggle(true)
-	}
+	},
+	"hookUpdate": () => { if (g_IsController) g_autociv_countdown.gameUpdate() }
 }
 
-autociv_patchApplyN("handlePlayerAssignmentMessage", function (target, that, args)
+autociv_patchApplyN("init", function (target, that, args)
 {
-	let result = target.apply(that, args)
-	if (g_IsController)
-		g_autociv_countdown.gameUpdate()
-	return result
-})
-
-autociv_patchApplyN("handleGamesetupMessage", function (target, that, args)
-{
-	let result = target.apply(that, args)
-	if (g_IsController)
-		g_autociv_countdown.gameUpdate()
-	return result
-})
-
-autociv_patchApplyN("handleReadyMessage", function (target, that, args)
-{
-	let result = target.apply(that, args)
-	if (g_IsController)
-		g_autociv_countdown.gameUpdate()
-	return result
+	target.apply(that, args);
+	g_SetupWindow.controls.gameSettingsControl.registerAssignPlayerHandler(g_autociv_countdown.hookUpdate)
+	g_SetupWindow.controls.gameSettingsControl.registerGameAttributesBatchChangeHandler(g_autociv_countdown.hookUpdate)
+	g_SetupWindow.controls.readyControl.registerResetReadyHandler(g_autociv_countdown.hookUpdate)
 })

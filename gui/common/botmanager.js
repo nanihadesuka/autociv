@@ -201,9 +201,9 @@ BotManager.prototype.setMessageInterface = function (messageInterface)
 
 		this.selfMessage = text =>
 		{
-			let ftext = setStringTags(`=== ${escapeText(text)}`, { "font": "sans-bold-13" })
+			let ftext = setStringTags(`== ${escapeText(text)}`, { "font": "sans-bold-13" });
 			g_LobbyHandler.lobbyPage.lobbyPage.panels.chatPanel.chatMessagesPanel.
-				addText(Date.now() / 1000, ftext);
+				addText(Date.now() / 1000, this.formatSelfMessage(ftext));
 		}
 	}
 	else if ("gamesetup" == this.messageInterface)
@@ -214,10 +214,12 @@ BotManager.prototype.setMessageInterface = function (messageInterface)
 				Engine.SendNetworkChat(text);
 		};
 
-		this.selfMessage = text => addChatMessage({
-			"type": "system",
-			"text": text
-		});
+		this.selfMessage = text =>
+		{
+			let ftext = setStringTags(`== ${text}`, { "font": "sans-bold-13" });
+			g_SetupWindow.pages.GameSetupPage.panels.chatPanel.chatMessagesPanel.
+				addText(ftext);
+		}
 	}
 	else if ("ingame" == this.messageInterface)
 	{
@@ -418,16 +420,15 @@ botManager.addBot("autociv", {
 		this.generateFuzzySearcher.loaded = true;
 		this.fuzzySearch = {}
 
-		for (let i = 0; i < g_PlayerCivList.code.length; ++i)
+		for (let civ of Object.values(g_CivData))
 		{
-			let code = g_PlayerCivList.code[i];
 			// Oficial full name (translated).
-			let civNameVariations = [g_PlayerCivList.name[i]];
+			const civNameVariations = [civ.Name];
 			// Custom names if any.
-			if (code in customNamesCivs)
-				civNameVariations.push(...customNamesCivs[code]);
+			if (civ.Code in customNamesCivs)
+				civNameVariations.push(...customNamesCivs[civ.Code]);
 
-			this.fuzzySearch[code] = FuzzySet(civNameVariations, true, 3, 3)
+			this.fuzzySearch[civ.Code] = FuzzySet(civNameVariations, true, 3, 3)
 		}
 	}
 });
