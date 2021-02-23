@@ -4,8 +4,8 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 ## Feature list
 - General
 	- Readme: press Shift + F4 to open
-	- Player mute
-	- Player reminder (show a written note when a certain player joins)
+	- Player mute ***
+	- Player reminder (show a written note when a certain player joins) ***
 	- Link opener (opens URL links from the chat)
 	- Lobby resize bars
 	- Help command: type /help to see all available commands
@@ -29,11 +29,12 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 			- health
 			- rank
 			- class
-	- APM (actions per minute) with chart (disabled by default, change in user.cfg)
-	- Minimap flare (only visible to people using the mod) [ Alt + Mouse right click  in minimap]
+	- APM (actions per minute) with chart (disabled by default, change in user.cfg) ***
+	- Minimap flare (only visible to people using the mod) [ Alt + Mouse right click  in minimap] ***
 - Settings
 	- Max corpses visible
 
+Features with *** at the end means that exist (pre alpha 24) but not still comapible with alpha 24
 
 ## Download
 There are two ways:
@@ -58,13 +59,7 @@ There are two ways:
 
 ## Mod compatibility(s)
 The mod is compatible with:
-- 0 A.D 0.0.23b
-- 0 A.D 24 svn (work in progress)
-- FGod (version 1.6.22 & 1.6.23)
-- ffm_visibility mod
-- balanced_maps mod
-- spec_mod mod
-- custom_rating mod
+- 0 A.D 0.0.24
 - Should work with all mods that don't have heavy code changes.
 
 
