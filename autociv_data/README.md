@@ -29,12 +29,13 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 			- health
 			- rank
 			- class
+			- group
 	- APM (actions per minute) with chart (disabled by default, change in user.cfg) ***
 	- Minimap flare (only visible to people using the mod) [ Alt + Mouse right click  in minimap] ***
 - Settings
 	- Max corpses visible
 
-Features with *** at the end means that exist (pre alpha 24) but not still comapible with alpha 24
+Features with *** at the end means that exist (pre alpha 24) but not still compatible  with alpha 24
 
 ## Download
 There are two ways:
@@ -60,6 +61,12 @@ There are two ways:
 ## Mod compatibility(s)
 The mod is compatible with:
 - 0 A.D 0.0.24
+- Probable they will work in the future for 0 A.D 0.0.24​​​​​​​
+	- FGod (version 1.6.22 & 1.6.23)
+	- ffm_visibility mod
+	- balanced maps mod
+	- spec mod (monitor) mod
+	- custom_rating mod
 - Should work with all mods that don't have heavy code changes.
 
 
