@@ -8,12 +8,7 @@ var autociv_formation = {
         if (!canMoveSelectionIntoFormation(formationTemplate))
             return;
 
-        Engine.PostNetworkCommand({
-            "type": "formation",
-            "entities": entities,
-            "name": formationTemplate
-        });
-
+        performFormation(entities, formationTemplate)
         return true;
     },
     get formationsList()
