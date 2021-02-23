@@ -78,4 +78,12 @@ autociv_patchApplyN("init", function (target, that, args)
 	g_SetupWindow.controls.gameSettingsControl.registerAssignPlayerHandler(g_autociv_countdown.hookUpdate)
 	g_SetupWindow.controls.gameSettingsControl.registerGameAttributesBatchChangeHandler(g_autociv_countdown.hookUpdate)
 	g_SetupWindow.controls.readyControl.registerResetReadyHandler(g_autociv_countdown.hookUpdate)
+	g_SetupWindow.controls.playerAssignmentsControl.registerClientLeaveHandler(() =>
+	{
+		if (!game.is.allReady()) g_autociv_countdown.hookUpdate()
+	})
+	g_SetupWindow.controls.netMessages.registerNetMessageHandler("ready", () =>
+	{
+		if (!game.is.allReady()) g_autociv_countdown.hookUpdate()
+	})
 })
