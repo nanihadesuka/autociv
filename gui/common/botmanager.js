@@ -203,7 +203,7 @@ BotManager.prototype.setMessageInterface = function (messageInterface)
 		{
 			let ftext = setStringTags(`== ${text}`, { "font": "sans-bold-13" });
 			g_LobbyHandler.lobbyPage.lobbyPage.panels.chatPanel.chatMessagesPanel.
-				addText(Date.now() / 1000, this.formatSelfMessage(ftext));
+				addText(Date.now() / 1000, ftext);
 		}
 	}
 	else if ("gamesetup" == this.messageInterface)

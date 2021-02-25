@@ -7,9 +7,9 @@ ChatCommandHandler.prototype.ChatCommands["pingall"] = {
         const candidatesToAnnoy = new Set();
 
         const gameList = g_LobbyHandler.lobbyPage.lobbyPage.panels.gameList.gameList;
-        for (let host of gameList)
+        for (let game of gameList)
         {
-            const players = stringifiedTeamListToPlayerData(host.players);
+            const players = game.players;
             const selfInHost = players.some(player => splitRatingFromNick(player.Name).nick == selfNick);
             for (let player of players)
                 if (selfInHost)
