@@ -70,6 +70,24 @@ GuiInterface.prototype.autociv_SetAutotrain = function (player, data)
     }
 };
 
+GuiInterface.prototype.autociv_FindEntitiesWithTemplateName = function (player, templateName)
+{
+    const rangeMan = Engine.QueryInterface(SYSTEM_ENTITY, IID_RangeManager);
+    const cmpTemplateManager = Engine.QueryInterface(SYSTEM_ENTITY, IID_TemplateManager);
+    return rangeMan.GetEntitiesByPlayer(player).filter(function (e)
+    {
+        let cmpIdentity = Engine.QueryInterface(e, IID_Identity);
+        let cmpUnitAI = Engine.QueryInterface(e, IID_UnitAI);
+        let cmpFoundation = Engine.QueryInterface(e, IID_Foundation);
+        let cmpMirage = Engine.QueryInterface(e, IID_Mirage);
+        return cmpIdentity &&
+            !cmpFoundation &&
+            !cmpMirage &&
+            (cmpUnitAI ? !cmpUnitAI.IsGarrisoned() : true) &&
+            cmpTemplateManager.GetCurrentTemplateName(e).endsWith(templateName);
+    });
+};
+
 GuiInterface.prototype.autociv_FindEntitiesWithGenericName = function (player, genericName)
 {
     let rangeMan = Engine.QueryInterface(SYSTEM_ENTITY, IID_RangeManager);
@@ -172,6 +190,7 @@ GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (pla
 // just add new entries directly (global let declaration rules)
 var autociv_exposedFunctions = {
     "autociv_SetAutotrain": 1,
+    "autociv_FindEntitiesWithTemplateName": 1,
     "autociv_FindEntitiesWithGenericName": 1,
     "autociv_FindEntitiesWithClasses": 1,
     "autociv_FindEntitiesWithClassesExpression": 1,

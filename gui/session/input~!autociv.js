@@ -39,19 +39,19 @@ function autociv_showBuildingPlacementTerrainSnap(mousePosX, mousePosY)
 	return;
 }
 
+
 /**
  * Select a building from the construction panel given the current unit(s) selected.
  * @param return - true if buildings exist and is selected to place.
  */
-function autociv_placeBuildingByGenericName(genericName)
+function autociv_placeBuildingByTemplateName(templateName)
 {
 	// Hack: fast check
 	if (Engine.GetGUIObjectByName("unitConstructionPanel").hidden)
 		return;
 
-	let translatedGenericName = translate(genericName);
-	let index = g_SelectionPanels.Construction.getItems().findIndex(item =>
-		GetTemplateData(item).name.generic == translatedGenericName);
+	let index = g_SelectionPanels.Construction.getItems().
+		findIndex(templatePath => templatePath.endsWith(templateName));
 
 	if (index == -1)
 		return;
@@ -144,8 +144,8 @@ var g_autociv_hotkeys = {
 var g_autociv_hotkeysPrefixes = {
 	"autociv.session.building.place.": function (ev, hotkeyPrefix)
 	{
-		let buildingGenericName = ev.hotkey.split(hotkeyPrefix)[1].replace(/_/g, " ");
-		autociv_placeBuildingByGenericName(buildingGenericName);
+		const buildingTemplateName = ev.hotkey.split(hotkeyPrefix)[1]
+		autociv_placeBuildingByTemplateName(buildingTemplateName);
 		return true;
 	},
 	"autociv.session.formation.set.": function (ev, hotkeyPrefix)

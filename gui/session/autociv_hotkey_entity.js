@@ -21,10 +21,9 @@ var g_autociv_hotkey_entity = {
         g_Selection.addList(list);
         return true;
     },
-    "select": function (ev, expression)
+    "select": function (ev, templateName)
     {
-        let entityGenericName = expression.replace(/_/g, " ");
-        autociv_select.entityWithGenericName(entityGenericName);
+        autociv_select.entityWithTemplateName(templateName);
         return true;
     }
 };

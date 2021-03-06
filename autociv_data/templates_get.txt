@@ -1,0 +1,2 @@
+find ./*/*.xml | sed s/"^.*\/"/""/ | sed s/".xml$"/""/ | sort | uniq > ~/Desktop/templates_civs.txt
+find ./*.xml | sed s/"^.*\/"/""/ | sed s/".xml$"/""/ | sort | uniq > ~/Desktop/templates_general.txt

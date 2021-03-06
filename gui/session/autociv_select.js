@@ -4,6 +4,11 @@ var autociv_select = {
         let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithGenericName", genericName);
         return this.fromList(entities, selectAll, accumulateSelection);
     },
+    "entityWithTemplateName": function (templateName, selectAll, accumulateSelection)
+    {
+        let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithTemplateName", templateName);
+        return this.fromList(entities, selectAll, accumulateSelection);
+    },
     "entityWithClassesExpression": function (classesExpression, selectAll, accumulateSelection)
     {
         // Time rate it, given is an expensive call
@@ -14,7 +19,7 @@ var autociv_select = {
         this.rate.last.time = Engine.GetMicroseconds();
         this.rate.last.args = args;
 
-        let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithClassesExpression", { "classesExpression": classesExpression } );
+        let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithClassesExpression", { "classesExpression": classesExpression });
         return this.fromList(entities, selectAll, accumulateSelection);
     },
     "rate": {
