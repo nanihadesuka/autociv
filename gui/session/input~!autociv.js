@@ -50,25 +50,62 @@ function autociv_placeBuildingByTemplateName(templateName)
 	if (Engine.GetGUIObjectByName("unitConstructionPanel").hidden)
 		return;
 
-	let index = g_SelectionPanels.Construction.getItems().
-		findIndex(templatePath => templatePath.endsWith(templateName));
+	const cycleTemplates = Engine.ConfigDB_GetValue("user", "autociv.session.building.place." + templateName).match(/[^\W]+/g)
+	const templates = [templateName]
+	if (cycleTemplates)
+		templates.push(...cycleTemplates)
 
-	if (index == -1)
-		return;
+	const self = autociv_placeBuildingByTemplateName
+	if (self.state.templateName != templateName || !placementSupport.template)
+		self.state.index = -1
 
-	let unitConstructionButton = Engine.GetGUIObjectByName(`unitConstructionButton[${index}]`);
+	for (let _ = 0; _ < templates.length; _++)
+	{
+		self.state.index = (self.state.index + 1) % templates.length
+		let templateToSelect = templates[self.state.index]
 
-	if (!unitConstructionButton ||
-		unitConstructionButton.hidden ||
-		!unitConstructionButton.enabled ||
-		!unitConstructionButton.onPress)
-		return;
+		let index = g_SelectionPanels.Construction.getItems().
+			findIndex(templatePath => templatePath.endsWith(templateToSelect));
 
-	unitConstructionButton.onPress();
-	autociv_showBuildingPlacementTerrainSnap(mouseX, mouseY);
+		if (index == -1)
+			continue;
 
-	return true;
+		const unitConstructionButton = self.buttons[index]
+
+		if (!unitConstructionButton ||
+			unitConstructionButton.hidden ||
+			!unitConstructionButton.enabled ||
+			!unitConstructionButton.onPress)
+			continue;
+
+		unitConstructionButton.onPress();
+
+		autociv_showBuildingPlacementTerrainSnap(mouseX, mouseY);
+
+		animate(unitConstructionButton).complete().add({
+			"onStart": it => it.sprite = "snIconPortraitOver",
+			"onComplete": it => it.sprite = "snIconPortrait",
+			"duration": 100
+		})
+		self.state.templateName = templateName
+
+		return true;
+	}
 }
+
+autociv_placeBuildingByTemplateName.state = {
+	"templateName": "",
+	"index": -1
+}
+
+autociv_placeBuildingByTemplateName.buttons = new Proxy({}, {
+	get(target, key)
+	{
+		return key in target ?
+			target[key] :
+			target[key] = Engine.GetGUIObjectByName(`unitConstructionButton[${key}]`);
+	}
+})
 
 function autociv_clearSelectedProductionQueues()
 {
