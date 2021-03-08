@@ -59,10 +59,6 @@ autociv_patchApplyN("init", function (target, that, args)
 	for (let hotkey in g_autociv_hotkeys)
 		Engine.SetGlobalHotkey(hotkey, "Press", g_autociv_hotkeys[hotkey]);
 
-	// React to chat and messages
-	for (let level of XmppMessages.prototype.MessageTypes["chat"])
-		g_LobbyHandler.xmppMessages.registerXmppMessageHandler("chat", level, msg => botManager.react(msg))
-
 	// React to GUI objects resize bars
 	{
 		resizeBarManager("chatPanel", "top", undefined, [["gamesBox", "bottom"]])
@@ -75,7 +71,7 @@ autociv_patchApplyN("init", function (target, that, args)
 		resizeBarManager(gameInfoUsers, "top", undefined, [[gameInfoDescription, "bottom"]], () => !gameInfo.hidden);
 	}
 
-	// Disable/enable resize bars when this "pages" open/close
+	// Disable/enable resize bars when these "pages" open/close
 	g_LobbyHandler.leaderboardPage.registerOpenPageHandler(() => { resizeBarManager.ghostMode = true })
 	g_LobbyHandler.leaderboardPage.registerClosePageHandler(() => { resizeBarManager.ghostMode = false })
 	g_LobbyHandler.profilePage.registerClosePageHandler(() => { resizeBarManager.ghostMode = false })

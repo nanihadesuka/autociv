@@ -63,47 +63,35 @@ BotManager.prototype.pipeWith = {
 	"lobby": {
 		"pipe": function (msg)
 		{
-			let type = "unknown";
-			if (msg.from && msg.from != "system")
-				type = "chat";
-			else if (msg.text && msg.text.startsWith("/special "))
-				type = "/special";
-
-			return this.types[type] && this.types[type](msg);
+			return this.types[msg.type]?.(msg);
 		},
 		"types":
 		{
 			"chat": msg =>
 			{
-				// If regular chat text message
-				return {
-					"type": "chat",
-					"receiver": Engine.LobbyGetNick(),
-					"sender": msg.from,
-					"message": msg.text
-				};
-			},
-			"/special": msg =>
-			{
-				let joinedMessageSufix = translate("%(nick)s has joined.").slice(9);
-				let hasJoined = msg.text.match(`^\/special (.*) ${joinedMessageSufix}$`);
-
-				// If joined
-				if (hasJoined !== null && hasJoined[1] !== undefined)
-					return {
+				switch (msg.level)
+				{
+					case "room-message": return {
+						"type": "chat",
+						"receiver": Engine.LobbyGetNick(),
+						"sender": msg.from,
+						"message": msg.text
+					}
+					case "join": return {
 						"type": "join",
 						"receiver": Engine.LobbyGetNick(),
-						"sender": hasJoined[1],
-						"message": msg.text
-					};
+						"sender": msg.nick,
+						"message": ""
+					}
+
+				}
 			}
 		}
 	},
 	"gamesetup": {
 		"pipe": function (msg)
 		{
-			let type = msg.type;
-			return this.types[type] && this.types[type](msg);
+			return this.types[msg.type]?.(msg);
 		},
 		"types":
 		{
@@ -145,8 +133,7 @@ BotManager.prototype.pipeWith = {
 	"ingame": {
 		"pipe": function (msg)
 		{
-			let type = msg.type;
-			return this.types[type] && this.types[type](msg);
+			return this.types[msg.type]?.(msg);
 		},
 		"types":
 		{
