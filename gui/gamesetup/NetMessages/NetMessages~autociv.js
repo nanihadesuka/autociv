@@ -8,8 +8,6 @@ NetMessages.prototype.pollNextMessage = function ()
             return;
         }
 
-    if (message)
-        warn(JSON.stringify(message, null, 2))
     return message;
 }
 
