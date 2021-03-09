@@ -4,7 +4,7 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 ## Feature list
 - General
 	- Readme: press Shift + F4 to open
-	- Player mute ***
+	- Player mute
 	- Player reminder (show a written note when a certain player joins) ***
 	- Link opener (opens URL links from the chat)
 	- Lobby resize bars
@@ -18,7 +18,8 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 	- Countdown to start the game
 - In Game
 	- Hotkeys for (see hotkeys with hotkey viewer)
-		- Buildings
+		- Buildings placement
+			- Multiple buildings per hotkey (optional)
 		- Buildings selection
 		- Units selection
 		- Formations (selected units)
@@ -34,7 +35,7 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 - Settings
 	- Max corpses visible
 
-Features with *** at the end means that exist (pre alpha 24) but not still compatible  with alpha 24
+##### Features with *** at the end means that exist (pre alpha 24) but not still compatible  with alpha 24
 
 ## Download
 There are two ways:
