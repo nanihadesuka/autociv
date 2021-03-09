@@ -39,28 +39,6 @@ function autociv_SetChatTextFromConfig()
 }
 
 
-function autociv_patchMinimapFlare()
-{
-	autociv_patchApplyN("handleMinimapEvent", function (target, that, args)
-	{
-		if (!g_IsObserver && Engine.HotkeyIsPressed("autociv.minimap.mode.flare"))
-		{
-			let [ev] = args;
-			Engine.PostNetworkCommand({
-				"type": "dialog-answer",
-				"autociv_minimap_flare": true,
-				"mapPos": {
-					"x": ev.x,
-					"z": ev.z
-				}
-			})
-
-			return;
-		}
-
-		return target.apply(that, args);
-	})
-}
 
 // Might get wrong values when camera is near map border
 function autociv_getCameraAngle()

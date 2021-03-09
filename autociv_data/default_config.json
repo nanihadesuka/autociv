@@ -196,6 +196,5 @@
 	"hotkey.autociv.session.stance.set.defensive": "Alt+3",
 	"hotkey.autociv.session.stance.set.passive": "Alt+4",
 	"hotkey.autociv.session.stance.set.standground": "Alt+5",
-	"hotkey.autociv.group.button.garrison": "Ctrl",
-	"hotkey.autociv.minimap.mode.flare": "Alt"
+	"hotkey.autociv.group.button.garrison": "Ctrl"
 }

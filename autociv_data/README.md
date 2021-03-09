@@ -31,7 +31,6 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 			- class
 			- group
 	- APM (actions per minute) with chart (disabled by default, change in user.cfg) ***
-	- Minimap flare (only visible to people using the mod) [ Alt + Mouse right click  in minimap] ***
 - Settings
 	- Max corpses visible
 

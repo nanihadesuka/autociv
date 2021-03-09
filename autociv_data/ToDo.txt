@@ -9,5 +9,4 @@ Alpha 24 pending:
     - Chat filter
 - Session
     - APM
-    - Minimap flare
     - Number of gatherers (removed for good)

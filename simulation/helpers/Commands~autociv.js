@@ -37,21 +37,3 @@ function autociv_patchApplyN_helpers()
 
     prefix[method] = new Proxy(prefix[method], { apply: patch });
 }
-
-autociv_patchApplyN_helpers(g_Commands, "dialog-answer", function (target, that, args)
-{
-    let [player, cmd, data] = args;
-    if (cmd.autociv_minimap_flare)
-    {
-        let cmpGUIInterface = Engine.QueryInterface(SYSTEM_ENTITY, IID_GuiInterface);
-        cmpGUIInterface.PushNotification({
-            "type": "autociv_minimap_flare",
-            "mapPos": cmd.mapPos,
-            "players": [player]
-        });
-
-        return;
-    }
-
-    return target.apply(that, args);
-})
