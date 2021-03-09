@@ -1,8 +1,6 @@
 {
 	"autociv.settings.reset.all": "false",
 	"autociv.settings.autociv_readme.seen": "false",
-	"autociv.lobby.chat.comments.max": 1000,
-	"autociv.lobby.chat.notifications.max": 30,
 	"autociv.lobby.chat.subject.hide": "flase",
 	"autociv.lobby.gamelist.showHostName": "true",
 	"autociv.gamesetup.countdown.enabled": "false",
