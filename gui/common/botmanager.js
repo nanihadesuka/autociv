@@ -41,15 +41,20 @@ BotManager.prototype.selfMessage = function (text)
 	warn("Can't send selfMessage");
 }
 
+/**
+ *
+ * @returns {Boolean} - True means to stop message flow
+ */
 BotManager.prototype.react = function (msg)
 {
 	let data = this.pipe(msg);
 	if (!data)
-		return;
+		return false;
 
 	for (let [name, bot] of this.list)
 		if (bot.loaded && bot.active && bot.react(data))
 			return true;
+	return false
 }
 
 BotManager.prototype.pipe = function (msg)
@@ -112,22 +117,8 @@ BotManager.prototype.pipeWith = {
 					"sender": splitRatingFromNick(g_PlayerAssignments[msg.guid].name).nick,
 					"message": msg.text
 				};
-			},
-			"connect": function (msg)
-			{
-				if (Engine.GetPlayerGUID() === undefined ||
-					g_PlayerAssignments[Engine.GetPlayerGUID()] === undefined ||
-					msg.guid === undefined ||
-					g_PlayerAssignments[msg.guid] === undefined)
-					return;
-
-				return {
-					"type": "join",
-					"receiver": splitRatingFromNick(g_PlayerAssignments[Engine.GetPlayerGUID()].name).nick,
-					"sender": splitRatingFromNick(g_PlayerAssignments[msg.guid].name).nick,
-					"guid": msg.guid
-				};
 			}
+			// TODO JOIN, LEAVE (AKA newAssignments)
 		}
 	},
 	"ingame": {
