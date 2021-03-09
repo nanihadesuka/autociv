@@ -7,9 +7,11 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 	- Player mute
 	- Player reminder (show a written note when a certain player joins) ***
 	- Link opener (opens URL links from the chat)
-	- Lobby resize bars
 	- Help command: type /help to see all available commands
 	- Console with autocomplete (Ctrl + C + L)
+- Lobby
+	- Resize bars
+	- Host name mark
 - Game setup
 	- Auto-assign civilization with chat (only works if host has the mod)
 	- Custom population limit
