@@ -21,7 +21,8 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 - In Game
 	- Hotkeys for (see hotkeys with hotkey viewer)
 		- Buildings placement
-			- Multiple buildings per hotkey (optional)
+			- Multiple buildings per hotkey (optional, user.cfg)
+				-How to use: Copy the hotkey you want and remove the "hotkey." prefix, next replace the hotkey key for the buildings you want to cycle and separate them by a space.
 		- Buildings selection
 		- Units selection
 		- Formations (selected units)
