@@ -19,6 +19,7 @@
 	"hotkey.autociv.gamesetup.focus.chatInput": "Alt+Q",
 	"hotkey.autociv.lobby.focus.chatInput": "Alt+Q",
 	"hotkey.autociv.lobby.focus.gameList": "Alt+W",
+	"hotkey.autociv.lobby.host": "Ctrl+N",
 	"hotkey.autociv.CLI.toggle": "Ctrl+C+L",
 	"hotkey.autociv.CLI.stdout.toggle": "Alt+S",
 	"hotkey.autociv.CLI.stdout.eval": "Alt+E",
