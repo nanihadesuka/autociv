@@ -22,11 +22,7 @@ function autociv_addVersionLabel()
 
 function autociv_patchSession()
 {
-	autociv_patchApplyN("addChatMessage", function (target, that, args)
-	{
-		let [msg] = args;
-		return botManager.react(msg) || target.apply(that, args);
-	})
+	Engine.GetGUIObjectByName("pauseOverlay").size = "0% 0% 100% 30%"
 }
 
 function autociv_SetChatTextFromConfig()
