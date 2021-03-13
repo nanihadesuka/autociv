@@ -114,8 +114,8 @@ declare namespace Engine
 
 	/**
 	 * Display the error dialog with the given text.
-     * This is less error-prone than ENSURE(0 && "text").
-     * Note that "conditional expression is constant" warnings are disabled anyway.
+	 * This is less error-prone than ENSURE(0 && "text").
+	 * Note that "conditional expression is constant" warnings are disabled anyway.
 	 */
 	function DisplayErrorDialog(text: string): void
 
@@ -226,7 +226,7 @@ declare namespace Engine
 	 * Ends game.
 	 * Resets all engine state related to the game, to before a game started
 	 */
-	function EndGame()
+	function EndGame(): any
 
 	/**
 	 * Returns player ID set to.
@@ -324,13 +324,13 @@ declare namespace Engine
 	function GameView_GetConstrainCameraEnabled(): boolean
 
 	/**
- 	 * Get the current X coordinate of the camera.
- 	 */
+	   * Get the current X coordinate of the camera.
+	   */
 	function CameraGetX(): number
 
 	/**
- 	 * Get the current Z coordinate of the camera.
- 	 */
+	   * Get the current Z coordinate of the camera.
+	   */
 	function CameraGetZ(): number
 
 	/**
@@ -339,8 +339,8 @@ declare namespace Engine
 	function CameraMoveTo(X: number, Z: number): void
 
 	/**
- 	 * Set the camera to look at the given location.
- 	 */
+	   * Set the camera to look at the given location.
+	   */
 	function SetCameraTarget(X: number, Y: number, Z: number): void
 
 	/**
@@ -352,9 +352,9 @@ declare namespace Engine
 	function SetCameraData(X: number, Y: number, Z: number, rotx: number, roty: number, zoom: number): void
 
 	/**
- 	 * Start / stop camera following mode.
- 	 * @param entityID unit id to follow. If zero, stop following mode
- 	 */
+	   * Start / stop camera following mode.
+	   * @param entityID unit id to follow. If zero, stop following mode
+	   */
 	function CameraFollow(entityID: number): void
 
 	/**
@@ -629,12 +629,12 @@ declare namespace Engine
 	/**
 	 * Is the game ranked.
 	 */
-	function IsRankedGame()
+	function IsRankedGame(): Boolean
 
 	/**
 	 * Set the game as ranked.
 	 */
-	function SetRankedGame()
+	function SetRankedGame(): any
 
 	/**
 	 * Start the XMPP client.
@@ -704,16 +704,16 @@ declare namespace Engine
 	function SendUnregisterGame(): void
 
 	/**
- 	 * Send a request to change the state of a registered game on the server.
- 	 *
- 	 * A game can either be in the 'running' or 'waiting' state - the server
- 	 * decides which - but we need to update the current players that are
- 	 * in-game so the server can make the calculation.
+	   * Send a request to change the state of a registered game on the server.
+	   *
+	   * A game can either be in the 'running' or 'waiting' state - the server
+	   * decides which - but we need to update the current players that are
+	   * in-game so the server can make the calculation.
 	 * @param nbp - Number of players (no observers) currently connected in the game
 	 * @param players - JSON list of players by team + observers
 	 * @see playerDataToStringifiedTeamList
 	 * @see formatClientsForStanza
- 	 */
+	   */
 	function SendChangeStateGame(nbp: string, players: string): void
 
 	/**
@@ -728,9 +728,9 @@ declare namespace Engine
 	function LobbyClearPresenceUpdates(): void
 
 	/**
- 	 * Requests for the list of all active games.
- 	 * @return Array of game each as an object with details of the game
- 	 */
+	   * Requests for the list of all active games.
+	   * @return Array of game each as an object with details of the game
+	   */
 	function GetGameList(): undefined | {
 		name: string,
 		ip: string,
@@ -752,9 +752,9 @@ declare namespace Engine
 	}[]
 
 	/**
- 	 * Gets received data from last SendGetBoardList call.
- 	 * @return Array of players data in the leaderboard
- 	 */
+	   * Gets received data from last SendGetBoardList call.
+	   * @return Array of players data in the leaderboard
+	   */
 	function GetBoardList(): undefined | {
 		name: string,
 		rank: string,
@@ -762,9 +762,9 @@ declare namespace Engine
 	}[]
 
 	/**
- 	 * Gets received data from last SendGetProfile call.
- 	 * @return Array of players data in the leaderboard
- 	 */
+	   * Gets received data from last SendGetProfile call.
+	   * @return Array of players data in the leaderboard
+	   */
 	function GetProfile(): undefined | {
 		player: string,
 		rating: string,
@@ -844,141 +844,141 @@ declare namespace Engine
 	 */
 	function LobbySendMessage(message: string): void;
 
-	function LobbySetPlayerPresence()
-	function LobbySetNick()
-	function LobbyGetNick()
-	function LobbyKick()
-	function LobbyBan()
-	function LobbyGetPlayerPresence()
-	function LobbyGetPlayerRole()
-	function EncryptPassword()
-	function LobbyGetRoomSubject()
-	function Exit()
-	function RestartInAtlas()
-	function AtlasIsAvailable()
-	function IsAtlasRunning()
+	function LobbySetPlayerPresence(): any
+	function LobbySetNick(): any
+	function LobbyGetNick(): any
+	function LobbyKick(): any
+	function LobbyBan(): any
+	function LobbyGetPlayerPresence(): any
+	function LobbyGetPlayerRole(): any
+	function EncryptPassword(): any
+	function LobbyGetRoomSubject(): any
+	function Exit(): any
+	function RestartInAtlas(): any
+	function AtlasIsAvailable(): any
+	function IsAtlasRunning(): any
 	function OpenURL(url: string): string
-	function GetSystemUsername()
-	function GetMatchID()
-	function LoadMapSettings()
-	function HotkeyIsPressed()
-	function GetFPS()
-	function GetTextWidth()
-	function CalculateMD5()
-	function GetEngineInfo()
-	function GetAvailableMods()
-	function RestartEngine()
-	function SetMods()
-	function ModIoStartGetGameId()
-	function ModIoStartListMods()
-	function ModIoStartDownloadMod()
-	function ModIoAdvanceRequest()
-	function ModIoCancelRequest()
-	function ModIoGetMods()
-	function ModIoGetDownloadProgress()
-	function GetDefaultPort()
-	function HasNetServer()
-	function HasNetClient()
-	function FindStunEndpoint()
-	function StartNetworkHost()
-	function StartNetworkJoin()
-	function DisconnectNetworkGame()
-	function GetPlayerGUID()
-	function PollNetworkClient()
-	function SetNetworkGameAttributes()
-	function AssignNetworkPlayer()
-	function KickPlayer()
-	function SendNetworkChat()
-	function SendNetworkReady()
-	function ClearAllPlayerReady()
-	function StartNetworkGame()
-	function SetTurnLength()
-	function Renderer_GetRenderPath()
-	function Renderer_SetRenderPath()
-	function Renderer_RecreateShadowMap()
-	function TextureExists()
-	function Renderer_GetShadowsEnabled()
-	function Renderer_SetShadowsEnabled()
-	function Renderer_GetShadowPCFEnabled()
-	function Renderer_SetShadowPCFEnabled()
-	function Renderer_GetParticlesEnabled()
-	function Renderer_SetParticlesEnabled()
-	function Renderer_GetPreferGLSLEnabled()
-	function Renderer_SetPreferGLSLEnabled()
-	function Renderer_GetWaterEffectsEnabled()
-	function Renderer_SetWaterEffectsEnabled()
-	function Renderer_GetWaterFancyEffectsEnabled()
-	function Renderer_SetWaterFancyEffectsEnabled()
-	function Renderer_GetWaterRealDepthEnabled()
-	function Renderer_SetWaterRealDepthEnabled()
-	function Renderer_GetWaterReflectionEnabled()
-	function Renderer_SetWaterReflectionEnabled()
-	function Renderer_GetWaterRefractionEnabled()
-	function Renderer_SetWaterRefractionEnabled()
-	function Renderer_GetWaterShadowsEnabled()
-	function Renderer_SetWaterShadowsEnabled()
-	function Renderer_GetFogEnabled()
-	function Renderer_SetFogEnabled()
-	function Renderer_GetSilhouettesEnabled()
-	function Renderer_SetSilhouettesEnabled()
-	function Renderer_GetShowSkyEnabled()
-	function Renderer_SetShowSkyEnabled()
-	function Renderer_GetSmoothLOSEnabled()
-	function Renderer_SetSmoothLOSEnabled()
-	function Renderer_GetPostprocEnabled()
-	function Renderer_SetPostprocEnabled()
-	function Renderer_GetDisplayFrustumEnabled()
-	function Renderer_SetDisplayFrustumEnabled()
-	function GetSavedGames()
-	function DeleteSavedGame()
-	function SaveGame()
-	function SaveGamePrefix()
-	function QuickSave()
-	function QuickLoad()
-	function StartSavedGame()
-	function GetInitAttributes()
-	function GuiInterfaceCall()
-	function PostNetworkCommand()
-	function DumpSimState()
-	function GetAIs()
-	function PickEntityAtPoint()
-	function PickPlayerEntitiesInRect()
-	function PickPlayerEntitiesOnScreen()
-	function PickNonGaiaEntitiesOnScreen()
-	function PickSimilarPlayerEntities()
-	function SetBoundingBoxDebugOverlay()
-	function StartMusic()
-	function StopMusic()
-	function ClearPlaylist()
-	function AddPlaylistItem()
-	function StartPlaylist()
-	function PlayMusic()
-	function PlayUISound()
-	function PlayAmbientSound()
-	function MusicPlaying()
-	function SetMasterGain()
-	function SetMusicGain()
-	function SetAmbientGain()
-	function SetActionGain()
-	function SetUIGain()
-	function IsUserReportEnabled()
-	function SetUserReportEnabled()
-	function GetUserReportStatus()
-	function GetUserReportLogPath()
-	function GetUserReportConfigPath()
-	function GetFileMTime()
-	function GetFileSize()
-	function ReadFile()
-	function ReadFileLines()
+	function GetSystemUsername(): any
+	function GetMatchID(): any
+	function LoadMapSettings(): any
+	function HotkeyIsPressed(): any
+	function GetFPS(): any
+	function GetTextWidth(): any
+	function CalculateMD5(): any
+	function GetEngineInfo(): any
+	function GetAvailableMods(): any
+	function RestartEngine(): any
+	function SetMods(): any
+	function ModIoStartGetGameId(): any
+	function ModIoStartListMods(): any
+	function ModIoStartDownloadMod(): any
+	function ModIoAdvanceRequest(): any
+	function ModIoCancelRequest(): any
+	function ModIoGetMods(): any
+	function ModIoGetDownloadProgress(): any
+	function GetDefaultPort(): any
+	function HasNetServer(): any
+	function HasNetClient(): any
+	function FindStunEndpoint(): any
+	function StartNetworkHost(): any
+	function StartNetworkJoin(): any
+	function DisconnectNetworkGame(): any
+	function GetPlayerGUID(): any
+	function PollNetworkClient(): any
+	function SetNetworkGameAttributes(): any
+	function AssignNetworkPlayer(): any
+	function KickPlayer(): any
+	function SendNetworkChat(): any
+	function SendNetworkReady(): any
+	function ClearAllPlayerReady(): any
+	function StartNetworkGame(): any
+	function SetTurnLength(): any
+	function Renderer_GetRenderPath(): any
+	function Renderer_SetRenderPath(): any
+	function Renderer_RecreateShadowMap(): any
+	function TextureExists(): any
+	function Renderer_GetShadowsEnabled(): any
+	function Renderer_SetShadowsEnabled(): any
+	function Renderer_GetShadowPCFEnabled(): any
+	function Renderer_SetShadowPCFEnabled(): any
+	function Renderer_GetParticlesEnabled(): any
+	function Renderer_SetParticlesEnabled(): any
+	function Renderer_GetPreferGLSLEnabled(): any
+	function Renderer_SetPreferGLSLEnabled(): any
+	function Renderer_GetWaterEffectsEnabled(): any
+	function Renderer_SetWaterEffectsEnabled(): any
+	function Renderer_GetWaterFancyEffectsEnabled(): any
+	function Renderer_SetWaterFancyEffectsEnabled(): any
+	function Renderer_GetWaterRealDepthEnabled(): any
+	function Renderer_SetWaterRealDepthEnabled(): any
+	function Renderer_GetWaterReflectionEnabled(): any
+	function Renderer_SetWaterReflectionEnabled(): any
+	function Renderer_GetWaterRefractionEnabled(): any
+	function Renderer_SetWaterRefractionEnabled(): any
+	function Renderer_GetWaterShadowsEnabled(): any
+	function Renderer_SetWaterShadowsEnabled(): any
+	function Renderer_GetFogEnabled(): any
+	function Renderer_SetFogEnabled(): any
+	function Renderer_GetSilhouettesEnabled(): any
+	function Renderer_SetSilhouettesEnabled(): any
+	function Renderer_GetShowSkyEnabled(): any
+	function Renderer_SetShowSkyEnabled(): any
+	function Renderer_GetSmoothLOSEnabled(): any
+	function Renderer_SetSmoothLOSEnabled(): any
+	function Renderer_GetPostprocEnabled(): any
+	function Renderer_SetPostprocEnabled(): any
+	function Renderer_GetDisplayFrustumEnabled(): any
+	function Renderer_SetDisplayFrustumEnabled(): any
+	function GetSavedGames(): any
+	function DeleteSavedGame(): any
+	function SaveGame(): any
+	function SaveGamePrefix(): any
+	function QuickSave(): any
+	function QuickLoad(): any
+	function StartSavedGame(): any
+	function GetInitAttributes(): any
+	function GuiInterfaceCall(): any
+	function PostNetworkCommand(): any
+	function DumpSimState(): any
+	function GetAIs(): any
+	function PickEntityAtPoint(): any
+	function PickPlayerEntitiesInRect(): any
+	function PickPlayerEntitiesOnScreen(): any
+	function PickNonGaiaEntitiesOnScreen(): any
+	function PickSimilarPlayerEntities(): any
+	function SetBoundingBoxDebugOverlay(): any
+	function StartMusic(): any
+	function StopMusic(): any
+	function ClearPlaylist(): any
+	function AddPlaylistItem(): any
+	function StartPlaylist(): any
+	function PlayMusic(): any
+	function PlayUISound(): any
+	function PlayAmbientSound(): any
+	function MusicPlaying(): any
+	function SetMasterGain(): any
+	function SetMusicGain(): any
+	function SetAmbientGain(): any
+	function SetActionGain(): any
+	function SetUIGain(): any
+	function IsUserReportEnabled(): any
+	function SetUserReportEnabled(): any
+	function GetUserReportStatus(): any
+	function GetUserReportLogPath(): any
+	function GetUserReportConfigPath(): any
+	function GetFileMTime(): any
+	function GetFileSize(): any
+	function ReadFile(): any
+	function ReadFileLines(): any
 	function WriteJSONFile(filePath: string, JSONObject: object): void
-	function GetReplays()
-	function DeleteReplay()
-	function StartVisualReplay()
-	function GetReplayAttributes()
-	function GetReplayMetadata()
-	function HasReplayMetadata()
-	function AddReplayToCache()
-	function GetReplayDirectoryName()
+	function GetReplays(): any
+	function DeleteReplay(): any
+	function StartVisualReplay(): any
+	function GetReplayAttributes(): any
+	function GetReplayMetadata(): any
+	function HasReplayMetadata(): any
+	function AddReplayToCache(): any
+	function GetReplayDirectoryName(): any
 }
 
 declare class GUIObject
