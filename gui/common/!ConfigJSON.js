@@ -2,26 +2,28 @@
 var ConfigJSON = /** @class */ (function () {
     /**
      * @param identifier Must not contain spaces
-     * @param saveToDisk If true that data will not be saved to disk (at least not by itself)
+     * @param saveToDisk If true that data will be saved to disk (at least not by itself)
+     * @param implicitSave Will automatically save when the data is modified
      */
-    function ConfigJSON(identifier, saveToDisk) {
+    function ConfigJSON(identifier, saveToDisk, implicitSave) {
         if (saveToDisk === void 0) { saveToDisk = true; }
+        if (implicitSave === void 0) { implicitSave = true; }
         this.identifier = identifier;
         this.saveToDisk = saveToDisk;
+        this.implicitSave = implicitSave;
         this.key = "autociv.data." + this.identifier;
         this.load();
     }
-    ;
     ConfigJSON.prototype.load = function () {
         var value = Engine.ConfigDB_GetValue("user", this.key);
         if (value === "") {
             this.data = {};
-            this.save();
+            if (this.implicitSave)
+                this.save();
             return;
         }
         this.data = JSON.parse(decodeURIComponent(value));
     };
-    ;
     ConfigJSON.prototype.save = function () {
         var value = encodeURIComponent(JSON.stringify(this.data));
         Engine.ConfigDB_CreateValue("user", this.key, value);
@@ -34,28 +36,26 @@ var ConfigJSON = /** @class */ (function () {
     ConfigJSON.prototype.hasValue = function (id) {
         return id in this.data;
     };
-    ;
     ConfigJSON.prototype.getValue = function (id) {
         return this.data[id];
     };
-    ;
     ConfigJSON.prototype.getIds = function () {
         return Object.keys(this.data);
     };
     ConfigJSON.prototype.setValue = function (id, value) {
         this.data[id] = value;
-        this.save();
+        if (this.implicitSave)
+            this.save();
     };
-    ;
     ConfigJSON.prototype.removeValue = function (id) {
         delete this.data[id];
-        this.save();
+        if (this.implicitSave)
+            this.save();
     };
-    ;
     ConfigJSON.prototype.removeAllValues = function () {
         this.data = {};
-        this.save();
+        if (this.implicitSave)
+            this.save();
     };
-    ;
     return ConfigJSON;
 }());
