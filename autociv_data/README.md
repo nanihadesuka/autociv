@@ -21,14 +21,14 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 	- Custom starting resources
 	- Custom map size
 	- Countdown to start the game
-	- Maps
-		- Skirmish
-			- Volcano island (8)war
+- Maps
+	- Skirmish:
+		- Volcano island (8)
 - In Game
 	- Hotkeys for (see hotkeys with hotkey viewer)
 		- Buildings placement
 			- Multiple buildings per hotkey (optional, user.cfg)
-				-How to use: Copy the hotkey you want and remove the "hotkey." prefix, next replace the hotkey key for the buildings you want to cycle and separate them by a space.
+				- How to use: Copy the hotkey you want and remove the "hotkey." prefix, next replace the hotkey key for the buildings you want to cycle and separate them by a space.
 		- Buildings selection
 		- Units selection
 		- Formations (selected units)
