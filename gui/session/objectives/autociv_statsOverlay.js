@@ -165,5 +165,6 @@ AutocivControls.StatsOverlay = class
             "color": "250 250 250 250",
             "font": this.textFont
         })
+        Engine.ProfileStop()
     }
 }
