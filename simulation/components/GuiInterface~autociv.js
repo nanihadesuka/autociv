@@ -186,6 +186,55 @@ GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (pla
     });
 };
 
+/**
+ * Opimitzed stats function for autociv stats overlay
+ */
+GuiInterface.prototype.autociv_GetStatsOverlay = function ()
+{
+    const ret = {
+        "players": []
+    };
+
+    const cmpPlayerManager = Engine.QueryInterface(SYSTEM_ENTITY, IID_PlayerManager);
+    const numPlayers = cmpPlayerManager.GetNumPlayers();
+    for (let i = 0; i < numPlayers; ++i)
+    {
+        // Work out which phase we are in.
+        let phase = "";
+        const cmpTechnologyManager = QueryPlayerIDInterface(i, IID_TechnologyManager);
+        if (cmpTechnologyManager)
+        {
+            if (cmpTechnologyManager.IsTechnologyResearched("phase_city"))
+                phase = "city";
+            else if (cmpTechnologyManager.IsTechnologyResearched("phase_town"))
+                phase = "town";
+            else if (cmpTechnologyManager.IsTechnologyResearched("phase_village"))
+                phase = "village";
+        }
+
+        const cmpPlayer = QueryPlayerIDInterface(i);
+        const cmpPlayerStatisticsTracker = QueryPlayerIDInterface(i, IID_StatisticsTracker);
+        const classCounts = cmpTechnologyManager?.GetClassCounts()
+
+        ret.players.push({
+            "name": cmpPlayer.GetName(),
+            "popCount": cmpPlayer.GetPopulationCount(),
+            "resourceCounts": cmpPlayer.GetResourceCounts(),
+            "state": cmpPlayer.GetState(),
+            "team": cmpPlayer.GetTeam(),
+            "hasSharedLos": cmpPlayer.HasSharedLos(),
+            "phase": phase,
+            "researchedTechsCount": cmpTechnologyManager?.GetResearchedTechs().size ?? 0,
+            "classCounts_Infantry": classCounts?.Infantry ?? 0,
+            "classCounts_Cavalry": classCounts?.Cavalry ?? 0,
+            "classCounts_Seige": (classCounts?.Siege ?? 0) + (classCounts?.Elephant ?? 0),
+            "enemyUnitsKilledTotal": cmpPlayerStatisticsTracker?.GetStatistics().enemyUnitsKilled.total
+        });
+    }
+
+    return ret;
+};
+
 // Original variable declaration is prefixed with let instead of var so we can't
 // just add new entries directly (global let declaration rules)
 var autociv_exposedFunctions = {
@@ -195,6 +244,7 @@ var autociv_exposedFunctions = {
     "autociv_FindEntitiesWithClasses": 1,
     "autociv_FindEntitiesWithClassesExpression": 1,
     "autociv_SetCorpsesMax": 1,
+    "autociv_GetStatsOverlay": 1
 };
 
 autociv_patchApplyN(GuiInterface.prototype, "ScriptCall", function (target, that, args)

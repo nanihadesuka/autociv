@@ -35,6 +35,7 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 			- class
 			- group
 	- APM (actions per minute) with chart (disabled by default, change in user.cfg) ***
+	- Stats overlay (Ctrl+C+O)
 - Settings
 	- Max corpses visible
 

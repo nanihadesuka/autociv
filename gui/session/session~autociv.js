@@ -1,3 +1,15 @@
+// Autociv control class with sub classes that will be have an instance at init()
+class AutocivControls
+{
+	constructor()
+	{
+		this.controls = {}
+		for (let className of Object.keys(AutocivControls))
+			this.controls[className] = new AutocivControls[className]()
+	}
+}
+var g_AutocivControls; // Created at init
+
 
 function autociv_initBots()
 {
@@ -34,29 +46,6 @@ function autociv_SetChatTextFromConfig()
 		Engine.GetGUIObjectByName("chatLines").font = Engine.ConfigDB_GetValue("user", "autociv.session.chatText.font");
 }
 
-
-
-// Might get wrong values when camera is near map border
-function autociv_getCameraAngle()
-{
-	let p1 = new Vector2D(Engine.CameraGetX(), Engine.CameraGetZ());
-
-	let windowSize = Engine.GetGUIObjectByName("gl_autociv_WindowSize").getComputedSize();
-	let data = Engine.GetTerrainAtScreenPoint(windowSize.right / 2, windowSize.bottom);
-	let p2 = new Vector2D(data.x, data.z);
-
-	let dir1 = new Vector2D(1, 0);
-	let dir2 = new Vector2D(p2.x - p1.x, p2.y - p1.y);
-
-	return dir1.angleTo(dir2);
-}
-
-// Assumes 1 size unit = 4 tiles = 4 coordinates units
-function autociv_getMapSizeInTiles()
-{
-	return g_GameAttributes.settings.Size * 4;
-}
-
 autociv_patchApplyN("init", function (target, that, args)
 {
 	let result = target.apply(that, args);
@@ -65,5 +54,6 @@ autociv_patchApplyN("init", function (target, that, args)
 	autociv_addVersionLabel();
 	autociv_SetCorpsesMax(Engine.ConfigDB_GetValue("user", "autociv.session.graphics.corpses.max"));
 	autociv_SetChatTextFromConfig();
+	g_AutocivControls = new AutocivControls()
 	return result;
 })
