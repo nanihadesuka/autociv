@@ -12,12 +12,18 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 - Lobby
 	- Resize bars
 	- Host name mark
+	- Remember playerlist state
+	- Better performance when reloading lobby
+	- Shortcuts to create host, navigate gamelist
 - Game setup
 	- Auto-assign civilization with chat (only works if host has the mod)
 	- Custom population limit
 	- Custom starting resources
 	- Custom map size
 	- Countdown to start the game
+	- Maps
+		- Skirmish
+			- Volcano island (8)war
 - In Game
 	- Hotkeys for (see hotkeys with hotkey viewer)
 		- Buildings placement
@@ -36,6 +42,7 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 			- group
 	- APM (actions per minute) with chart (disabled by default, change in user.cfg) ***
 	- Stats overlay (Ctrl+C+O)
+	- Pause game overlay only top area
 - Settings
 	- Max corpses visible
 
