@@ -1,0 +1,39 @@
+[
+	{
+		"label": "AutoCiv",
+		"options": [
+			{
+				"type": "boolean",
+				"label": "Lobby: chat subject hide",
+				"tooltip": "Hide initial lobby subject message",
+				"config": "autociv.lobby.chat.subject.hide"
+			},
+			{
+				"type": "boolean",
+				"label": "Lobby: game list show host name",
+				"tooltip": "Show the name of the host for every game in the list",
+				"config": "autociv.lobby.gamelist.showHostName"
+            },
+			{
+				"type": "boolean",
+				"label": "Lobby: have resize bars enabled",
+				"tooltip": "Have resize bars enabled",
+				"config": "autociv.resizebar.enabled"
+            },
+			{
+				"type": "boolean",
+				"label": "Game: stats overlay visible",
+				"tooltip": "stats overlay visible",
+				"config": "autociv.session.statsOverlay.visible"
+            },
+			{
+				"type": "autociv_slider_int",
+				"label": "Graphics: corpses max",
+				"tooltip": "Maximum number of corpses to show. 0 means none, 200 means unlimited",
+				"config": "autociv.session.graphics.corpses.max",
+				"min": 0,
+				"max": 200
+			}
+		]
+	}
+]

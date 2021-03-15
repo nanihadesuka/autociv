@@ -36,10 +36,10 @@ GuiInterface.prototype.autociv_CorpseAdd = function (entity)
     this.autociv_CorpseUpdate();
 }
 
-GuiInterface.prototype.autociv_SetCorpsesMax = function (player, max = Infinity)
+GuiInterface.prototype.autociv_SetCorpsesMax = function (player, max = 200)
 {
     let value = +max;
-    if (value === Infinity)
+    if (value >= 200)
     {
         this.autociv.corpse.entities.clear();
         this.autociv.corpse.max = Infinity;

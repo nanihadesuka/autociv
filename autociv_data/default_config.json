@@ -2,7 +2,7 @@
 	"autociv.settings.reset.all": "false",
 	"autociv.settings.autociv_readme.seen": "false",
 	"autociv.lobby.chat.subject.hide": "flase",
-	"autociv.lobby.gamelist.showHostName": "true",
+	"autociv.lobby.gamelist.showHostName": "false",
 	"autociv.gamesetup.countdown.enabled": "false",
 	"autociv.gamesetup.countdown.time": 5,
 	"autociv.session.APM.enabled": "false",
