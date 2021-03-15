@@ -212,7 +212,6 @@ enableButtons = function ()
 		control.enabled = enabled;
 		if (objectType == "string")
 		{
-			control.readonly = !enabled
 			control.textcolor = enabled ? "255 255 255" : "130 130 130"
 			control.ghost = !enabled
 		}
