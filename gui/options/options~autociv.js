@@ -1,57 +1,58 @@
+g_OptionType["autociv_slider_int"] = {
+	"objectType": "slider",
+	"configToValue": value => parseInt(value, 10),
+	"valueToGui": (value, control) =>
+	{
+		control.value = parseInt(value, 10);
+	},
+	"guiToValue": control => parseInt(control.value, 10),
+	"guiSetter": "onValueChange",
+	"initGUI": (option, control) =>
+	{
+		control.max_value = option.max;
+		control.min_value = option.min;
+	},
+	"tooltip": (value, option) =>
+		sprintf(translateWithContext("slider number", "Value: %(val)s (min: %(min)s, max: %(max)s)"), {
+			"val": parseInt(value, 10),
+			"min": parseInt(option.min, 10),
+			"max": parseInt(option.max, 10)
+		})
+}
+
 
 if (!global.g_autociv_optionsFiles)
-    var g_autociv_optionsFiles = ["gui/options/options.json"]
-
+	var g_autociv_optionsFiles = ["gui/options/options.json"]
 g_autociv_optionsFiles.push("autociv_data/options.json")
+
 
 init = function (data, hotloadData)
 {
-    g_ChangedKeys = hotloadData ? hotloadData.changedKeys : new Set();
-    g_TabCategorySelected = hotloadData ? hotloadData.tabCategorySelected : 0;
+	g_ChangedKeys = hotloadData ? hotloadData.changedKeys : new Set();
+	g_TabCategorySelected = hotloadData ? hotloadData.tabCategorySelected : 0;
 
-    // CHANGES START /////////////////////////
-    g_Options = []
-    for (let options of g_autociv_optionsFiles)
-        Array.prototype.push.apply(g_Options, Engine.ReadJSONFile(options))
-    // CHANGES END /////////////////////////
+	// CHANGES START /////////////////////////
+	g_Options = []
+	for (let options of g_autociv_optionsFiles)
+		Array.prototype.push.apply(g_Options, Engine.ReadJSONFile(options))
+	// CHANGES END /////////////////////////
 
-    translateObjectKeys(g_Options, ["label", "tooltip"]);
-    deepfreeze(g_Options);
+	translateObjectKeys(g_Options, ["label", "tooltip"]);
+	deepfreeze(g_Options);
 
-    placeTabButtons(
-        g_Options,
-        false,
-        g_TabButtonHeight,
-        g_TabButtonDist,
-        selectPanel,
-        displayOptions);
-}
-
-g_OptionType["autociv_slider_int"] = {
-    "configToValue": value => parseInt(value, 10),
-    "valueToGui": (value, control) =>
-    {
-        control.value = parseInt(value, 10);
-    },
-    "guiToValue": control => parseInt(control.value, 10),
-    "guiSetter": "onValueChange",
-    "initGUI": (option, control) =>
-    {
-        control.max_value = option.max;
-        control.min_value = option.min;
-    },
-    "tooltip": (value, option) =>
-        sprintf(translateWithContext("slider number", "Value: %(val)s (min: %(min)s, max: %(max)s)"), {
-            "val": parseInt(value, 10),
-            "min": parseInt(option.min, 10),
-            "max": parseInt(option.max, 10)
-        })
+	placeTabButtons(
+		g_Options,
+		false,
+		g_TabButtonHeight,
+		g_TabButtonDist,
+		selectPanel,
+		displayOptions);
 }
 
 /**
  * Sets up labels and controls of all options of the currently selected category.
  */
-displayOptions = function()
+displayOptions = function ()
 {
 	// Hide all controls
 	for (let body of Engine.GetGUIObjectByName("option_controls").children)
@@ -78,19 +79,20 @@ displayOptions = function()
 		let value = optionType.configToValue(Engine.ConfigDB_GetValue("user", option.config));
 
 		// Setup control
-		let control = Engine.GetGUIObjectByName("option_control_" + option.type + "[" + i + "]");
+		let control = Engine.GetGUIObjectByName("option_control_" + (g_OptionType[option.type].objectType ?? option.type) + "[" + i + "]");
 		control.tooltip = option.tooltip + (optionType.tooltip ? "\n" + optionType.tooltip(value, option) : "");
 		control.hidden = false;
 
 		if (optionType.initGUI)
 			optionType.initGUI(option, control);
 
-		control[optionType.guiSetter] = function() {};
+		control[optionType.guiSetter] = function () { };
 		optionType.valueToGui(value, control);
 		if (optionType.sanitizeValue)
 			optionType.sanitizeValue(value, control, option);
 
-		control[optionType.guiSetter] = function() {
+		control[optionType.guiSetter] = function ()
+		{
 
 			let value = optionType.guiToValue(control);
 
@@ -127,16 +129,17 @@ displayOptions = function()
 }
 
 
-function enableButtons()
+enableButtons = function ()
 {
-	g_Options[g_TabCategorySelected].options.forEach((option, i) => {
+	g_Options[g_TabCategorySelected].options.forEach((option, i) =>
+	{
 
 		let enabled =
 			!option.dependencies ||
 			option.dependencies.every(config => Engine.ConfigDB_GetValue("user", config) == "true");
 
 		Engine.GetGUIObjectByName("option_label[" + i + "]").enabled = enabled;
-		Engine.GetGUIObjectByName("option_control_" + option.type + "[" + i + "]").enabled = enabled;
+		Engine.GetGUIObjectByName("option_control_" + (g_OptionType[option.type].objectType ?? option.type) + "[" + i + "]").enabled = enabled;
 	});
 
 	let hasChanges = Engine.ConfigDB_HasChanges("user");
