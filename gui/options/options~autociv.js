@@ -20,11 +20,77 @@ g_OptionType["autociv_slider_int"] = {
 		})
 }
 
+g_OptionType["autociv_number_int"] = {
+	"objectType": "number",
+	"configToValue": value => parseInt(value, 10),
+	"valueToGui": (value, control) =>
+	{
+		control.caption = parseInt(value, 10);
+	},
+	"guiToValue": control => +control.caption,
+	"guiSetter": "onTextEdit",
+	"sanitizeValue": (value, control, option) =>
+	{
+		const min = parseInt(option.min, 10) ?? Number.MIN_SAFE_INTEGER
+		const max = parseInt(option.max, 10) ?? Number.MAX_SAFE_INTEGER
+		const sanitized = parseInt(value, 10) ?? 0
+		const valid = Number.isInteger(value) && (min <= value) && (value <= max)
+
+		if (control)
+			control.sprite = valid ? "ModernDarkBoxWhite" : "ModernDarkBoxWhiteInvalid";
+
+		return sanitized;
+	},
+	"tooltip": (value, option) =>
+		sprintf(
+			option.min !== undefined && option.max !== undefined ?
+				translateWithContext("option number", "Min: %(min)s, Max: %(max)s") :
+				option.min !== undefined && option.max === undefined ?
+					translateWithContext("option number", "Min: %(min)s") :
+					option.min === undefined && option.max !== undefined ?
+						translateWithContext("option number", "Max: %(max)s") :
+						"",
+			{
+				"min": parseInt(option.min, 10),
+				"max": parseInt(option.max, 10)
+			})
+}
+
+g_OptionType["autociv_dropdown_runtime_load"] = {
+	"objectType": "dropdown",
+	"configToValue": value => value,
+	"valueToGui": (value, control) =>
+	{
+		control.selected = control.list_data.indexOf(value);
+	},
+	"guiToValue": control => control.list_data[control.selected],
+	"guiSetter": "onSelectionChange",
+	"initGUI": (option, control) =>
+	{
+		if (!option.list)
+			option.list = global[option.autociv_list_load]()
+
+		control.list = option.list.map(e => e.label);
+		control.list_data = option.list.map(e => e.value);
+		control.onHoverChange = () =>
+		{
+			let item = option.list[control.hovered];
+			control.tooltip = item && item.tooltip || option.tooltip;
+		};
+	}
+}
+
+function autociv_getAvailableFonts()
+{
+	return Engine.ListDirectoryFiles("fonts/", "*").
+		map(v => v.match(/fonts\/(.+)\.fnt/)?.[1]).
+		filter(v => v).
+		map(v => { return { "value": v, "label": v } })
+}
 
 if (!global.g_autociv_optionsFiles)
 	var g_autociv_optionsFiles = ["gui/options/options.json"]
 g_autociv_optionsFiles.push("autociv_data/options.json")
-
 
 init = function (data, hotloadData)
 {
@@ -38,7 +104,9 @@ init = function (data, hotloadData)
 	// CHANGES END /////////////////////////
 
 	translateObjectKeys(g_Options, ["label", "tooltip"]);
-	deepfreeze(g_Options);
+
+	// DISABLE IF DATA IS LOADED DYNAMICALLY
+	// deepfreeze(g_Options);
 
 	placeTabButtons(
 		g_Options,
@@ -138,8 +206,16 @@ enableButtons = function ()
 			!option.dependencies ||
 			option.dependencies.every(config => Engine.ConfigDB_GetValue("user", config) == "true");
 
+		const objectType = g_OptionType[option.type].objectType ?? option.type
 		Engine.GetGUIObjectByName("option_label[" + i + "]").enabled = enabled;
-		Engine.GetGUIObjectByName("option_control_" + (g_OptionType[option.type].objectType ?? option.type) + "[" + i + "]").enabled = enabled;
+		const control = Engine.GetGUIObjectByName("option_control_" + objectType + "[" + i + "]")
+		control.enabled = enabled;
+		if (objectType == "string")
+		{
+			control.readonly = !enabled
+			control.textcolor = enabled ? "255 255 255" : "130 130 130"
+			control.ghost = !enabled
+		}
 	});
 
 	let hasChanges = Engine.ConfigDB_HasChanges("user");
