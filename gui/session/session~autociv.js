@@ -39,12 +39,16 @@ function autociv_patchSession()
 
 function autociv_SetChatTextFromConfig()
 {
+	const that = autociv_SetChatTextFromConfig
+	that.default_size == that.default_size ?? Engine.GetGUIObjectByName("chatPanel").size
+	that.default_font = that.default_font ?? Engine.GetGUIObjectByName("chatLines").children[0].font
+
 	const changeSize = Engine.ConfigDB_GetValue("user", "autociv.session.chatPanel.size.change") == "true"
-	const size = changeSize ? Engine.ConfigDB_GetValue("user", "autociv.session.chatPanel.size") : "0 130 100% 100%-240"
+	const size = changeSize ? Engine.ConfigDB_GetValue("user", "autociv.session.chatPanel.size") : that.default_size
 	Engine.GetGUIObjectByName("chatPanel").size = size
 
 	const changeFont = Engine.ConfigDB_GetValue("user", "autociv.session.chatText.font.change") == "true"
-	const font = changeFont ? Engine.ConfigDB_GetValue("user", "autociv.session.chatText.font") : "sans-bold-stroke-14"
+	const font = changeFont ? Engine.ConfigDB_GetValue("user", "autociv.session.chatText.font") : that.default_font
 	for (let child of Engine.GetGUIObjectByName("chatLines").children)
 		child.font = font
 }
