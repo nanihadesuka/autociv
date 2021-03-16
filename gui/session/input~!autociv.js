@@ -140,6 +140,16 @@ var g_autociv_hotkeys_beforeGui = {
 }
 
 var g_autociv_hotkeys = {
+	"autociv.session.exit": function (ev)
+	{
+		for (let name in QuitConfirmationMenu.prototype)
+		{
+			let quitConfirmation = new QuitConfirmationMenu.prototype[name]();
+			if (quitConfirmation.enabled())
+				quitConfirmation.display();
+		}
+		return true;
+	},
 	"autociv.session.building.autotrain.enable": function (ev)
 	{
 		autociv_SetAutotrain(true);

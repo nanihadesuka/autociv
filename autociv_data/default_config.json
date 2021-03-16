@@ -26,6 +26,7 @@
 	"hotkey.autociv.CLI.stdout.eval": "Alt+E",
 	"hotkey.autociv.lobby.gameList.selected.join": "Alt+E",
 	"hotkey.autociv.selection.nowoundedonly": "K",
+	"hotkey.autociv.session.exit": "Shift+Escape",
 	"hotkey.autociv.session.minimap.expand.toggle": "Shift+Tab",
 	"hotkey.autociv.session.statsOverlay.visible.toggle": "Ctrl+C+O",
 	"hotkey.autociv.session.building.place.amphitheater_pompeii": "",
