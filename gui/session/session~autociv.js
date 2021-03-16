@@ -39,21 +39,33 @@ function autociv_patchSession()
 
 function autociv_SetChatTextFromConfig()
 {
-	if (Engine.ConfigDB_GetValue("user", "autociv.session.chatPanel.size.change") == "true")
-		Engine.GetGUIObjectByName("chatPanel").size = Engine.ConfigDB_GetValue("user", "autociv.session.chatPanel.size");
+	const changeSize = Engine.ConfigDB_GetValue("user", "autociv.session.chatPanel.size.change") == "true"
+	const size = changeSize ? Engine.ConfigDB_GetValue("user", "autociv.session.chatPanel.size") : "0 130 100% 100%-240"
+	Engine.GetGUIObjectByName("chatPanel").size = size
 
-	if (Engine.ConfigDB_GetValue("user", "autociv.session.chatText.font.change") == "true")
-		Engine.GetGUIObjectByName("chatLines").font = Engine.ConfigDB_GetValue("user", "autociv.session.chatText.font");
+	const changeFont = Engine.ConfigDB_GetValue("user", "autociv.session.chatText.font.change") == "true"
+	const font = changeFont ? Engine.ConfigDB_GetValue("user", "autociv.session.chatText.font") : "sans-bold-stroke-14"
+	for (let child of Engine.GetGUIObjectByName("chatLines").children)
+		child.font = font
 }
 
 autociv_patchApplyN("init", function (target, that, args)
 {
-	let result = target.apply(that, args);
-	autociv_initBots();
-	autociv_patchSession();
-	autociv_addVersionLabel();
-	autociv_SetCorpsesMax(Engine.ConfigDB_GetValue("user", "autociv.session.graphics.corpses.max"));
-	autociv_SetChatTextFromConfig();
+	let result = target.apply(that, args)
+	autociv_initBots()
+	autociv_patchSession()
+	autociv_addVersionLabel()
+	autociv_SetCorpsesMax(Engine.ConfigDB_GetValue("user", "autociv.session.graphics.corpses.max"))
+	autociv_SetChatTextFromConfig()
 	g_AutocivControls = new AutocivControls()
-	return result;
+
+	registerConfigChangeHandler(changes =>
+	{
+		if (changes.has("autociv.session.graphics.corpses.max"))
+			autociv_SetCorpsesMax(Engine.ConfigDB_GetValue("user", "autociv.session.graphics.corpses.max"))
+
+		autociv_SetChatTextFromConfig()
+	})
+
+	return result
 })

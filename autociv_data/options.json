@@ -30,18 +30,6 @@
 			},
 			{
 				"type": "boolean",
-				"label": "[color=\"220 185 70\"]Game:[/color] stats overlay visible",
-				"tooltip": "stats overlay visible",
-				"config": "autociv.session.statsOverlay.visible"
-            },
-			{
-				"type": "boolean",
-				"label": "[color=\"220 185 70\"]Game:[/color] Delete no warning",
-				"tooltip": "Don't show confirmation dialog when deleting unit",
-				"config": "autociv.session.kill.nowarning"
-			},
-			{
-				"type": "boolean",
 				"label": "[color=\"220 185 70\"]Game setup:[/color] countdown enable",
 				"tooltip": "Automatically enable countdown when hosting",
 				"config": "autociv.gamesetup.countdown.enabled"
@@ -53,6 +41,18 @@
 				"config": "autociv.gamesetup.countdown.time",
 				"min": 0,
 				"max": 60
+			},
+			{
+				"type": "boolean",
+				"label": "[color=\"220 185 70\"]Game:[/color] stats overlay visible",
+				"tooltip": "stats overlay visible",
+				"config": "autociv.session.statsOverlay.visible"
+            },
+			{
+				"type": "boolean",
+				"label": "[color=\"220 185 70\"]Game:[/color] Delete no warning",
+				"tooltip": "Don't show confirmation dialog when deleting unit",
+				"config": "autociv.session.kill.nowarning"
 			},
 			{
 				"type": "boolean",

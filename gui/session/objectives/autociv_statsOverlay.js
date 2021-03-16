@@ -41,6 +41,14 @@ AutocivControls.StatsOverlay = class
         this.autociv_statsOverlay.onTick = this.onTick.bind(this)
 
         this.update()
+
+        registerConfigChangeHandler(this.onConfigChanges.bind(this))
+    }
+
+    onConfigChanges(changes)
+    {
+        if (changes.has(this.configKey_visible))
+            this.autociv_statsOverlay.hidden = Engine.ConfigDB_GetValue("user", this.configKey_visible) == "false"
     }
 
     toggle()
