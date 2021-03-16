@@ -4,6 +4,7 @@ var g_autociv_countdown = {
 	"set_time": undefined,
 	"time": undefined,
 	"timeoutid": null,
+	"running": false,
 	"next": function ()
 	{
 		if (this.time < 0)
@@ -24,6 +25,7 @@ var g_autociv_countdown = {
 		this.stopCountdown()
 		this.set_time = time
 		this.time = time
+		this.running = true
 		if (this.valid())
 			this.next()
 	},
@@ -33,6 +35,7 @@ var g_autociv_countdown = {
 	},
 	"stopCountdown": function ()
 	{
+		this.running = false
 		clearTimeout(this.timeoutid)
 	},
 	"valid": function ()
@@ -45,10 +48,20 @@ var g_autociv_countdown = {
 		if (!this.active)
 			return
 
-		if (this.valid())
-			this.resetCountdown()
-		else
+		if (!this.valid())
 			this.stopCountdown()
+		else
+			this.resetCountdown()
+	},
+	"gameUpdateSoft": function ()
+	{
+		if (!this.active)
+			return
+
+		if (!this.valid())
+			this.stopCountdown()
+		else if (!this.running)
+			this.resetCountdown()
 	},
 	"toggle": function (active = !this.active, time = this.default_time)
 	{
@@ -69,21 +82,13 @@ var g_autociv_countdown = {
 		if (g_IsController && Engine.ConfigDB_GetValue("user", "autociv.gamesetup.countdown.enabled") == "true")
 			g_autociv_countdown.toggle(true)
 	},
-	"hookUpdate": () => { if (g_IsController) g_autociv_countdown.gameUpdate() }
 }
 
 autociv_patchApplyN("init", function (target, that, args)
 {
 	target.apply(that, args);
-	g_SetupWindow.controls.gameSettingsControl.registerAssignPlayerHandler(g_autociv_countdown.hookUpdate)
-	g_SetupWindow.controls.gameSettingsControl.registerGameAttributesBatchChangeHandler(g_autociv_countdown.hookUpdate)
-	g_SetupWindow.controls.readyControl.registerResetReadyHandler(g_autociv_countdown.hookUpdate)
-	g_SetupWindow.controls.playerAssignmentsControl.registerClientLeaveHandler(() =>
-	{
-		if (!game.is.allReady()) g_autociv_countdown.hookUpdate()
-	})
-	g_SetupWindow.controls.netMessages.registerNetMessageHandler("ready", () =>
-	{
-		if (!game.is.allReady()) g_autociv_countdown.hookUpdate()
-	})
+	const ctrl = g_SetupWindow.controls
+	ctrl.playerAssignmentsControl.registerClientLeaveHandler(() => g_autociv_countdown.gameUpdateSoft())
+	ctrl.readyControl.registerResetReadyHandler(() => g_autociv_countdown.gameUpdateSoft())
+	ctrl.netMessages.registerNetMessageHandler("ready", () => g_autociv_countdown.gameUpdateSoft())
 })
