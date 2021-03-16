@@ -40,7 +40,7 @@ function autociv_patchSession()
 function autociv_SetChatTextFromConfig()
 {
 	const that = autociv_SetChatTextFromConfig
-	that.default_size == that.default_size ?? Engine.GetGUIObjectByName("chatPanel").size
+	that.default_size = that.default_size ?? Engine.GetGUIObjectByName("chatPanel").size
 	that.default_font = that.default_font ?? Engine.GetGUIObjectByName("chatLines").children[0].font
 
 	const changeSize = Engine.ConfigDB_GetValue("user", "autociv.session.chatPanel.size.change") == "true"
