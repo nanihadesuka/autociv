@@ -1,17 +1,45 @@
-GameRegisterStanza = new Proxy(GameRegisterStanza, {
-    construct: function (target, args)
+// MODS FILTER CODE
+if (!GameRegisterStanza.prototype.autociv_filterModsList)
+{
+    GameRegisterStanza.prototype.autociv_filterModsList = []
+    GameRegisterStanza.prototype.autociv_filterMods = function ()
     {
-        let instance = new target(...args);
-        let mod = ([name, version]) => !/^AutoCiv.*/i.test(name);
-        instance.mods = JSON.stringify(JSON.parse(instance.mods).filter(mod));
-        return instance;
-    }
-});
+        if (!g_IsController || !Engine.HasXmppClient())
+            return;
 
+        const filter = mod => this.autociv_filterModsList.every(f => f(...mod))
+        this.mods = JSON.stringify(Engine.GetEngineInfo().mods.filter(filter))
+    }
+
+    autociv_patchApplyN(GameRegisterStanza.prototype, "sendImmediately", function (target, that, args)
+    {
+        that.autociv_filterMods()
+        return target.apply(that, args)
+    })
+}
+
+/**
+ * MOD FILTER
+ * @returns False: removes mod from mods list
+ */
+GameRegisterStanza.prototype.autociv_filterModsList.push((name, version) =>
+{
+    if (name != "autociv")
+        return true
+
+    return g_autociv_maps.has(g_GameAttributes.map)
+})
+
+// STANZA REREGISTER CODE
 autociv_patchApplyN(GameRegisterStanza.prototype, "sendImmediately", function (target, that, args)
 {
     let result = target.apply(that, args);
+
     if (g_IsController && that.lastStanza != undefined)
-        g_autociv_stanza.setValue("gamesetup", that.lastStanza);
+        that.autociv_stanza.setValue("gamesetup", that.lastStanza);
+
     return result;
 })
+
+GameRegisterStanza.prototype.autociv_stanza = new ConfigJSON("stanza", false);
+GameRegisterStanza.prototype.autociv_stanza.removeAllValues();

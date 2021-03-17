@@ -1,4 +1,4 @@
-var g_autociv_stanza = new ConfigJSON("stanza", false);
+var g_autociv_maps = new Set(["maps/skirmishes/Volcano Island (8)"])
 
 var g_autociv_hotkeys = {
 	"autociv.open.autociv_readme": function (ev)
@@ -36,7 +36,6 @@ autociv_patchApplyN("init", function (target, that, args)
 		left: 4, top: 4, bottom: -32
 	})
 
-	g_autociv_stanza.removeAllValues();
 	autociv_InitBots();
 
 	target.apply(that, args);
