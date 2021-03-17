@@ -5,7 +5,7 @@ AutocivControls.StatsOverlay = class
     preStats = {
         "     Player": state => state.name, // Player name
         " ■": state => "■", // Player color
-        " #": state => `${state.index}`, // Player number
+        " #": state => `${state.playerNumber}`, // Player number
         " T": state => state.team != -1 ? `${state.team + 1}` : "", // Team number
     }
     stats = {
@@ -71,7 +71,7 @@ AutocivControls.StatsOverlay = class
     maxWithIndex(list)
     {
         let index = 0
-        let value = -Infinity
+        let value = list[index]
         for (let i = 0; i < list.length; i++) if (list[i] > value)
         {
             value = list[i]
@@ -82,7 +82,7 @@ AutocivControls.StatsOverlay = class
     minWithIndex(list)
     {
         let index = 0
-        let value = +Infinity
+        let value = list[index]
         for (let i = 0; i < list.length; i++) if (list[i] < value)
         {
             value = list[i]
@@ -93,7 +93,7 @@ AutocivControls.StatsOverlay = class
 
     playerColor(state)
     {
-        return rgbToGuiColor(g_DiplomacyColors.displayedPlayerColors[state.index])
+        return rgbToGuiColor(g_DiplomacyColors.displayedPlayerColors[state.playerNumber])
     }
 
     leftPadTrunc(text, size)
@@ -114,7 +114,7 @@ AutocivControls.StatsOverlay = class
             if (index == 0 && index != g_ViewedPlayer) // Gaia index 0
                 return false
 
-            state.index = index
+            state.playerNumber = index
             if (g_IsObserver || !g_Players[g_ViewedPlayer] || index == g_ViewedPlayer)
                 return true
             if (!playerStates[g_ViewedPlayer].hasSharedLos || !g_Players[g_ViewedPlayer].isMutualAlly[index])
@@ -152,12 +152,12 @@ AutocivControls.StatsOverlay = class
             const stats = Object.keys(values).map(stat =>
             {
                 let text = this.leftPadTrunc(values[stat].list[index].toString(), this.widths[stat])
-                switch (state.index)
+                switch (index)
                 {
                     case values[stat].max[1]:
-                        return setStringTags(text, { "color": "255 255 0 255" })
+                        return setStringTags(text, { "color": "230 230 0" })
                     case values[stat].min[1]:
-                        return setStringTags(text, { "color": "255 120 120 255" })
+                        return setStringTags(text, { "color": "255 100 100" })
                     default:
                         return text
                 }
