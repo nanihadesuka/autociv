@@ -26,22 +26,19 @@ AutocivControls.StatsOverlay = class
     tickPeriod = 10
     textFont = "mono-stroke-10"
     configKey_visible = "autociv.session.statsOverlay.visible"
-    hotkeyKey_visibleToggle = "autociv.session.statsOverlay.visible.toggle"
 
     constructor()
     {
         this.autociv_statsOverlay.hidden = Engine.ConfigDB_GetValue("user", this.configKey_visible) == "false"
 
-        Object.keys(this.preStats).concat(Object.keys(this.stats)).forEach(value =>
-        {
-            this.widths[value] = value.length
-        })
+        for (let name in this.preStats)
+            this.widths[name] = name.length
 
-        Engine.SetGlobalHotkey(this.hotkeyKey_visibleToggle, "Press", this.toggle.bind(this));
+        for (let name in this.stats)
+            this.widths[name] = name.length
+
         this.autociv_statsOverlay.onTick = this.onTick.bind(this)
-
         this.update()
-
         registerConfigChangeHandler(this.onConfigChanges.bind(this))
     }
 

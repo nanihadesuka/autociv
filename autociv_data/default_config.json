@@ -28,7 +28,6 @@
 	"hotkey.autociv.selection.nowoundedonly": "K",
 	"hotkey.autociv.session.exit": "Shift+Escape",
 	"hotkey.autociv.session.minimap.expand.toggle": "Shift+Tab",
-	"hotkey.autociv.session.statsOverlay.visible.toggle": "Ctrl+C+O",
 	"hotkey.autociv.session.building.place.amphitheater_pompeii": "",
 	"hotkey.autociv.session.building.place.apadana": "",
 	"hotkey.autociv.session.building.place.arch": "",
