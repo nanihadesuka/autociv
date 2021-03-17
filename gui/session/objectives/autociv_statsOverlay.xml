@@ -2,4 +2,5 @@
     size="100%-400 100%-228-100 100% 100%-100"
     sprite="color:0 0 0 200"
     hidden="true"
+    ghost="true"
     type="text"/>

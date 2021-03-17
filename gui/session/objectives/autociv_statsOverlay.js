@@ -101,6 +101,11 @@ AutocivControls.StatsOverlay = class
         return text.substring(0, size).padStart(size)
     }
 
+    computeSize(numerOfRows, rowLength)
+    {
+        return `100%-${6.2 * rowLength} 100%-228-${numerOfRows * 12 + 7} 100% 100%-228`
+    }
+
     update()
     {
         Engine.ProfileStart("AutocivControls.statsOverlay:update")
@@ -123,6 +128,7 @@ AutocivControls.StatsOverlay = class
         let header = Object.keys(this.widths).
             map(row => this.leftPadTrunc(row, this.widths[row])).
             join("")
+        const rowLength = header.length
         header = setStringTags(header, { "color": "210 210 210" })
         header += "\n"
 
@@ -165,7 +171,7 @@ AutocivControls.StatsOverlay = class
         }).join("\n")
 
         this.autociv_statsOverlay.caption = ""
-        this.autociv_statsOverlay.size = `100%-450 100%-228-${(playerStates.length + 1) * 12 + 7} 100% 100%-228`
+        this.autociv_statsOverlay.size = this.computeSize(playerStates.length + 1, rowLength)
         this.autociv_statsOverlay.caption = setStringTags(header + entries, {
             "color": "250 250 250 250",
             "font": this.textFont
