@@ -1,4 +1,10 @@
+
 var game = {
+	updateSettings()
+	{
+		g_SetupWindow.controls.gameSettingsControl.updateGameAttributes()
+		g_SetupWindow.controls.gameSettingsControl.setNetworkGameAttributes()
+	},
 	get 'controls'() { return g_SetupWindow.pages.GameSetupPage.gameSettingControlManager.gameSettingControls },
 	get 'panels'() { return g_SetupWindow.pages.GameSetupPage.panels },
 	get 'panelsButtons'() { return g_SetupWindow.pages.GameSetupPage.panelButtons },
@@ -13,9 +19,7 @@ var game = {
 				return selfMessage('Invalid starting resources value (must be a number).');
 
 			g_GameAttributes.settings.StartingResources = val;
-			const startingResoruces = game.controls.StartingResources
-			startingResoruces.gameSettingsControl.updateGameAttributes();
-			startingResoruces.gameSettingsControl.setNetworkGameAttributes();
+			game.updateSettings()
 			sendMessage(`Starting resources set to: ${val}`);
 		},
 		'mapcircular': (circular = true) =>
@@ -24,8 +28,7 @@ var game = {
 				return;
 
 			g_GameAttributes.settings.CircularMap = !!circular;
-			const startingResoruces = game.controls.StartingResources
-			startingResoruces.gameSettingsControl.setNetworkGameAttributes();
+			game.updateSettings()
 			sendMessage(`Map shape set to: ${!!circular ? "circular" : "squared"}`);
 		},
 		'population': (quantity) =>
@@ -37,9 +40,7 @@ var game = {
 				return selfMessage('Invalid population cap value (must be a number >= 0).');
 
 			g_GameAttributes.settings.PopulationCap = val;
-			const populationCap = game.controls.PopulationCap
-			populationCap.gameSettingsControl.updateGameAttributes();
-			populationCap.gameSettingsControl.setNetworkGameAttributes();
+			game.updateSettings()
 			sendMessage(`Population cap set to: ${val}`);
 
 		},
@@ -54,8 +55,7 @@ var game = {
 				return selfMessage('Invalid map size value (must be a number >= 1).');
 
 			g_GameAttributes.settings.Size = val;
-			const mapSize = game.controls.MapSize
-			mapSize.gameSettingsControl.updateGameAttributes();
+			game.updateSettings()
 			sendMessage(`Map size set to: ${val}`);
 		},
 		"numberOfSlots": (num) =>
@@ -110,7 +110,7 @@ var game = {
 			{
 				for (let i in g_GameAttributes.settings.PlayerData)
 					g_GameAttributes.settings.PlayerData[i].Team = -1;
-				updateGameAttributes();
+				game.updateSettings()
 				return;
 			}
 
@@ -133,13 +133,13 @@ var game = {
 			for (let team = 0, slot = 0; team < teams.length; ++team)
 				for (let i = 0; i < teams[team]; ++i)
 					g_GameAttributes.settings.PlayerData[slot++].Team = team;
+
+			game.updateSettings()
 		},
 		"slotName": (slotNumber, name) =>
 		{
 			g_GameAttributes.settings.PlayerData[slotNumber - 1].Name = name;
-			const startingResoruces = game.controls.StartingResources
-			startingResoruces.gameSettingsControl.updateGameAttributes();
-			startingResoruces.gameSettingsControl.setNetworkGameAttributes();
+			game.updateSettings()
 		}
 	},
 	'get':
@@ -218,9 +218,7 @@ var game = {
 			for (let i = 0; i < 8; ++i)
 				g_GameAttributes.settings.PlayerData[i].Name = translate(`Player ${i + 1}`);
 
-			const startingResoruces = game.controls.StartingResources
-			startingResoruces.gameSettingsControl.updateGameAttributes();
-			startingResoruces.gameSettingsControl.setNetworkGameAttributes();
+			game.updateSettings()
 		}
 	}
 };
