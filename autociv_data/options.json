@@ -45,8 +45,14 @@
 			{
 				"type": "boolean",
 				"label": "[color=\"220 185 70\"]Game:[/color] stats overlay visible",
-				"tooltip": "stats overlay visible",
+				"tooltip": "Show players basic statistics in an overlay",
 				"config": "autociv.session.statsOverlay.visible"
+            },
+			{
+				"type": "boolean",
+				"label": "[color=\"220 185 70\"]Game:[/color] players overlay visible",
+				"tooltip": "Show observers and offline players in an overlay",
+				"config": "autociv.session.playersOverlay.visible"
             },
 			{
 				"type": "boolean",

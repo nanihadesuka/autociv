@@ -15,6 +15,7 @@
 	"autociv.session.chatText.font.change": "false",
 	"autociv.session.chatText.font": "sans-bold-stroke-14",
 	"autociv.session.statsOverlay.visible": "true",
+	"autociv.session.playersOverlay.visible": "true",
 	"hotkey.autociv.open.test": "Ctrl+A+T",
 	"hotkey.autociv.open.autociv_readme": "Shift+F4",
 	"hotkey.autociv.gamesetup.focus.chatInput": "Alt+Q",
