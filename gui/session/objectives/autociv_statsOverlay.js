@@ -101,9 +101,19 @@ AutocivControls.StatsOverlay = class
         return text.substring(0, size).padStart(size)
     }
 
-    computeSize(numerOfRows, rowLength)
+    calcWidth(rowLength)
     {
-        return `100%-${6.2 * rowLength} 100%-228-${numerOfRows * 12 + 7} 100% 100%-228`
+        return Engine.GetTextWidth(this.textFont, " ") * rowLength + this.autociv_statsOverlay.buffer_zone * 2
+    }
+
+    calcHeight(rowQuantity)
+    {
+        return Engine.GetTextWidth(this.textFont, " ") * 2 * rowQuantity + this.autociv_statsOverlay.buffer_zone
+    }
+
+    computeSize(rowQuantity, rowLength)
+    {
+        return `100%-${this.calcWidth(rowLength)} 100%-228-${this.calcHeight(rowQuantity)} 100% 100%-228`
     }
 
     update()
