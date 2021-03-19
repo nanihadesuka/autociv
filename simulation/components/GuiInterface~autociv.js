@@ -200,16 +200,16 @@ GuiInterface.prototype.autociv_GetStatsOverlay = function ()
     for (let i = 0; i < numPlayers; ++i)
     {
         // Work out which phase we are in.
-        let phase = "";
+        let phase = 0;
         const cmpTechnologyManager = QueryPlayerIDInterface(i, IID_TechnologyManager);
         if (cmpTechnologyManager)
         {
             if (cmpTechnologyManager.IsTechnologyResearched("phase_city"))
-                phase = "city";
+                phase = 3;
             else if (cmpTechnologyManager.IsTechnologyResearched("phase_town"))
-                phase = "town";
+                phase = 2;
             else if (cmpTechnologyManager.IsTechnologyResearched("phase_village"))
-                phase = "village";
+                phase = 1;
         }
 
         const cmpPlayer = QueryPlayerIDInterface(i);
@@ -228,7 +228,7 @@ GuiInterface.prototype.autociv_GetStatsOverlay = function ()
             "classCounts_Infantry": classCounts?.Infantry ?? 0,
             "classCounts_Cavalry": classCounts?.Cavalry ?? 0,
             "classCounts_Seige": (classCounts?.Siege ?? 0) + (classCounts?.Elephant ?? 0),
-            "enemyUnitsKilledTotal": cmpPlayerStatisticsTracker?.GetStatistics().enemyUnitsKilled.total
+            "enemyUnitsKilledTotal": cmpPlayerStatisticsTracker?.enemyUnitsKilled.total ?? 0
         });
     }
 

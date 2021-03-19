@@ -9,7 +9,7 @@ AutocivControls.StatsOverlay = class
         " T": state => state.team != -1 ? `${state.team + 1}` : "", // Team number
     }
     stats = {
-        " P": state => this.phases[state.phase] ?? 0,
+        " P": state => state.phase,
         " Pop": state => state.popCount,
         " Inf": state => state.classCounts_Infantry,
         " Cav": state => state.classCounts_Cavalry,
@@ -22,7 +22,6 @@ AutocivControls.StatsOverlay = class
         " Kil": state => state.enemyUnitsKilledTotal ?? 0,
     }
     widths = {} // Will be filled on the constructor
-    phases = { "city": 3, "village": 1, "town": 2 }
     tickPeriod = 10
     textFont = "mono-stroke-10"
     configKey_visible = "autociv.session.statsOverlay.visible"
