@@ -56,7 +56,7 @@ function autociv_placeBuildingByTemplateName(templateName)
 		templates.push(...cycleTemplates)
 
 	const self = autociv_placeBuildingByTemplateName
-	if (self.state.templateName != templateName || !placementSupport.template)
+	if (self.state.templateName != templateName || !placementSupport.mode)
 		self.state.index = -1
 
 	for (let _ = 0; _ < templates.length; _++)
