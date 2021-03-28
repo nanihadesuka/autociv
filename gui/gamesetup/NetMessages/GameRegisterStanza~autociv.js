@@ -24,10 +24,7 @@ if (!GameRegisterStanza.prototype.autociv_filterModsList)
  */
 GameRegisterStanza.prototype.autociv_filterModsList.push((name, version) =>
 {
-    if (name != "autociv")
-        return true
-
-    return g_autociv_maps.has(g_GameAttributes.map)
+    return !/^AutoCiv.*/i.test(name)
 })
 
 // STANZA REREGISTER CODE

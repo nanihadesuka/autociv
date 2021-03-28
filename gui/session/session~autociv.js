@@ -53,9 +53,73 @@ function autociv_SetChatTextFromConfig()
 		child.font = font
 }
 
+function getGuiObjectsWithHotkey()
+{
+	let dict = {}
+	let internal = 0
+
+	let traverse = parent => parent.children.forEach(child =>
+	{
+		if (child.name.startsWith("__internal("))
+			++internal
+
+		if (child.hotkey)
+			dict[child.hotkey] = child
+
+		traverse(child)
+	})
+
+	while (true)
+	{
+		let object = Engine.GetGUIObjectByName(`__internal(${internal})`)
+		if (!object)
+			break
+
+		// Go to root
+		while (object.parent != null)
+			object = object.parent
+
+		traverse(object)
+		++internal
+	}
+	return dict
+}
+
+var g_hotkeyObjectChange = {
+	"camera.follow": ["onPress", "onKeyDown"]
+}
+
+
+function autociv_changeSomeHotkeysToKeyDownAsPressTypeCantBeDiscardedFromBeingCalledForSomeReason()
+{
+	let guiObjectWithHotkeys = getGuiObjectsWithHotkey()
+	for (let hotkey in g_hotkeyObjectChange)
+	{
+		const obj = guiObjectWithHotkeys[hotkey]
+		if (!obj)
+			continue
+
+		const [from, to] = g_hotkeyObjectChange[hotkey]
+		obj[to] = obj[from].bind(obj[from])
+		delete obj[from]
+	}
+
+	{
+		const that = g_Chat
+		Engine.UnsetGlobalHotkey("chat", "Press");
+		Engine.UnsetGlobalHotkey("teamchat", "Press");
+		Engine.UnsetGlobalHotkey("privatechat", "Press");
+		Engine.SetGlobalHotkey("chat", "KeyDown", that.openPage.bind(that));
+		Engine.SetGlobalHotkey("privatechat", "KeyDown", that.openPage.bind(that));
+		Engine.SetGlobalHotkey("teamchat", "KeyDown", () => { that.openPage(g_IsObserver ? "/observers" : "/allies"); });
+	}
+}
+
 autociv_patchApplyN("init", function (target, that, args)
 {
 	let result = target.apply(that, args)
+
+	autociv_changeSomeHotkeysToKeyDownAsPressTypeCantBeDiscardedFromBeingCalledForSomeReason()
 	autociv_initBots()
 	autociv_patchSession()
 	autociv_addVersionLabel()

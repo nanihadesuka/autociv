@@ -221,9 +221,36 @@ var g_autociv_hotkeysPrefixes = {
 	}
 };
 
+
+var g_autocivUnboundTime = 0
+
 autociv_patchApplyN("handleInputBeforeGui", function (target, that, args)
 {
 	let [ev] = args;
+
+	/**
+	 * Measure the time diference between the processing of hotkeys.
+	 * If an event type is "hotkeyup" then it means a hotkey event
+	 * has just finished, given that info, wait for any new hotkey
+	 * events that try to start in a very short time after this one.
+	 * If any is found and is/are of type "hotkeydown", meaning it wants to
+	 * trigger some events, prevent them from executing.
+	 * *
+	 * Still don't know how to fix not having control over the order
+	 * the hotkeys events are fired to later discard but seems to
+	 * work mostly fine.
+	 */
+	if (ev.hotkey)
+	{
+		const time = Engine.GetMicroseconds()
+		const diff = time - g_autocivUnboundTime
+		if (ev.type == "hotkeyup")
+			g_autocivUnboundTime = time
+
+		if (diff < 2000 && ev.type == "hotkeydown")
+			return true
+	}
+
 	if ("hotkey" in ev && ev.type == "hotkeydown")
 	{
 		// Hotkey with normal behaviour
