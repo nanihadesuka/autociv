@@ -40,45 +40,46 @@
  *   setting will overrite the old one.
  */
 
-function AnimateGUIManager()
+class AnimateGUIManager
 {
-	this.objects = new Set();
-};
+	objects = new Set()
 
-AnimateGUIManager.prototype.get = function (GUIObject)
-{
-	if (!GUIObject.onAutocivAnimate)
+	get(GUIObject)
 	{
-		GUIObject.onAutocivAnimate = function () { };
-		GUIObject.onAutocivAnimate.manager = new AnimateGUIObjectManager(GUIObject, this);
+		if (!GUIObject.onAutocivAnimate)
+		{
+			GUIObject.onAutocivAnimate = function () { }
+			GUIObject.onAutocivAnimate.manager = new AnimateGUIObjectManager(GUIObject, this)
+		}
+		this.objects.add(GUIObject.onAutocivAnimate.manager)
+		return GUIObject.onAutocivAnimate.manager
 	}
-	this.objects.add(GUIObject.onAutocivAnimate.manager);
-	return GUIObject.onAutocivAnimate.manager;
-};
 
-// Adds GUIObjectManager instance back to this.objects so it can onTick again
-AnimateGUIManager.prototype.setTicking = function (AnimateGUIObjectManagerInstance)
-{
-	this.objects.add(AnimateGUIObjectManagerInstance);
-};
+	// Adds GUIObjectManager instance back to this.objects so it can onTick again
+	setTicking(AnimateGUIObjectManagerInstance)
+	{
+		this.objects.add(AnimateGUIObjectManagerInstance)
+	}
 
-AnimateGUIManager.prototype.onTick = function ()
-{
-	for (let object of this.objects)
-		if (!object.onTick().isAlive())
-			this.objects.delete(object);
-};
+	onTick()
+	{
+		for (let object of this.objects)
+			if (!object.onTick().isAlive())
+				this.objects.delete(object)
+	}
+}
 
 /**
  * @param {object | string} object
+ * @returns {AnimateGUIObjectManager} instance
  */
 function animate(object)
 {
-	let GUIObject = typeof object == "string" ? Engine.GetGUIObjectByName(object) : object;
-	return animate.instance.get(GUIObject);
+	let GUIObject = typeof object == "string" ? Engine.GetGUIObjectByName(object) : object
+	return animate.instance.get(GUIObject)
 }
 
-animate.instance = new AnimateGUIManager();
+animate.instance = new AnimateGUIManager()
 
 // onTick routine always called on all pages with global.xml included (all?)
-animate.onTick = function () { animate.instance.onTick(); }
+animate.onTick = function () { animate.instance.onTick() }

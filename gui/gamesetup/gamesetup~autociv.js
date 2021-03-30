@@ -14,7 +14,7 @@ var g_autociv_hotkeys = {
 
 function handleInputBeforeGui(ev)
 {
-	resizeBarManager.onEvent(ev);
+	g_resizeBarManager.onEvent(ev);
 	return false;
 }
 

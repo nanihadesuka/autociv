@@ -58,7 +58,7 @@ function autociv_showLastGameSummary()
 }
 function handleInputBeforeGui(ev)
 {
-	resizeBarManager.onEvent(ev);
+	g_resizeBarManager.onEvent(ev);
 	return false;
 }
 
@@ -97,20 +97,20 @@ autociv_patchApplyN("init", function (target, that, args)
 
 	// React to GUI objects resize bars
 	{
-		resizeBarManager("chatPanel", "top", undefined, [["gamesBox", "bottom"]])
-		resizeBarManager("middlePanel", "left", undefined, [["leftPanel", "right"]]);
-		resizeBarManager("middlePanel", "right", undefined, [["rightPanel", "left"]]);
+		g_resizeBarManager.add("chatPanel", "top", undefined, [["gamesBox", "bottom"]])
+		g_resizeBarManager.add("middlePanel", "left", undefined, [["leftPanel", "right"]]);
+		g_resizeBarManager.add("middlePanel", "right", undefined, [["rightPanel", "left"]]);
 
 		let gameInfo = Engine.GetGUIObjectByName("sgMapName").parent;
 		let gameInfoUsers = gameInfo.children[gameInfo.children.length - 1];
 		let gameInfoDescription = gameInfo.children[gameInfo.children.length - 2];
-		resizeBarManager(gameInfoUsers, "top", undefined, [[gameInfoDescription, "bottom"]], () => !gameInfo.hidden);
+		g_resizeBarManager.add(gameInfoUsers, "top", undefined, [[gameInfoDescription, "bottom"]], () => !gameInfo.hidden);
 	}
 
 	// Disable/enable resize bars when these "pages" open/close
-	g_LobbyHandler.leaderboardPage.registerOpenPageHandler(() => { resizeBarManager.ghostMode = true })
-	g_LobbyHandler.leaderboardPage.registerClosePageHandler(() => { resizeBarManager.ghostMode = false })
-	g_LobbyHandler.profilePage.registerClosePageHandler(() => { resizeBarManager.ghostMode = false })
+	g_LobbyHandler.leaderboardPage.registerOpenPageHandler(() => { g_resizeBarManager.ghostMode = true })
+	g_LobbyHandler.leaderboardPage.registerClosePageHandler(() => { g_resizeBarManager.ghostMode = false })
+	g_LobbyHandler.profilePage.registerClosePageHandler(() => { g_resizeBarManager.ghostMode = false })
 
 	autociv_focus.chatInput();
 });

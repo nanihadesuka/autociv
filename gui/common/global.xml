@@ -102,7 +102,7 @@
 		-->
 
 		<action on="Tick">
-			resizeBarManager.onTick();
+			g_resizeBarManager.onTick();
 			animate.onTick();
 		</action>
 

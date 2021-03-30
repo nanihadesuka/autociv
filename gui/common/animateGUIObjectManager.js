@@ -1,92 +1,95 @@
-function AnimateGUIObjectManager(GUIObject, GUIManagerInstance)
+class AnimateGUIObjectManager
 {
-	this.GUIManagerInstance = GUIManagerInstance;
-	this.GUIObject = GUIObject;
-	this.running = [];
-	this.queue = [];
-}
-
-AnimateGUIObjectManager.prototype.isAlive = function ()
-{
-	return this.running.length || this.queue.length;
-};
-
-/**
- * @param {Object} settings
- * @param {Number} [settings.duration]
- * @param {Number} [settings.delay]
- * @param {String | Function} [settings.curve]
- * @param {Function} [settings.onStart]
- * @param {Function} [settings.onTick]
- * @param {Function} [settings.onComplete]
- * @param {Boolean} [settings.queue]
- * @param {{r,g,b,a} | String} [settings.color]
- * @param {{r,g,b,a} | String} [settings.textcolor]
- * @param {{left,top,right,bottom,rleft,rtop,rright,rbottom} | String} settings.size
- */
-AnimateGUIObjectManager.prototype.add = function (settings)
-{
-	this.GUIManagerInstance.setTicking(this);
-	let newAnimation = new AnimateGUIObject(this.GUIObject, settings);
-
-	if (newAnimation.data.queue)
-		this.queue.push(newAnimation)
-	else
+	constructor(GUIObject, GUIManagerInstance)
 	{
-		this.running = this.running.filter(animation => animation.removeIntersections(newAnimation).isAlive());
-		this.running.push(newAnimation);
+		this.GUIManagerInstance = GUIManagerInstance
+		this.GUIObject = GUIObject
+		this.running = []
+		this.queue = []
 	}
 
-	return this;
-}
+	isAlive()
+	{
+		return this.running.length || this.queue.length
+	}
 
-AnimateGUIObjectManager.prototype.onTick = function ()
-{
-	const time = Date.now();
+	/**
+	 * @param {Object} settings
+	 * @param {Number} [settings.duration]
+	 * @param {Number} [settings.delay]
+	 * @param {String | Function} [settings.curve]
+	 * @param {Function} [settings.onStart]
+	 * @param {Function} [settings.onTick]
+	 * @param {Function} [settings.onComplete]
+	 * @param {Boolean} [settings.queue]
+	 * @param {{r,g,b,a} | String} [settings.color]
+	 * @param {{r,g,b,a} | String} [settings.textcolor]
+	 * @param {{left,top,right,bottom,rleft,rtop,rright,rbottom} | String} settings.size
+	 */
+	add(settings)
+	{
+		this.GUIManagerInstance.setTicking(this)
+		let newAnimation = new AnimateGUIObject(this.GUIObject, settings)
 
-	do this.running = this.running.filter(animation => animation.run(time).hasRemainingStages());
-	while (!this.running.length && this.queue.length && this.running.push(this.queue.shift()))
+		if (newAnimation.data.queue)
+			this.queue.push(newAnimation)
+		else
+		{
+			this.running = this.running.filter(animation => animation.removeIntersections(newAnimation).isAlive())
+			this.running.push(newAnimation)
+		}
 
-	return this;
-};
+		return this
+	}
 
-/**
- * Ends animation as if had reached end time.
- * onStart/onTick/onComplete called as usual.
- */
-AnimateGUIObjectManager.prototype.complete = function ()
-{
-	this.GUIManagerInstance.setTicking(this);
-	for (let animation of this.running)
-		animation.complete(false);
+	onTick()
+	{
+		const time = Date.now()
 
-	return this;
-}
+		do this.running = this.running.filter(animation => animation.run(time).hasRemainingStages())
+		while (!this.running.length && this.queue.length && this.running.push(this.queue.shift()))
 
-/**
- * Ends animation as if had reached end time but without updating attributes.
- * onStart/onTick/onComplete called as usual.
- */
-AnimateGUIObjectManager.prototype.finish = function ()
-{
-	this.GUIManagerInstance.setTicking(this);
-	for (let animation of this.running)
-		animation.complete(true);
+		return this
+	}
 
-	return this;
-}
+	/**
+	 * Ends animation as if had reached end time.
+	 * onStart/onTick/onComplete called as usual.
+	 */
+	complete()
+	{
+		this.GUIManagerInstance.setTicking(this)
+		for (let animation of this.running)
+			animation.complete(false)
 
-/**
- * Chain animations
- * @param {Object} GUIObject
- * @param {Object[]} chainSettingsList
- * @param {Object} sharedSettings
- */
-AnimateGUIObjectManager.prototype.chain = function (chainSettingsList, sharedSettings)
-{
-	this.GUIManagerInstance.setTicking(this);
-	for (let settings of chainSettingsList)
-		this.add(Object.assign({}, sharedSettings, settings));
+		return this
+	}
 
-	return this;
+	/**
+	 * Ends animation as if had reached end time but without updating attributes.
+	 * onStart/onTick/onComplete called as usual.
+	 */
+	finish()
+	{
+		this.GUIManagerInstance.setTicking(this)
+		for (let animation of this.running)
+			animation.complete(true)
+
+		return this
+	}
+
+	/**
+	 * Chain animations
+	 * @param {Object} GUIObject
+	 * @param {Object[]} chainSettingsList
+	 * @param {Object} sharedSettings
+	 */
+	chain(chainSettingsList, sharedSettings)
+	{
+		this.GUIManagerInstance.setTicking(this)
+		for (let settings of chainSettingsList)
+			this.add(Object.assign({}, sharedSettings, settings))
+
+		return this
+	}
 }
