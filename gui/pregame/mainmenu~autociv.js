@@ -90,7 +90,7 @@ function autociv_initCheck()
 
 Engine.SetGlobalHotkey("autociv.open.autociv_readme", "Press", () =>
 {
-    autocivCL.Engine.PushGuiPage("page_autociv_readme.xml");
+    Engine.PushGuiPage("page_autociv_readme.xml");
 })
 
 autociv_patchApplyN("init", function (target, that, args)
@@ -122,7 +122,7 @@ autociv_patchApplyN("init", function (target, that, args)
     }
 
     if (state.showReadme)
-        autocivCL.Engine.PushGuiPage("page_autociv_readme.xml");
+        Engine.PushGuiPage("page_autociv_readme.xml");
 
     return target.apply(that, args);
 })

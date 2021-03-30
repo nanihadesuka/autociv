@@ -3,7 +3,7 @@ var g_autociv_maps = new Set(["maps/skirmishes/Volcano Island (8)"])
 var g_autociv_hotkeys = {
 	"autociv.open.autociv_readme": function (ev)
 	{
-		autocivCL.Engine.PushGuiPage("page_autociv_readme.xml");
+		Engine.PushGuiPage("page_autociv_readme.xml");
 	},
 	"autociv.gamesetup.focus.chatInput": function (ev)
 	{

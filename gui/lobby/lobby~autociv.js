@@ -17,7 +17,7 @@ var g_autociv_hotkeys = {
 	"autociv.lobby.focus.chatInput": autociv_focus.chatInput,
 	"autociv.lobby.focus.gameList": autociv_focus.gameList,
 	"autociv.lobby.gameList.selected.join": () => g_LobbyHandler.lobbyPage.lobbyPage.buttons.joinButton.onPress(),
-	"autociv.open.autociv_readme": ev => autocivCL.Engine.PushGuiPage("page_autociv_readme.xml"),
+	"autociv.open.autociv_readme": ev => Engine.PushGuiPage("page_autociv_readme.xml"),
 	"autociv.lobby.host": ev => g_LobbyHandler.lobbyPage.lobbyPage.buttons.hostButton.onPress(),
 	"summary": ev => autociv_showLastGameSummary()
 };
