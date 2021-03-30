@@ -1,243 +1,250 @@
-function BotManager()
+class BotManager
 {
-	this.list = new Map();
-	this.messageInterface = "ingame";
-}
+	list = new Map();
+	messageInterface = "ingame";
 
-BotManager.prototype.addBot = function (name, object)
-{
-	if (!("toggle" in object))
-		object.toggle = function () { this.active = !this.active; };
-
-	if (!("react" in object))
-		object.react = function () { };
-
-	if (!("load" in object))
-		object.load = function () { };
-
-	autociv_patchApplyN(object, "load", function (target, that, args)
+	constructor()
 	{
-		let [active] = args;
-		that.loaded = true;
-		that.active = active;
-		return target.apply(that, args);
-	});
 
-	this.list.set(name, object);
-}
+	}
 
-BotManager.prototype.get = function (name)
-{
-	return this.list.get(name);
-}
+	addBot(name, object)
+	{
+		if (!("toggle" in object))
+			object.toggle = function () { this.active = !this.active; }
 
-BotManager.prototype.sendMessage = function (text)
-{
-	warn("Can't send sendMessage");
-}
+		if (!("react" in object))
+			object.react = function () { }
 
-BotManager.prototype.selfMessage = function (text)
-{
-	warn("Can't send selfMessage");
-}
+		if (!("load" in object))
+			object.load = function () { }
 
-/**
- *
- * @returns {Boolean} - True means to stop message flow
- */
-BotManager.prototype.react = function (msg)
-{
-	let data = this.pipe(msg);
-	if (!data)
-		return false;
-
-	for (let [name, bot] of this.list)
-		if (bot.loaded && bot.active && bot.react(data))
-			return true;
-	return false
-}
-
-BotManager.prototype.pipe = function (msg)
-{
-	if (!msg)
-		return;
-	return this.pipeWith[this.messageInterface].pipe(msg);
-}
-
-BotManager.prototype.pipeWith = {
-	"lobby": {
-		"pipe": function (msg)
+		autociv_patchApplyN(object, "load", function (target, that, args)
 		{
-			return this.types[msg.type]?.(msg);
-		},
-		"types":
-		{
-			"chat": msg =>
+			let [active] = args
+			that.loaded = true
+			that.active = active
+			return target.apply(that, args)
+		})
+
+		this.list.set(name, object)
+	}
+
+	get(name)
+	{
+		return this.list.get(name)
+	}
+
+	sendMessage(text)
+	{
+		warn("Can't send sendMessage")
+	}
+
+	selfMessage(text)
+	{
+		warn("Can't send selfMessage")
+	}
+
+	/**
+	 *
+	 * @returns {Boolean} - True means to stop message flow
+	 */
+	react(msg)
+	{
+		let data = this.pipe(msg)
+		if (!data)
+			return false
+
+		for (let [name, bot] of this.list)
+			if (bot.loaded && bot.active && bot.react(data))
+				return true
+		return false
+	}
+
+	pipe(msg)
+	{
+		if (!msg)
+			return
+		return this.pipeWith[this.messageInterface].pipe(msg)
+	}
+
+	pipeWith = {
+		"lobby": {
+			"pipe": function (msg)
 			{
-				switch (msg.level)
+				return this.types[msg.type]?.(msg)
+			},
+			"types":
+			{
+				"chat": msg =>
 				{
-					case "room-message": return {
+					switch (msg.level)
+					{
+						case "room-message": return {
+							"type": "chat",
+							"receiver": Engine.LobbyGetNick(),
+							"sender": msg.from,
+							"message": msg.text
+						}
+						case "join": return {
+							"type": "join",
+							"receiver": Engine.LobbyGetNick(),
+							"sender": msg.nick,
+							"message": ""
+						}
+
+					}
+				}
+			}
+		},
+		"gamesetup": {
+			"pipe": function (msg)
+			{
+				return this.types[msg.type]?.(msg)
+			},
+			"types":
+			{
+				"chat": function (msg)
+				{
+					// Ignore message if it comes from the AI (will have translate=true)
+					if (msg.translate)
+						return
+					if (Engine.GetPlayerGUID() === undefined ||
+						g_PlayerAssignments[Engine.GetPlayerGUID()] === undefined ||
+						msg.guid === undefined ||
+						g_PlayerAssignments[msg.guid] === undefined)
+						return
+
+					return {
 						"type": "chat",
-						"receiver": Engine.LobbyGetNick(),
-						"sender": msg.from,
+						"receiver": splitRatingFromNick(g_PlayerAssignments[Engine.GetPlayerGUID()].name).nick,
+						"sender": splitRatingFromNick(g_PlayerAssignments[msg.guid].name).nick,
 						"message": msg.text
 					}
-					case "join": return {
-						"type": "join",
-						"receiver": Engine.LobbyGetNick(),
-						"sender": msg.nick,
-						"message": ""
-					}
+				}
+				// TODO JOIN, LEAVE (AKA newAssignments)
+			}
+		},
+		"ingame": {
+			"pipe": function (msg)
+			{
+				return this.types[msg.type]?.(msg)
+			},
+			"types":
+			{
+				"message": function (msg)
+				{
+					// Ignore message if it comes from the AI (will have translate=true)
+					if (msg.translate)
+						return
+					if (Engine.GetPlayerGUID() === undefined ||
+						g_PlayerAssignments[Engine.GetPlayerGUID()] === undefined ||
+						msg.guid === undefined ||
+						g_PlayerAssignments[msg.guid] === undefined)
+						return
 
+					return {
+						"type": "chat",
+						"receiver": splitRatingFromNick(g_PlayerAssignments[Engine.GetPlayerGUID()].name).nick,
+						"sender": splitRatingFromNick(g_PlayerAssignments[msg.guid].name).nick,
+						"message": msg.text,
+					}
+				},
+				"rejoined": function (msg)
+				{
+					if (Engine.GetPlayerGUID() === undefined ||
+						g_PlayerAssignments[Engine.GetPlayerGUID()] === undefined ||
+						msg.guid === undefined ||
+						g_PlayerAssignments[msg.guid] === undefined)
+						return
+
+					return {
+						"type": "join",
+						"receiver": splitRatingFromNick(g_PlayerAssignments[Engine.GetPlayerGUID()].name).nick,
+						"sender": splitRatingFromNick(g_PlayerAssignments[msg.guid].name).nick,
+						"guid": msg.guid
+					}
 				}
 			}
 		}
-	},
-	"gamesetup": {
-		"pipe": function (msg)
-		{
-			return this.types[msg.type]?.(msg);
-		},
-		"types":
-		{
-			"chat": function (msg)
-			{
-				// Ignore message if it comes from the AI (will have translate=true)
-				if (msg.translate)
-					return;
-				if (Engine.GetPlayerGUID() === undefined ||
-					g_PlayerAssignments[Engine.GetPlayerGUID()] === undefined ||
-					msg.guid === undefined ||
-					g_PlayerAssignments[msg.guid] === undefined)
-					return;
+	}
 
-				return {
-					"type": "chat",
-					"receiver": splitRatingFromNick(g_PlayerAssignments[Engine.GetPlayerGUID()].name).nick,
-					"sender": splitRatingFromNick(g_PlayerAssignments[msg.guid].name).nick,
-					"message": msg.text
-				};
+	setMessageInterface(messageInterface)
+	{
+		this.messageInterface = messageInterface
+
+		if ("lobby" == this.messageInterface)
+		{
+			this.sendMessage = text =>
+			{
+				if (Engine.HasXmppClient())
+					Engine.LobbySendMessage(text)
 			}
-			// TODO JOIN, LEAVE (AKA newAssignments)
-		}
-	},
-	"ingame": {
-		"pipe": function (msg)
-		{
-			return this.types[msg.type]?.(msg);
-		},
-		"types":
-		{
-			"message": function (msg)
-			{
-				// Ignore message if it comes from the AI (will have translate=true)
-				if (msg.translate)
-					return;
-				if (Engine.GetPlayerGUID() === undefined ||
-					g_PlayerAssignments[Engine.GetPlayerGUID()] === undefined ||
-					msg.guid === undefined ||
-					g_PlayerAssignments[msg.guid] === undefined)
-					return;
 
-				return {
-					"type": "chat",
-					"receiver": splitRatingFromNick(g_PlayerAssignments[Engine.GetPlayerGUID()].name).nick,
-					"sender": splitRatingFromNick(g_PlayerAssignments[msg.guid].name).nick,
-					"message": msg.text,
-				};
-			},
-			"rejoined": function (msg)
+			this.selfMessage = text =>
 			{
-				if (Engine.GetPlayerGUID() === undefined ||
-					g_PlayerAssignments[Engine.GetPlayerGUID()] === undefined ||
-					msg.guid === undefined ||
-					g_PlayerAssignments[msg.guid] === undefined)
-					return;
-
-				return {
-					"type": "join",
-					"receiver": splitRatingFromNick(g_PlayerAssignments[Engine.GetPlayerGUID()].name).nick,
-					"sender": splitRatingFromNick(g_PlayerAssignments[msg.guid].name).nick,
-					"guid": msg.guid
-				};
+				let ftext = setStringTags(`== ${text}`, { "font": "sans-bold-13" })
+				g_LobbyHandler.lobbyPage.lobbyPage.panels.chatPanel.chatMessagesPanel.
+					addText(Date.now() / 1000, ftext)
 			}
 		}
-	}
-};
-
-BotManager.prototype.setMessageInterface = function (messageInterface)
-{
-	this.messageInterface = messageInterface;
-
-	if ("lobby" == this.messageInterface)
-	{
-		this.sendMessage = text =>
+		else if ("gamesetup" == this.messageInterface)
 		{
-			if (Engine.HasXmppClient())
-				Engine.LobbySendMessage(text);
-		};
-
-		this.selfMessage = text =>
-		{
-			let ftext = setStringTags(`== ${text}`, { "font": "sans-bold-13" });
-			g_LobbyHandler.lobbyPage.lobbyPage.panels.chatPanel.chatMessagesPanel.
-				addText(Date.now() / 1000, ftext);
-		}
-	}
-	else if ("gamesetup" == this.messageInterface)
-	{
-		this.sendMessage = text =>
-		{
-			if (Engine.HasNetClient())
-				Engine.SendNetworkChat(text);
-		};
-
-		this.selfMessage = text =>
-		{
-			let ftext = setStringTags(`== ${text}`, { "font": "sans-bold-13" });
-			g_SetupWindow.pages.GameSetupPage.panels.chatPanel.chatMessagesPanel.
-				addText(ftext);
-		}
-	}
-	else if ("ingame" == this.messageInterface)
-	{
-		this.sendMessage = text =>
-		{
-			if (Engine.HasNetClient())
+			this.sendMessage = text =>
 			{
-				for (let line of text.split("\n"))
-					Engine.SendNetworkChat(line);
+				if (Engine.HasNetClient())
+					Engine.SendNetworkChat(text)
 			}
-			else
-				// Only used for offline games.
-				g_Chat.ChatMessageHandler.handleMessage({
-					"type": "message",
-					"guid": "local",
-					"text": text
-				});
-		};
 
-		g_Chat.ChatMessageHandler.registerMessageFormat("autociv_self", new ChatMessageFormatAutocivSelf())
+			this.selfMessage = text =>
+			{
+				let ftext = setStringTags(`== ${text}`, { "font": "sans-bold-13" })
+				g_SetupWindow.pages.GameSetupPage.panels.chatPanel.chatMessagesPanel.
+					addText(ftext)
+			}
+		}
+		else if ("ingame" == this.messageInterface)
+		{
+			this.sendMessage = text =>
+			{
+				if (Engine.HasNetClient())
+				{
+					for (let line of text.split("\n"))
+						Engine.SendNetworkChat(line)
+				}
+				else
+					// Only used for offline games.
+					g_Chat.ChatMessageHandler.handleMessage({
+						"type": "message",
+						"guid": "local",
+						"text": text
+					})
+			}
 
-		this.selfMessage = text => g_Chat.ChatMessageHandler.handleMessage({
-			"type": "autociv_self",
-			"text": text
-		});
+			g_Chat.ChatMessageHandler.registerMessageFormat("autociv_self", new ChatMessageFormatAutocivSelf())
+
+			this.selfMessage = text => g_Chat.ChatMessageHandler.handleMessage({
+				"type": "autociv_self",
+				"text": text
+			})
+		}
+		else
+			warn(`Invalid message interface ${this.messageInterface}`)
 	}
-	else
-		warn(`Invalid message interface ${this.messageInterface}`);
 }
 
 var botManager = new BotManager();
-var selfMessage = text => botManager.selfMessage(text);
 
-var sendMessage = text =>
+function selfMessage(text) { botManager.selfMessage(text) }
+
+function sendMessage(text)
 {
 	// Messages reduced to the first 255 letters so, send it split if exceeded
 	const numChunks = Math.ceil(text.length / sendMessage.maxChunkLength);
 	for (let i = 0; i < numChunks; ++i)
 		botManager.sendMessage(text.substr(i * sendMessage.maxChunkLength, sendMessage.maxChunkLength));
 }
+
 sendMessage.maxChunkLength = 256 - 1;
 
 // ********* Bot botManager.addBot order matters ***********
