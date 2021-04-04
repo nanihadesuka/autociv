@@ -250,16 +250,6 @@ class ResizeBar
  *	() => warn("chatPanel resized")
  * )
  *
- * @param {GUIObject} object Main XML object to resize.
- * @param {String} side Object side to resize: "left", "right", "top", "bottom".
- * @param {Number} [width] Resize bar width, undefined value will assign the
- * default width.
- * @param {Array[]} [objectsHooked] Other XML objects that will also resize with
- * the main XML object.
- * In the form of [[GUIObject1,side1],[GUIObject2,side2],...]
- * @param {Function} [isVisibleCondition] Condition that makes the resize bar
- * visible/enabled if it returns true. By default the condition is the property
- * hidden of the main XML object, visible/enabled if not hidden.
  */
 var g_resizeBarManager = new class
 {
@@ -268,6 +258,18 @@ var g_resizeBarManager = new class
 	disabled = false
 	list = []
 
+	/**
+	 * @param {GUIObject} object Main XML object to resize.
+	 * @param {String} side Object side to resize: "left", "right", "top", "bottom".
+	 * @param {Number} [width] Resize bar width, undefined value will assign the
+	 * default width.
+	 * @param {Array[]} [objectsHooked] Other XML objects that will also resize with
+	 * the main XML object.
+	 * In the form of [[GUIObject1,side1],[GUIObject2,side2],...]
+	 * @param {Function} [isVisibleCondition] Condition that makes the resize bar
+	 * visible/enabled if it returns true. By default the condition is the property
+	 * hidden of the main XML object, visible/enabled if not hidden.
+	 */
 	add(object, side, width, objectsHooked, isVisibleCondition)
 	{
 		this.list.push(new ResizeBar(object, side, width, objectsHooked, isVisibleCondition))
