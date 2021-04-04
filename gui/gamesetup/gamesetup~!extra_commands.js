@@ -1,5 +1,27 @@
 
 var game = {
+	// stuff that needs to be updated after the gui updates it (as it removes it before it)
+	// undefined will mean it doesnt exist
+	attributes: {},
+	addAttribute(obj)
+	{
+		for (let key in obj)
+		{
+			if (typeof obj[key] != "object")
+			{
+				g_GameAttributes[key] = obj[key]
+				this.attributes[key] = obj[key]
+			}
+			else for (let subkey in obj[key])
+			{
+				g_GameAttributes[key][subkey] = obj[key][subkey]
+				if (!(key in this.attributes))
+					this.attributes[key] = {}
+				this.attributes[key][subkey] = obj[key][subkey]
+
+			}
+		}
+	},
 	updateSettings()
 	{
 		g_SetupWindow.controls.gameSettingsControl.updateGameAttributes()
@@ -27,7 +49,11 @@ var game = {
 			if (!g_IsController)
 				return;
 
-			g_GameAttributes.settings.CircularMap = !!circular;
+			game.addAttribute({
+				settings: {
+					CircularMap: !!circular
+				}
+			})
 			game.updateSettings()
 			sendMessage(`Map shape set to: ${!!circular ? "circular" : "squared"}`);
 		},
