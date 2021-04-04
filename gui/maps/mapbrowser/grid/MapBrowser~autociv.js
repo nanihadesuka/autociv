@@ -2,7 +2,7 @@ autociv_patchApplyN(MapBrowser.prototype, "openPage", function (target, that, ar
 {
 	that.controls.MapFiltering.searchBox.control.onPress = () =>
 	{
-		if (g_IsController && !that.gridBrowser.mapList.length)
+		if (g_IsController && that.gridBrowser.mapList.length)
 		{
 			that.gridBrowser.setSelectedIndex(0)
 			that.gridBrowser.submitMapSelection();
