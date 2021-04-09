@@ -72,6 +72,8 @@ function autociv_InitBots()
 	autociv_InitSharedCommands();
 }
 
+
+
 autociv_patchApplyN("init", function (target, that, args)
 {
 	// setTimeout doesn't have tick update in lobby -> make one
@@ -113,4 +115,41 @@ autociv_patchApplyN("init", function (target, that, args)
 	g_LobbyHandler.profilePage.registerClosePageHandler(() => { g_resizeBarManager.ghostMode = false })
 
 	autociv_focus.chatInput();
+	g_LobbyHandler.lobbyPage.autocivLobbyStats = new AutocivLobbyStats()
+
 });
+
+class AutocivLobbyStats
+{
+	lobbyPageTitle = Engine.GetGUIObjectByName("lobbyPageTitle")
+	nOfPlayers = 0
+	nOfGames = 0
+	pageTitle = this.lobbyPageTitle.caption
+
+	constructor()
+	{
+		// I suppose the page handlers have been loaded before this one, so should work out
+		this.nOfGames = g_LobbyHandler.lobbyPage.lobbyPage.panels.gameList.gameList.length
+		this.nOfPlayers = g_LobbyHandler.lobbyPage.lobbyPage.panels.playerList.nickList.length
+		this.update()
+
+		g_LobbyHandler.xmppMessages.registerXmppMessageHandler("game", "gamelist", () =>
+		{
+			// I suppose the page handlers have been loaded before this one, so should work out
+			this.nOfGames = g_LobbyHandler.lobbyPage.lobbyPage.panels.gameList.gameList.length
+			this.update()
+		});
+
+		g_LobbyHandler.xmppMessages.registerPlayerListUpdateHandler(() =>
+		{
+			// I suppose the page handlers have been loaded before this one, so should work out
+			this.nOfPlayers = g_LobbyHandler.lobbyPage.lobbyPage.panels.playerList.nickList.length
+			this.update()
+		})
+	}
+
+	update()
+	{
+		this.lobbyPageTitle.caption = `${this.pageTitle}  P:${this.nOfPlayers}  G:${this.nOfGames}`
+	}
+}
