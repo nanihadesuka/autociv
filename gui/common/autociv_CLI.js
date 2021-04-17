@@ -106,6 +106,7 @@ class Autociv_CLI
 			}
 		},
 		"typeTag": "128 81 102",
+		"classTag": "180 120 40",
 		"type": {
 			"array": "167 91 46",
 			"object": "193 152 43",
@@ -719,12 +720,22 @@ class Autociv_CLI
 			// Show variable type
 			text += ` [color="${this.style.typeTag}"]\\[${type}\\][/color]`
 
+			let realLength = () => text.replace(/[^\\]\[.+[^\\]\]/g, "").replace(/\\\\\[|\\\\\]/g, " ").length
+
+			// Show instance class name if any
+			if (type == "object" && "constructor" in entry.parent[value])
+			{
+				const name = entry.parent[value]?.constructor?.name
+				if (name && name != "Object")
+					text += setStringTags(` { ${this.escape(`${name}`)} }`, {
+						"color": this.style.classTag
+					})
+			}
 			// Show preview
-			let length = text.replace(/[^\\]\[.+[^\\]\]/g, "").replace(/\\\\\[|\\\\\]/g, " ").length
-			if (type == "boolean" || type == "number" || type == "bigint")
-				text += " " + truncate(this.escape(`${entry.parent[value]}`), length)
+			else if (type == "boolean" || type == "number" || type == "bigint")
+				text += " " + truncate(this.escape(`${entry.parent[value]}`), realLength())
 			else if (type == "string")
-				text += " " + truncate(this.escape(`"${entry.parent[value]}"`), length)
+				text += " " + truncate(this.escape(`"${entry.parent[value]}"`), realLength())
 
 			return text
 		})
