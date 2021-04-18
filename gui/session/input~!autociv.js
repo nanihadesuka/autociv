@@ -7,12 +7,11 @@ function autociv_showBuildingPlacementTerrainSnap(mousePosX, mousePosY)
 	{
 		// Including only the on-screen towers in the next snap candidate list is sufficient here, since the user is
 		// still selecting a starting point (which must necessarily be on-screen). (The update of the snap entities
-		// itself happens in the call to updateBuildingPlacementPreview below).
+		// itself happens in the call to updateBuildingPlacementPreview below.)
 		placementSupport.wallSnapEntitiesIncludeOffscreen = false;
 	}
 	else
 	{
-		// Cancel if not enough resources
 		if (placementSupport.template && Engine.GuiInterfaceCall("GetNeededResources", { "cost": GetTemplateData(placementSupport.template).cost }))
 		{
 			placementSupport.Reset();
@@ -20,10 +19,19 @@ function autociv_showBuildingPlacementTerrainSnap(mousePosX, mousePosY)
 			return true;
 		}
 
+		if (isSnapToEdgesEnabled())
+		{
+			// We need to reset the angle before the snapping to edges,
+			// because we want to get the angle near to the default one.
+			placementSupport.SetDefaultAngle();
+		}
 		let snapData = Engine.GuiInterfaceCall("GetFoundationSnapData", {
 			"template": placementSupport.template,
 			"x": placementSupport.position.x,
 			"z": placementSupport.position.z,
+			"angle": placementSupport.angle,
+			"snapToEdges": isSnapToEdgesEnabled() && Engine.GetEdgesOfStaticObstructionsOnScreenNearTo(
+				placementSupport.position.x, placementSupport.position.z)
 		});
 		if (snapData)
 		{
@@ -33,10 +41,8 @@ function autociv_showBuildingPlacementTerrainSnap(mousePosX, mousePosY)
 		}
 	}
 
-	// Includes an update of the snap entity candidates
-	updateBuildingPlacementPreview();
-
-	return;
+	updateBuildingPlacementPreview(); // includes an update of the snap entity candidates
+	return false; // continue processing mouse motion
 }
 
 
