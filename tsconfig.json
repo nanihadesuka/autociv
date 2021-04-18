@@ -8,9 +8,9 @@
 		"strict": true,
 		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true,
-		"allowJs": false,
+		"allowJs": true,
 		"checkJs": false,
-		"noEmit": false
+		"noEmit": true
 	},
 	"include": [
 		"./"
