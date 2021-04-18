@@ -1,4 +1,4 @@
-updateBuildingPlacementPreview = function()
+updateBuildingPlacementPreview = function (firstTry = true)
 {
 	// The preview should be recomputed every turn, so that it responds to obstructions/fog/etc moving underneath it, or
 	// in the case of the wall previews, in response to new tower foundations getting constructed for it to snap to.
@@ -18,6 +18,14 @@ updateBuildingPlacementPreview = function()
 
 			placementSupport.tooltipError = !result.success;
 			placementSupport.tooltipMessage = "";
+
+			//########################## CHANGES ######
+			if (!result.success && firstTry)
+			{
+				placementSupport.position = Engine.GetTerrainAtScreenPoint(mouseX, mouseY);
+				return updateBuildingPlacementPreview(false);
+			}
+			//########################## CHANGES ######
 
 			if (!result.success)
 			{
