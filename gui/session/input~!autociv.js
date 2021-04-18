@@ -1,3 +1,79 @@
+updateBuildingPlacementPreview = function()
+{
+	// The preview should be recomputed every turn, so that it responds to obstructions/fog/etc moving underneath it, or
+	// in the case of the wall previews, in response to new tower foundations getting constructed for it to snap to.
+	// See onSimulationUpdate in session.js.
+
+	if (placementSupport.mode === "building")
+	{
+		if (placementSupport.template && placementSupport.position)
+		{
+			let result = Engine.GuiInterfaceCall("SetBuildingPlacementPreview", {
+				"template": placementSupport.template,
+				"x": placementSupport.position.x,
+				"z": placementSupport.position.z,
+				"angle": placementSupport.angle,
+				"actorSeed": placementSupport.actorSeed
+			});
+
+			placementSupport.tooltipError = !result.success;
+			placementSupport.tooltipMessage = "";
+
+			if (!result.success)
+			{
+				if (result.message && result.parameters)
+				{
+					let message = result.message;
+					if (result.translateMessage)
+						if (result.pluralMessage)
+							message = translatePlural(result.message, result.pluralMessage, result.pluralCount);
+						else
+							message = translate(message);
+					let parameters = result.parameters;
+					if (result.translateParameters)
+						translateObjectKeys(parameters, result.translateParameters);
+					placementSupport.tooltipMessage = sprintf(message, parameters);
+				}
+				return false;
+			}
+
+			if (placementSupport.attack && placementSupport.attack.Ranged)
+			{
+				let cmd = {
+					"x": placementSupport.position.x,
+					"z": placementSupport.position.z,
+					"range": placementSupport.attack.Ranged.maxRange,
+					"elevationBonus": placementSupport.attack.Ranged.elevationBonus
+				};
+				let averageRange = Math.round(Engine.GuiInterfaceCall("GetAverageRangeForBuildings", cmd) - cmd.range);
+				let range = Math.round(cmd.range);
+				placementSupport.tooltipMessage = sprintf(translatePlural("Basic range: %(range)s meter", "Basic range: %(range)s meters", range), { "range": range }) + "\n" +
+					sprintf(translatePlural("Average bonus range: %(range)s meter", "Average bonus range: %(range)s meters", averageRange), { "range": averageRange });
+			}
+			return true;
+		}
+	}
+	else if (placementSupport.mode === "wall" &&
+		placementSupport.wallSet && placementSupport.position)
+	{
+		placementSupport.wallSnapEntities = Engine.PickSimilarPlayerEntities(
+			placementSupport.wallSet.templates.tower,
+			placementSupport.wallSnapEntitiesIncludeOffscreen,
+			true, // require exact template match
+			true  // include foundations
+		);
+
+		return Engine.GuiInterfaceCall("SetWallPlacementPreview", {
+			"wallSet": placementSupport.wallSet,
+			"start": placementSupport.position,
+			"end": placementSupport.wallEndPosition,
+			"snapEntities": placementSupport.wallSnapEntities // snapping entities (towers) for starting a wall segment
+		});
+	}
+
+	return false;
+}
+
 // Snaps building placement to cursor and previews it
 function autociv_showBuildingPlacementTerrainSnap(mousePosX, mousePosY)
 {
