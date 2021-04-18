@@ -4,6 +4,7 @@ AutocivControls.PlayersOverlay = class
     textFont = "mono-stroke-10"
     configKey_visible = "autociv.session.playersOverlay.visible"
     visible = Engine.ConfigDB_GetValue("user", this.configKey_visible) == "true"
+    playerOfflineColor = "250 60 30 250"
 
     constructor()
     {
@@ -30,7 +31,7 @@ AutocivControls.PlayersOverlay = class
             this.update()
     }
 
-    computeSize()
+    computeSize(textLength)
     {
         return `100%-200 100%-10-100 100% 100%-10`
     }
@@ -49,9 +50,9 @@ AutocivControls.PlayersOverlay = class
 
         const list = [...playersOffline, ...observers]
 
-        const caption = list.map(([name, offline]) =>
+        const caption = list.map(([name, isPlayer]) =>
         {
-            return offline ? setStringTags(name, { "color": "250 60 30 250", }) : name
+            return isPlayer ? setStringTags(name, { "color": this.playerOfflineColor, }) : name
         }).join(", ")
 
         this.autociv_playersOverlay.hidden = !caption

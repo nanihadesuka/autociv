@@ -67,27 +67,28 @@ AutocivControls.StatsOverlay = class
             this.update()
     }
 
-    maxWithIndex(list)
+    maxIndex(list)
     {
         let index = 0
         let value = list[index]
-        for (let i = 0; i < list.length; i++) if (list[i] > value)
+        for (let i = 1; i < list.length; i++) if (list[i] > value)
         {
             value = list[i]
             index = i
         }
-        return [value, index]
+        return index
     }
-    minWithIndex(list)
+
+    minIndex(list)
     {
         let index = 0
         let value = list[index]
-        for (let i = 0; i < list.length; i++) if (list[i] < value)
+        for (let i = 1; i < list.length; i++) if (list[i] < value)
         {
             value = list[i]
             index = i
         }
-        return [value, index]
+        return index
     }
 
     playerColor(state)
@@ -147,8 +148,8 @@ AutocivControls.StatsOverlay = class
             let list = playerStates.map(this.stats[stat])
             values[stat] = {
                 "list": list,
-                "min": this.minWithIndex(list),
-                "max": this.maxWithIndex(list),
+                "min": this.minIndex(list),
+                "max": this.maxIndex(list),
             }
         }
 
@@ -163,12 +164,9 @@ AutocivControls.StatsOverlay = class
                 let text = this.leftPadTrunc(values[stat].list[index].toString(), this.widths[stat])
                 switch (index)
                 {
-                    case values[stat].max[1]:
-                        return setStringTags(text, { "color": "230 230 0" })
-                    case values[stat].min[1]:
-                        return setStringTags(text, { "color": "255 100 100" })
-                    default:
-                        return text
+                    case values[stat].max: return setStringTags(text, { "color": "230 230 0" })
+                    case values[stat].min: return setStringTags(text, { "color": "255 100 100" })
+                    default: return text
                 }
             }).join("")
 
