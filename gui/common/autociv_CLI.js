@@ -17,16 +17,16 @@ class Autociv_CLI
 	lastVariableNameExpressionInspector = ""
 
 	functionAutocomplete = new Map([
-		[Engine.GetGUIObjectByName, "guiObjectNames"],
-		[global.GetTemplateData, "templateNames"],
-		[Engine.GetTemplate, "templateNames"],
-		[Engine.TemplateExists, "templateNames"],
+		[Engine?.GetGUIObjectByName, "guiObjectNames"],
+		[global?.GetTemplateData, "templateNames"],
+		[Engine?.GetTemplate, "templateNames"],
+		[Engine?.TemplateExists, "templateNames"],
 	])
 
 	functionParameterCandidatesLoader = {
 		"guiObjectNames": () =>
 		{
-			let list = []
+			const list = []
 			let internal = 0
 
 			let traverse = parent => parent.children.forEach(child =>
@@ -202,12 +202,12 @@ class Autociv_CLI
 		if (!this.inspectorSettings.lastEntry)
 			return
 
-		let object = this.inspectorSettings.lastEntry.parent[this.inspectorSettings.lastEntry.token.value]
-		let result = this.getObjectRepresentation(object, undefined, undefined, false)
+		const object = this.inspectorSettings.lastEntry.parent[this.inspectorSettings.lastEntry.token.value]
+		const result = this.getObjectRepresentation(object, undefined, undefined, false)
 		// Count number of lines
 		this.GUI.stdout.caption = ""
-		let nLines1 = (result.match(/\n/g) || '').length + 1
-		let nLines2 = Math.ceil(result.length / 100)
+		const nLines1 = (result.match(/\n/g) || '').length + 1
+		const nLines2 = Math.ceil(result.length / 100)
 		this.GUI.stdout.size = Object.assign(this.GUI.stdout.size, {
 			"top": -Math.min(Math.max(nLines1, nLines2) * this.vlineSize, this.stdOutMaxVisibleSize) - 10
 		})
@@ -220,12 +220,12 @@ class Autociv_CLI
 		if (this.GUI.gui.hidden)
 			return
 
-		let result = this.evalInput()
+		const result = this.evalInput()
 
 		// Count number of lines
 		this.GUI.stdout.caption = ""
-		let nLines1 = (result.match(/\n/g) || '').length + 1
-		let nLines2 = Math.ceil(result.length / 100)
+		const nLines1 = (result.match(/\n/g) || '').length + 1
+		const nLines2 = Math.ceil(result.length / 100)
 		this.GUI.stdout.size = Object.assign(this.GUI.stdout.size, {
 			"top": -Math.min(Math.max(nLines1, nLines2) * this.vlineSize, this.stdOutMaxVisibleSize) - 10
 		})
@@ -238,7 +238,7 @@ class Autociv_CLI
 		if (!this.functionAutocomplete.has(functionObject))
 			return
 
-		let parameterName = this.functionAutocomplete.get(functionObject)
+		const parameterName = this.functionAutocomplete.get(functionObject)
 		if (!(parameterName in this.functionParameterCandidates))
 			this.functionParameterCandidates[parameterName] = this.functionParameterCandidatesLoader[parameterName]()
 
@@ -255,12 +255,12 @@ class Autociv_CLI
 		if (!(this.searchFilter in this.searchFilterKeys))
 			return candidates
 
-		let type = this.searchFilterKeys[this.searchFilter]
+		const type = this.searchFilterKeys[this.searchFilter]
 
 		return candidates.sort((a, b) =>
 		{
-			let isa = this.getType(parent[a]) == type ? 1 : 0
-			let isb = this.getType(parent[b]) == type ? 1 : 0
+			const isa = this.getType(parent[a]) == type ? 1 : 0
+			const isb = this.getType(parent[b]) == type ? 1 : 0
 			return isb - isa
 		})
 	}
@@ -338,8 +338,8 @@ class Autociv_CLI
 		if (this.GUI.suggestions.selected == -1)
 			return
 
-		let text = this.prefix + this.list_data[this.GUI.suggestions.selected]
-		let entry = this.getEntry(text)
+		const text = this.prefix + this.list_data[this.GUI.suggestions.selected]
+		const entry = this.getEntry(text)
 		if (!entry)
 			return
 
@@ -386,7 +386,7 @@ class Autociv_CLI
 		let representation = ""
 		try
 		{
-			let result = eval(text)
+			const result = eval(text)
 			representation = this.getObjectRepresentation(result, undefined, undefined, false)
 			warn(text + " -> " + representation.slice(0, 200))
 		}
@@ -397,7 +397,7 @@ class Autociv_CLI
 		}
 
 		text = text.split("=")[0].trim()
-		let entry = this.getEntry(text)
+		const entry = this.getEntry(text)
 		if (!entry)
 			return representation
 
@@ -412,16 +412,16 @@ class Autociv_CLI
 
 	getTokens(text)
 	{
-		let lex = text.split(/(\("?)|("?\))|(\["?)|("?\])|(\.)/g).filter(v => v)
+		const lex = text.split(/(\("?)|("?\))|(\["?)|("?\])|(\.)/g).filter(v => v)
 		// lex ~~  ['word1', '.', 'word2', '["', 'word3', '"]', ...]
 
 		if (!lex.length)
-			lex = [""]
+			lex.push("")
 
-		let tokens = []
+		const tokens = []
 		for (let i = 0; i < lex.length; ++i)
 		{
-			if (lex[i].startsWith("["))
+			if (lex[i] === "[")
 			{
 				let hasValue = false
 				let value = ""
@@ -429,7 +429,7 @@ class Autociv_CLI
 				let k = 1
 				while (i + k < lex.length)
 				{
-					if (lex[i + k].endsWith("]"))
+					if (lex[i + k] === "]")
 					{
 						hasClosure = true
 						break
@@ -451,7 +451,7 @@ class Autociv_CLI
 				})
 				i += k
 			}
-			else if (lex[i].startsWith("("))
+			else if (lex[i] === "(")
 			{
 				let hasValue = false
 				let value = ""
@@ -481,7 +481,7 @@ class Autociv_CLI
 				})
 				i += k
 			}
-			else if (lex[i] == ".")
+			else if (lex[i] === ".")
 			{
 				let hasValue = i + 1 in lex
 				tokens.push({
@@ -508,7 +508,7 @@ class Autociv_CLI
 
 	getEntry(text)
 	{
-		let tokens = this.getTokens(text)
+		const tokens = this.getTokens(text)
 
 		let object = global
 		let prefix = ""
@@ -570,7 +570,7 @@ class Autociv_CLI
 
 	getCandidates(object, access)
 	{
-		let list = new Set()
+		const list = new Set()
 		if (this.getType(object) == "function" && "prototype" in object)
 			list.add("prototype")
 
@@ -580,7 +580,7 @@ class Autociv_CLI
 
 		if (this.seeOwnPropertyNames)
 		{
-			let proto = Object.getPrototypeOf(object)
+			const proto = Object.getPrototypeOf(object)
 			if (proto)
 				for (let name of Object.getOwnPropertyNames(proto))
 					if (name !== 'constructor' &&
@@ -597,7 +597,7 @@ class Autociv_CLI
 			if (access == "dot")
 				return Array.from(list)
 			else
-				list = new Set()
+				list.clear()
 		}
 
 		for (let key of Object.keys(object))
@@ -619,7 +619,7 @@ class Autociv_CLI
 				entry.entry.type != "Map")
 				return
 
-			let candidates = this.getCandidates(entry.parent, entry.token.access)
+			const candidates = this.getCandidates(entry.parent, entry.token.access)
 			let results = entry.token.hasValue ?
 				this.sort(entry.token.value, candidates) :
 				this.sort("", candidates)
@@ -636,7 +636,7 @@ class Autociv_CLI
 			if (entry.entry.type == "object" ||
 				entry.entry.type == "function")
 			{
-				let candidates = this.getCandidates(entry.parent)
+				const candidates = this.getCandidates(entry.parent)
 				let results = entry.token.hasValue ?
 					this.sort(entry.token.value.replace(/^"|"$/g, ""), candidates) :
 					this.sort("", candidates)
@@ -647,7 +647,7 @@ class Autociv_CLI
 			}
 			else if (entry.entry.type == "array")
 			{
-				let candidates = this.getCandidates(entry.parent, entry.token.access)
+				const candidates = this.getCandidates(entry.parent, entry.token.access)
 				let results = entry.token.hasValue ?
 					this.sort(entry.token.value, candidates).sort((a, b) => (+a) - (+b)) :
 					candidates
@@ -662,7 +662,7 @@ class Autociv_CLI
 			if (entry.index != 0)
 				return
 
-			let candidates = this.getCandidates(entry.parent)
+			const candidates = this.getCandidates(entry.parent)
 			let results = entry.token.hasValue ?
 				this.sort(entry.token.value, candidates) :
 				this.sort("", candidates)
@@ -696,7 +696,7 @@ class Autociv_CLI
 
 	getFormattedSuggestionList(entry, suggestions)
 	{
-		let truncate = (text, start) =>
+		const truncate = (text, start) =>
 		{
 			text = text.split("\n")[0]
 			let alloted = this.previewLength - start - 3
@@ -708,12 +708,12 @@ class Autociv_CLI
 			if (entry.token.access == "parenthesis")
 			{
 				let text = entry.prefixColored
-				let type = this.getType(value)
+				const type = this.getType(value)
 				text += this.accessFormat(value, entry.token.access, type == "string", true, type)
 				return text
 			}
 
-			let type = this.getType(entry.parent[value])
+			const type = this.getType(entry.parent[value])
 			let text = entry.prefixColored
 			text += this.accessFormat(value, entry.token.access, entry.entry.type != "array", true, type)
 
@@ -756,7 +756,7 @@ class Autociv_CLI
 
 	processPrefixes(text)
 	{
-		let original = text
+		const original = text
 
 		// Toggle own property names search
 		if (text.startsWith("p?"))
@@ -798,15 +798,15 @@ class Autociv_CLI
 
 	updateSuggestions(text = this.GUI.input.caption, lookForPrefixes = true)
 	{
-		let time = Engine.GetMicroseconds()
+		const time = Engine.GetMicroseconds()
 		if (lookForPrefixes)
 			text = this.processPrefixes(text)
 
-		let entry = this.getEntry(text)
+		const entry = this.getEntry(text)
 		if (!entry)
 			return
 
-		let suggestions = this.getSuggestions(entry)
+		const suggestions = this.getSuggestions(entry)
 		if (!suggestions)
 			return
 
@@ -893,28 +893,28 @@ class Autociv_CLI
 				}
 			}
 			case "array": {
-				let child = (val, index) => childPrefix +
+				const child = (val, index) => childPrefix +
 					(this.getType(val) == "object" ? index + " : " : "") +
 					representChild(val)
 
 				return iterate(obj, child, "[", "]")
 			}
 			case "object": {
-				let list = this.getCandidates(obj)
-				let child = key => childPrefix + esc(key) + " : " +
+				const list = this.getCandidates(obj)
+				const child = key => childPrefix + esc(key) + " : " +
 					representChild(obj[key])
 
 				return iterate(list, child, "{", "}")
 			}
 			case "Set": {
-				let list = Array.from(obj)
-				let child = value => childPrefix + representChild(value)
+				const list = Array.from(obj)
+				const child = value => childPrefix + representChild(value)
 
 				return iterate(list, child, "Set {", "}")
 			}
 			case "Map": {
-				let list = Array.from(obj)
-				let child = ([key, value]) => childPrefix + representChild(key) +
+				const list = Array.from(obj)
+				const child = ([key, value]) => childPrefix + representChild(key) +
 					" => " + representChild(value)
 
 				return iterate(list, child, "Map {", "}")
@@ -928,8 +928,8 @@ class Autociv_CLI
 			case "Uint32Array":
 			case "Float32Array":
 			case "Float64Array": {
-				let list = Array.from(obj)
-				let child = (val, index) => childPrefix + colorize("number", val)
+				const list = Array.from(obj)
+				const child = (val, index) => childPrefix + colorize("number", val)
 				return iterate(list, child, "[", "]")
 			}
 			default: return typeTag
@@ -938,13 +938,13 @@ class Autociv_CLI
 
 	updateObjectInspector(object, text = this.GUI.input.caption)
 	{
-		let time = Engine.GetMicroseconds()
+		const time = Engine.GetMicroseconds()
 		this.lastVariableNameExpressionInspector = text
-		let result = `${this.escape(text.split("=")[0].trim())} : ${this.getObjectRepresentation(object)} `
+		const result = `${this.escape(text.split("=")[0].trim())} : ${this.getObjectRepresentation(object)} `
 		this.GUI.inspector.caption = ""
 		// Count number of lines
-		let nLines1 = (result.match(/\n/g) || '').length + 1
-		let nLines2 = Math.ceil(result.length / 100)
+		const nLines1 = (result.match(/\n/g) || '').length + 1
+		const nLines2 = Math.ceil(result.length / 100)
 		this.GUI.inspector.size = Object.assign(this.GUI.inspector.size, {
 			"bottom": Math.min(Math.max(nLines1, nLines2) * this.vlineSize, this.inspectorMaxVisibleSize)
 		})
