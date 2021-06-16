@@ -410,7 +410,12 @@ botManager.addBot("autociv", {
 		this.generateFuzzySearcher.loaded = true;
 		this.fuzzySearch = {}
 
-		for (let civ of Object.values(g_CivData))
+		const randomCivData = {
+			"Name": translateWithContext("civilization", "Random"),
+			"Code": "random"
+		}
+
+		for (let civ of [randomCivData, ...Object.values(g_CivData)])
 		{
 			// Oficial full name (translated).
 			const civNameVariations = [civ.Name];

@@ -98,7 +98,7 @@ var game = {
 				if (playerPos === undefined || playerPos == -1)
 					return;
 
-				let civCodeIndex = Object.keys(g_CivData).indexOf(playerCivCode);
+				let civCodeIndex = ["random", ...Object.keys(g_CivData)].indexOf(playerCivCode);
 				if (civCodeIndex == -1)
 					return;
 
@@ -109,7 +109,7 @@ var game = {
 					playerSettingControlManagers[playerPos - 1].
 					playerSettingControls.
 					PlayerCiv.
-					onSelectionChange(civCodeIndex + 1)
+					onSelectionChange(civCodeIndex)
 			},
 			'observer': (playerName) =>
 			{
