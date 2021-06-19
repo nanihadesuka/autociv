@@ -24,11 +24,11 @@ function autociv_initBots()
 function autociv_addVersionLabel()
 {
 	let label = Engine.GetGUIObjectByName("buildTimeLabel");
-	if (!(label && label.caption))
+	if (!label?.caption)
 		return;
-	let mod = ([name, version]) => /^AutoCiv.*/i.test(name);
-	let modInfo = Engine.GetEngineInfo().mods.find(mod);
-	let version = modInfo && modInfo[1] && modInfo[1] || "";
+
+	let mod = (mod) => /^AutoCiv.*/i.test(mod.name);
+	let version = Engine.GetEngineInfo().mods.find(mod)?.version ?? "";
 	label.caption = `${label.caption} [color="255 255 255 127"]${version}[/color]`;
 }
 

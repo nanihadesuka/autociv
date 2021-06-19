@@ -69,7 +69,7 @@ GuiInterface.prototype.autociv_FindEntitiesWithTemplateName = function (player, 
         return cmpIdentity &&
             !cmpFoundation &&
             !cmpMirage &&
-            (cmpUnitAI ? !cmpUnitAI.IsGarrisoned() : true) &&
+            (cmpUnitAI ? !cmpUnitAI.isGarrisoned : true) &&
             cmpTemplateManager.GetCurrentTemplateName(e).endsWith(templateName);
     });
 };
@@ -86,7 +86,7 @@ GuiInterface.prototype.autociv_FindEntitiesWithGenericName = function (player, g
         return cmpIdentity &&
             !cmpFoundation &&
             !cmpMirage &&
-            (cmpUnitAI ? !cmpUnitAI.IsGarrisoned() : true) &&
+            (cmpUnitAI ? !cmpUnitAI.isGarrisoned : true) &&
             cmpIdentity.GetGenericName() == genericName;
     });
 };
@@ -105,7 +105,7 @@ GuiInterface.prototype.autociv_FindEntitiesWithClasses = function (player, class
         return cmpIdentity &&
             !cmpFoundation &&
             !cmpMirage &&
-            (cmpUnitAI ? !cmpUnitAI.IsGarrisoned() : true) &&
+            (cmpUnitAI ? !cmpUnitAI.isGarrisoned : true) &&
             includesAll(cmpIdentity.GetClassesList());
     });
 };
@@ -167,7 +167,7 @@ GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (pla
         return cmpIdentity &&
             !cmpFoundation &&
             !cmpMirage &&
-            (cmpUnitAI ? !cmpUnitAI.IsGarrisoned() : true) &&
+            (cmpUnitAI ? !cmpUnitAI.isGarrisoned : true) &&
             evalExpression(cmpIdentity.GetClassesList());
     });
 };
