@@ -240,16 +240,6 @@ var g_autociv_hotkeys = {
 		}
 		return true;
 	},
-	"autociv.session.building.autotrain.enable": function (ev)
-	{
-		autociv_SetAutotrain(true);
-		return true;
-	},
-	"autociv.session.building.autotrain.disable": function (ev)
-	{
-		autociv_SetAutotrain(false);
-		return true;
-	},
 	"autociv.open.autociv_readme": function (ev)
 	{
 		Engine.PushGuiPage("page_autociv_readme.xml");
