@@ -9,12 +9,12 @@ var game = {
 		{
 			if (typeof obj[key] != "object")
 			{
-				g_GameAttributes[key] = obj[key]
+				g_GameSettings[key] = obj[key]
 				this.attributes[key] = obj[key]
 			}
 			else for (let subkey in obj[key])
 			{
-				g_GameAttributes[key][subkey] = obj[key][subkey]
+				g_GameSettings[key][subkey] = obj[key][subkey]
 				if (!(key in this.attributes))
 					this.attributes[key] = {}
 				this.attributes[key][subkey] = obj[key][subkey]
@@ -40,7 +40,7 @@ var game = {
 			if (quantity === "" || val === NaN)
 				return selfMessage('Invalid starting resources value (must be a number).');
 
-			g_GameAttributes.settings.StartingResources = val;
+			g_GameSettings.settings.StartingResources = val;
 			game.updateSettings()
 			sendMessage(`Starting resources set to: ${val}`);
 		},
@@ -65,7 +65,7 @@ var game = {
 			if (!Number.isInteger(val) || val < 0)
 				return selfMessage('Invalid population cap value (must be a number >= 0).');
 
-			g_GameAttributes.settings.PopulationCap = val;
+			g_GameSettings.settings.PopulationCap = val;
 			game.updateSettings()
 			sendMessage(`Population cap set to: ${val}`);
 
@@ -74,13 +74,13 @@ var game = {
 		{
 			if (!g_IsController)
 				return;
-			if (g_GameAttributes.mapType != "random")
+			if (g_GameSettings.mapType != "random")
 				return selfMessage('Size can only be set for random maps');
 			let val = parseInt(mapsize);
 			if (!Number.isInteger(val) || val < 1)
 				return selfMessage('Invalid map size value (must be a number >= 1).');
 
-			g_GameAttributes.settings.Size = val;
+			g_GameSettings.settings.Size = val;
 			game.updateSettings()
 			sendMessage(`Map size set to: ${val}`);
 		},
@@ -128,14 +128,14 @@ var game = {
 			if (!g_IsController)
 				return;
 
-			if (g_GameAttributes.mapType == "scenario")
+			if (g_GameSettings.mapType == "scenario")
 				return selfMessage("Can't set teams with map type scenario.");
 
 			let teams = text.trim().toLowerCase();
 			if ("ffa" == teams)
 			{
-				for (let i in g_GameAttributes.settings.PlayerData)
-					g_GameAttributes.settings.PlayerData[i].Team = -1;
+				for (let i in g_GameSettings.settings.PlayerData)
+					g_GameSettings.settings.PlayerData[i].Team = -1;
 				game.updateSettings()
 				return;
 			}
@@ -158,13 +158,13 @@ var game = {
 
 			for (let team = 0, slot = 0; team < teams.length; ++team)
 				for (let i = 0; i < teams[team]; ++i)
-					g_GameAttributes.settings.PlayerData[slot++].Team = team;
+					g_GameSettings.settings.PlayerData[slot++].Team = team;
 
 			game.updateSettings()
 		},
 		"slotName": (slotNumber, name) =>
 		{
-			g_GameAttributes.settings.PlayerData[slotNumber - 1].Name = name;
+			g_GameSettings.settings.PlayerData[slotNumber - 1].Name = name;
 			game.updateSettings()
 		}
 	},
@@ -203,7 +203,7 @@ var game = {
 		{
 			'name': () => Object.keys(g_PlayerAssignments).map(id => splitRatingFromNick(g_PlayerAssignments[id].name).nick)
 		},
-		"numberOfSlots": () => g_GameAttributes.settings.PlayerData.length
+		"numberOfSlots": () => g_GameSettings.settings.PlayerData.length
 	},
 	'is':
 	{
@@ -226,9 +226,9 @@ var game = {
 				if (g_PlayerAssignments[guid].player >= 0)
 					filledSlots += 1
 
-			return g_GameAttributes.settings.PlayerData.length == filledSlots;
+			return g_GameSettings.settings.PlayerData.length == filledSlots;
 		},
-		"rated": () => g_GameAttributes.settings.RatingEnabled
+		"rated": () => g_GameSettings.settings.RatingEnabled
 	},
 	"reset": {
 		"civilizations": () =>
@@ -242,7 +242,7 @@ var game = {
 		"slotNames": () =>
 		{
 			for (let i = 0; i < 8; ++i)
-				g_GameAttributes.settings.PlayerData[i].Name = translate(`Player ${i + 1}`);
+				g_GameSettings.settings.PlayerData[i].Name = translate(`Player ${i + 1}`);
 
 			game.updateSettings()
 		}
@@ -319,12 +319,12 @@ g_NetworkCommands['/gameName'] = text =>
 {
 	if (!g_IsController || !Engine.HasNetServer())
 		return;
-	if (!g_SetupWindow.gameRegisterStanza)
+	if (!g_SetupWindow.lobbyGameRegistrationController)
 		return
 	text = `${text}`
-	g_SetupWindow.gameRegisterStanza.serverName = text
+	g_SetupWindow.lobbyGameRegistrationController.serverName = text
 	selfMessage(`Game name changed to: ${g_ServerName}`)
-	g_SetupWindow.gameRegisterStanza.sendDelayed()
+	g_SetupWindow.lobbyGameRegistrationController.sendDelayed()
 }
 
 g_NetworkCommands['/team'] = text => game.set.teams(text);

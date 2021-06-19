@@ -9,7 +9,6 @@ autociv_patchApplyN(GuiInterface.prototype, "Init", function (target, that, args
             "entities": new Set(),
             "max": Infinity
         },
-        ProductionQueue_autotrain: new Set()
     };
     return target.apply(that, args);
 })
@@ -55,19 +54,6 @@ GuiInterface.prototype.autociv_SetCorpsesMax = function (player, max = 200)
 
     this.autociv.corpse.max = value;
     this.autociv_CorpseUpdate();
-};
-
-GuiInterface.prototype.autociv_SetAutotrain = function (player, data)
-{
-    for (let ent of data.entities)
-    {
-        let cmpProductionQueue = Engine.QueryInterface(ent, IID_ProductionQueue);
-        if (cmpProductionQueue)
-        {
-            if (data.active) this.autociv.ProductionQueue_autotrain.add(ent)
-            else this.autociv.ProductionQueue_autotrain.delete(ent)
-        }
-    }
 };
 
 GuiInterface.prototype.autociv_FindEntitiesWithTemplateName = function (player, templateName)
@@ -238,7 +224,6 @@ GuiInterface.prototype.autociv_GetStatsOverlay = function ()
 // Original variable declaration is prefixed with let instead of var so we can't
 // just add new entries directly (global let declaration rules)
 var autociv_exposedFunctions = {
-    "autociv_SetAutotrain": 1,
     "autociv_FindEntitiesWithTemplateName": 1,
     "autociv_FindEntitiesWithGenericName": 1,
     "autociv_FindEntitiesWithClasses": 1,

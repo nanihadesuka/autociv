@@ -40,7 +40,6 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 			- rank
 			- class
 			- group
-	- APM (actions per minute) with chart (disabled by default, change in user.cfg) ***
 	- Stats overlay
 	- Pause game overlay now shows only in the top area
 - Settings
@@ -71,9 +70,9 @@ There are two ways:
 
 ## Mod compatibility(s)
 The mod is compatible with:
-- 0 A.D 0.0.24
-- Probable they will work in the future for 0 A.D 0.0.24​​​​​​​
-	- FGod (version 1.6.22 & 1.6.23)
+- 0 A.D 0.0.25
+- Probable to work with the folloing mods
+	- FGod
 	- ffm_visibility mod
 	- balanced maps mod
 	- spec mod (monitor) mod

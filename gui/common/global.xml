@@ -4,14 +4,19 @@
 
 <objects>
 
-	<!-- ==========================================
-	 - GLOBAL OBJECTS - ==========================================
+	<!--
+	==========================================
+	 - GLOBAL OBJECTS -
+	==========================================
 	-->
+
 
 	<object>
 
-		<!-- ==========================================
-		- GAMESTATE NOTIFICATIONS ==========================================
+		<!--
+		==========================================
+		- GAMESTATE NOTIFICATIONS
+		==========================================
 		-->
 		<object name="gameStateNotifications"
 			type="text"
@@ -22,79 +27,57 @@
 			textcolor="255 219 77"
 			text_align="center"
 			text_valign="top"
-			sprite="color: 0 0 0 100">
+			sprite="color: 0 0 0 100"
+			>
 		</object>
 
-		<!-- ==========================================
-		- FPS & REAL TIME & GAME TIME COUNTER ==========================================
+		<!--
+		==========================================
+		- FPS & REAL TIME & GAME TIME COUNTER
+		==========================================
 		-->
 		<object name="dataCounter"
 			type="text"
 			ghost="true"
-			hidden="false"
 			z="199"
-			size="100%-90 40 100%-5 40"
+			size="100%-100 40 100%-5 54"
 			font="mono-10"
 			textcolor="white"
 			text_align="right"
 			text_valign="top"
-			sprite="color: 0 0 0 100">
-			<action on="Tick">
-				if (!g_autociv_is24)
-					updateCounters();
-			</action>
+			sprite="color: 0 0 0 100"
+		>
 			<action on="Load">
-				// autociv: Should work but doesn't ??????????
-				if (g_autociv_is24)
-					g_OverlayCounterManager = new OverlayCounterManager(this);
+				g_OverlayCounterManager = new OverlayCounterManager(this);
 			</action>
 		</object>
 
-		<object name="fpsCounter"
-			type="text"
-			ghost="true"
-			hidden="true"
-			hotkey="fps.toggle">
-			<action on="Press">
-				Engine.ConfigDB_CreateValue("user", "overlay.fps", ""+(Engine.ConfigDB_GetValue("user", "overlay.fps")!== "true"));
-			</action>
-		</object>
-
-		<!-- ==========================================
-		- TIME COUNTER ==========================================
-		-->
-
-		<object name="timeCounter"
-			type="text"
-			ghost="true"
-			hidden="true"
-			hotkey="realtime.toggle">
-			<action on="Press">
-				Engine.ConfigDB_CreateValue("user", "overlay.realtime", ""+(Engine.ConfigDB_GetValue("user", "overlay.realtime") !== "true"));
-			</action>
-		</object>
-
-		<!-- ==========================================
-		- WATERMARK - USED WHEN TAKING OFFICIAL SCREENSHOTS ==========================================
+		<!--
+		==========================================
+		- WATERMARK - USED WHEN TAKING OFFICIAL SCREENSHOTS
+		==========================================
 		-->
 
 		<object name="glbWaterMark"
 			hidden="true"
 			hotkey="screenshot.watermark"
-			z="200">
+			z="200"
+		>
 			<action on="Press">
 				this.hidden = !this.hidden;
 			</action>
 
 			<object name="glbWaterMarkProductLogo"
 				type="image"
-				size="0 100%-88 190 100%"
-				sprite="watermarkProduct" />
+				size="0 100%-96 192 100%"
+				sprite="watermarkProduct"
+			/>
 
 			<object name="glbWaterMarkCompanyLogo"
 				type="image"
-				size="100%-207 100%-28 100% 100%"
-				sprite="watermarkCompany" />
+				size="100%-192 100%-24 100% 100%"
+				sprite="watermarkCompany"
+			/>
 		</object>
 
 		<!-- ==========================================
@@ -107,15 +90,6 @@
 		</action>
 
 		<!-- ==========================================
-		- WINDOW SIZE - USED TO CALCULATE CURRENT WINDOW SIZE ==========================================
-		-->
-
-		<object name="gl_autociv_WindowSize"
-			size="0 0 100% 100%"
-			hidden="true"
-			ghost="true"/>
-
-		<!-- ==========================================
 		- RESIZE BAR - USED FOR VISUALIZING OBJECT RESIZE BAR ==========================================
 		-->
 
@@ -125,51 +99,6 @@
 			hidden="true"
 			size="0 0 0 0"
 			z="800" />
-
-		<!-- ==========================================
-		- APM STATS AREA - USED IN SESSION TO SHOW APM STATS ==========================================
-		-->
-
-		<object name="gl_autocivSessionAPM"
-			size="100%-100 0 100%-5 0"
-			hidden="true"
-			z="799">
-
-			<object name="gl_autocivSessionAPMOverlay"
-				type="button"
-				size="0 0 100% 0%+14"
-				textcolor="white"
-				sprite="color: 0 0 0 100"
-				sprite_over="color: 0 0 0 150"
-				sprite_pressed="color: 0 0 0 220"
-				font="mono-10"
-				text_align="right"
-				text_valign="center"
-				buffer_zone="0">
-			</object>
-
-			<object name="gl_autocivSessionAPMChartBackground"
-				type="image"
-				sprite="color: 0 0 0 150"
-				ghost="true"
-				hidden="true"
-				size="-100 14 100% 0%+14+100">
-				<object name="gl_autocivSessionAPMChart"
-					type="chart"
-					style="ModernChart"
-					text_align="left"
-					format_x="DURATION_SHORT"
-					format_y="INTEGER">
-				</object>
-				<object name="gl_autocivSessionAPMTotalGameAverage"
-					type="text"
-					size="0% 40 100% 0%+40+30"
-					text_align="center"
-					font="mono-10"
-					textcolor="250 250 250 220" />
-			</object>
-
-		</object>
 
 		<!-- ==========================================
 		- CLI DATA INFO ==========================================

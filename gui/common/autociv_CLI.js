@@ -102,7 +102,7 @@ class Autociv_CLI
 				"textcolor": "255 255 255",
 				"text_align": "center",
 				"text_valign": "center",
-				"buffer_zone": "0"
+				"buffer_zone": 0
 			}
 		},
 		"typeTag": "128 81 102",

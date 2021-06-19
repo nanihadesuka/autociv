@@ -88,7 +88,7 @@ autociv_patchApplyN("init", function (target, that, args)
 {
 	target.apply(that, args);
 	const ctrl = g_SetupWindow.controls
-	ctrl.playerAssignmentsControl.registerClientLeaveHandler(() => g_autociv_countdown.gameUpdateSoft())
-	ctrl.readyControl.registerResetReadyHandler(() => g_autociv_countdown.gameUpdateSoft())
+	ctrl.playerAssignmentsController.registerClientLeaveHandler(() => g_autociv_countdown.gameUpdateSoft())
+	ctrl.readyController.registerResetReadyHandler(() => g_autociv_countdown.gameUpdateSoft())
 	ctrl.netMessages.registerNetMessageHandler("ready", () => g_autociv_countdown.gameUpdateSoft())
 })

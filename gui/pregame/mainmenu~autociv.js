@@ -24,22 +24,6 @@ function autociv_initCheck()
         "showReadme": false
     };
 
-    // Reorder mods so FGod is always before AutoCiv
-    {
-        let mods = config.get("mod.enabledmods").trim().split(/\s+/g);
-        let iFGod = mods.findIndex(name => /^FGod.*/i.test(name));
-        let iAutociv = mods.findIndex(name => /^AutoCiv.*/i.test(name));
-
-        if (iFGod != -1 && iAutociv != -1 && iFGod > iAutociv)
-        {
-            [mods[iFGod], mods[iAutociv]] = [mods[iAutociv], mods[iFGod]];
-            Engine.SetMods(mods);
-            config.set("mod.enabledmods", mods.join(" "))
-            state.needsRestart = true;
-            state.reasons.add("Detected wrong mod order. Fixed. FGod needs to be loaded before AutoCiv.");
-        }
-    }
-
     // Check settings
     {
         let settings = Engine.ReadJSONFile("autociv_data/default_config.json");

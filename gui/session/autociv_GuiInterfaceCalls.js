@@ -5,8 +5,5 @@ function autociv_SetCorpsesMax(value)
 
 function autociv_SetAutotrain(active, entities = g_Selection.toList())
 {
-    Engine.GuiInterfaceCall("autociv_SetAutotrain", {
-        "active": active,
-        "entities": entities
-    });
+    // TODO: USE NEW NATIVE "AUTOQUEUE"
 }

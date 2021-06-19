@@ -1,6 +1,4 @@
 Hi if you are reading this :)
 1) FPS view mode
 
-Alpha 24 pending:
-- Session
-    - APM
+Alpha 25 pending:
