@@ -3,29 +3,10 @@ var game = {
 	// stuff that needs to be updated after the gui updates it (as it removes it before it)
 	// undefined will mean it doesnt exist
 	attributes: {},
-	addAttribute(obj)
-	{
-		for (let key in obj)
-		{
-			if (typeof obj[key] != "object")
-			{
-				g_GameSettings[key] = obj[key]
-				this.attributes[key] = obj[key]
-			}
-			else for (let subkey in obj[key])
-			{
-				g_GameSettings[key][subkey] = obj[key][subkey]
-				if (!(key in this.attributes))
-					this.attributes[key] = {}
-				this.attributes[key][subkey] = obj[key][subkey]
-
-			}
-		}
-	},
 	updateSettings()
 	{
-		g_SetupWindow.controls.gameSettingsControl.updateGameAttributes()
-		g_SetupWindow.controls.gameSettingsControl.setNetworkGameAttributes()
+		// g_SetupWindow.controls.gameSettingsController.updateGameAttributes()
+		// g_SetupWindow.controls.gameSettingsController.setNetworkGameAttributes()
 	},
 	get 'controls'() { return g_SetupWindow.pages.GameSetupPage.gameSettingControlManager.gameSettingControls },
 	get 'panels'() { return g_SetupWindow.pages.GameSetupPage.panels },
@@ -40,7 +21,7 @@ var game = {
 			if (quantity === "" || val === NaN)
 				return selfMessage('Invalid starting resources value (must be a number).');
 
-			g_GameSettings.settings.StartingResources = val;
+			g_GameSettings.startingResources.resources = val;
 			game.updateSettings()
 			sendMessage(`Starting resources set to: ${val}`);
 		},
@@ -49,11 +30,7 @@ var game = {
 			if (!g_IsController)
 				return;
 
-			game.addAttribute({
-				settings: {
-					CircularMap: !!circular
-				}
-			})
+			g_GameSettings.circularMap.value = circular
 			game.updateSettings()
 			sendMessage(`Map shape set to: ${!!circular ? "circular" : "squared"}`);
 		},
@@ -65,7 +42,7 @@ var game = {
 			if (!Number.isInteger(val) || val < 0)
 				return selfMessage('Invalid population cap value (must be a number >= 0).');
 
-			g_GameSettings.settings.PopulationCap = val;
+			g_GameSettings.population.cap = val;
 			game.updateSettings()
 			sendMessage(`Population cap set to: ${val}`);
 
@@ -80,7 +57,7 @@ var game = {
 			if (!Number.isInteger(val) || val < 1)
 				return selfMessage('Invalid map size value (must be a number >= 1).');
 
-			g_GameSettings.settings.Size = val;
+			g_GameSettings.mapSize.size = val;
 			game.updateSettings()
 			sendMessage(`Map size set to: ${val}`);
 		},
@@ -134,8 +111,7 @@ var game = {
 			let teams = text.trim().toLowerCase();
 			if ("ffa" == teams)
 			{
-				for (let i in g_GameSettings.settings.PlayerData)
-					g_GameSettings.settings.PlayerData[i].Team = -1;
+				g_GameSettings.playerTeam.values = g_GameSettings.playerTeam.values.map(v => -1)
 				game.updateSettings()
 				return;
 			}
@@ -154,17 +130,15 @@ var game = {
 			if (numOfSlots < 1 || numOfSlots > 8)
 				return selfMessage("Invalid number of players (max 8).");
 
-			game.set.numberOfSlots(numOfSlots)
-
-			for (let team = 0, slot = 0; team < teams.length; ++team)
-				for (let i = 0; i < teams[team]; ++i)
-					g_GameSettings.settings.PlayerData[slot++].Team = team;
-
+			g_GameSettings.playerCount.nbPlayers = numOfSlots
+			g_GameSettings.playerTeam.values = teams.flatMap((size, i) => Array(size).fill(i))
 			game.updateSettings()
 		},
 		"slotName": (slotNumber, name) =>
 		{
-			g_GameSettings.settings.PlayerData[slotNumber - 1].Name = name;
+			let values = g_GameSettings.playerName.values
+			values[slotNumber - 1] = name
+			g_GameSettings.playerName.values = values
 			game.updateSettings()
 		}
 	},
@@ -203,7 +177,7 @@ var game = {
 		{
 			'name': () => Object.keys(g_PlayerAssignments).map(id => splitRatingFromNick(g_PlayerAssignments[id].name).nick)
 		},
-		"numberOfSlots": () => g_GameSettings.settings.PlayerData.length
+		"numberOfSlots": () => g_GameSettings.playerTeam.values.length
 	},
 	'is':
 	{
@@ -221,14 +195,14 @@ var game = {
 		},
 		"full": function ()
 		{
-			let filledSlots = 0;
+			let nOfPlayersAssignedSlot = 0;
 			for (let guid in g_PlayerAssignments)
 				if (g_PlayerAssignments[guid].player >= 0)
-					filledSlots += 1
+					nOfPlayersAssignedSlot += 1
 
-			return g_GameSettings.settings.PlayerData.length == filledSlots;
+			return g_GameSettings.playerTeam.values.length == nOfPlayersAssignedSlot;
 		},
-		"rated": () => g_GameSettings.settings.RatingEnabled
+		"rated": () => g_GameSettings.rating.enabled
 	},
 	"reset": {
 		"civilizations": () =>
@@ -238,13 +212,6 @@ var game = {
 		"teams": () =>
 		{
 			game.panels.resetTeamsButton.onPress()
-		},
-		"slotNames": () =>
-		{
-			for (let i = 0; i < 8; ++i)
-				g_GameSettings.settings.PlayerData[i].Name = translate(`Player ${i + 1}`);
-
-			game.updateSettings()
 		}
 	}
 };
