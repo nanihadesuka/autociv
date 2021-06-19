@@ -1,25 +1,25 @@
 var autociv_select = {
     "entityWithGenericName": function (genericName, selectAll, accumulateSelection)
     {
-        let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithGenericName", genericName);
+        const entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithGenericName", genericName);
         return this.fromList(entities, selectAll, accumulateSelection);
     },
     "entityWithTemplateName": function (templateName, selectAll, accumulateSelection)
     {
-        let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithTemplateName", templateName);
+        const entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithTemplateName", templateName);
         return this.fromList(entities, selectAll, accumulateSelection);
     },
     "entityWithClassesExpression": function (classesExpression, selectAll, accumulateSelection)
     {
         // Time rate it, given is an expensive call
-        let args = [classesExpression, selectAll, accumulateSelection];
+        const args = [classesExpression, selectAll, accumulateSelection];
         if (Engine.GetMicroseconds() - this.rate.last.time < this.rate.interval &&
             this.rate.last.args.every((v, i) => v == args[i]))
             return;
         this.rate.last.time = Engine.GetMicroseconds();
         this.rate.last.args = args;
 
-        let entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithClassesExpression", { "classesExpression": classesExpression });
+        const entities = Engine.GuiInterfaceCall("autociv_FindEntitiesWithClassesExpression", { "classesExpression": classesExpression });
         return this.fromList(entities, selectAll, accumulateSelection);
     },
     "rate": {
@@ -34,7 +34,7 @@ var autociv_select = {
      */
     "selectAll": function (entities, accumulateSelection)
     {
-        if (!entities || !entities.length)
+        if (!entities?.length)
             return;
 
         if (!accumulateSelection)
@@ -48,19 +48,19 @@ var autociv_select = {
      */
     "cycle": function (entities, accumulateSelection)
     {
-        if (!entities || !entities.length)
+        if (!entities?.length)
             return;
 
-        let lastSelectedIndex = entities.findIndex(entity => entity in g_Selection.selected);
+        let lastSelectedIndex = entities.findIndex(entity => g_Selection.selected.has(entity));
         if (lastSelectedIndex == -1)
             lastSelectedIndex = 0;
 
         // Find the first entity after lastSelectedIndex not in the current selection (cyclic)
         for (let index = 0; index < entities.length; ++index)
         {
-            let cyclicIndex = (index + lastSelectedIndex) % entities.length;
-            let entity = entities[cyclicIndex];
-            if (entity in g_Selection.selected)
+            const cyclicIndex = (index + lastSelectedIndex) % entities.length;
+            const entity = entities[cyclicIndex];
+            if (g_Selection.selected.has(entity))
                 continue;
 
             if (!accumulateSelection)
