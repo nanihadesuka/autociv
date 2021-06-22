@@ -979,6 +979,18 @@ declare namespace Engine
 	function HasReplayMetadata(): any
 	function AddReplayToCache(): any
 	function GetReplayDirectoryName(): any
+
+	function SetGlobalHotkey(
+		hotkey: String,
+		eventType: "Press" | "Tab" | "KeyDown" | "MouseWheelUp" | "MouseWheelDown" | "Tick",
+		eventCallback: Function
+	): void
+
+	function UnsetGlobalHotkey(
+		hotkey: String,
+		eventType: "Press" | "Tab" | "KeyDown" | "MouseWheelUp" | "MouseWheelDown" | "Tick",
+	): void
+
 }
 
 declare class GUIObject
