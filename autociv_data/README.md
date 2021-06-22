@@ -45,8 +45,6 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 - Settings
 	- Max corpses visible
 
-##### Features with *** at the end means that exist (pre alpha 24) but not still compatible  with alpha 24
-
 ## Download
 There are two ways:
 - Use 0 A.D. mod downloader (not always newest version)
@@ -77,7 +75,7 @@ The mod is compatible with:
 	- balanced maps mod
 	- spec mod (monitor) mod
 	- custom_rating mod
-- Should work with all mods that don't have heavy code changes.
+- Should work with all mods that don't have extensive code changes
 
 
 ## More stuff & goodies
