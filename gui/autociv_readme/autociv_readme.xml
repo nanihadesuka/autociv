@@ -20,31 +20,25 @@
 		size="50%-400 0%+50 50%+400 100%-50">
 		<!-- Main title -->
 		<object type="text"
+			name="title"
 			style="ModernLabelText"
-			size="50%-128 -18 50%+128 14">Autociv readme
-		</object>
+			size="50%-128 -18 50%+128 14" />
 		<!-- Main text -->
 		<object type="text"
+			name="text"
 			style="ModernText"
 			sprite="color:0 0 0 30"
 			buffer_zone="20"
 			size="0%+20 0%+20 100%-20 100%-20-50"
 			scrollbar="true"
 			scrollbar_style="ModernScrollBar"
-			font="sans-16">
-			<action on="Load">
-				let markdown = Engine.ReadFile("autociv_data/README.md")
-				this.caption = autociv_SimpleMarkup(markdown)
-			</action>
-		</object>
+			font="sans-16" />
 		<object size="0%+20 100%-15-17-25 100%-15 100%-25">
 			<!-- Webpage button -->
 			<object name="buttonWebpage"
 				type="button"
 				style="ModernButtonRed"
-				size="50%-130-20 0% 50%-20 100%">
-				<action on="Press">	Engine.OpenURL("https://wildfiregames.com/forum/index.php?/topic/28753-autociv-mod-0ad-enhancer/") </action>
-			</object>
+				size="50%-130-20 0% 50%-20 100%" />
 			<!-- Close button -->
 			<object name="buttonClose"
 				type="button"
