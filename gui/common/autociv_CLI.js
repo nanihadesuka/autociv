@@ -143,7 +143,8 @@ class Autociv_CLI
 			this.GUI[name].font = this.style.font
 		}
 
-		this.GUI.gui.onPress = () => this.toggle()
+		Engine.SetGlobalHotkey("autociv.CLI.toggle", "Press", () => this.toggle())
+
 		this.GUI.input.onTextEdit = () => this.updateSuggestions()
 		this.GUI.input.onTab = () => this.tab()
 		this.GUI.input.onPress = () => this.evalInput()

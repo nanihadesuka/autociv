@@ -108,7 +108,7 @@
 			size="50%-400 28% 50%+400 28%"
 			hidden="true"
 			z="799"
-			hotkey="autociv.CLI.toggle">
+			>
 			<action on="Load">
 				global["g_autociv_CLI"] = new Autociv_CLI(this);
 			</action>
