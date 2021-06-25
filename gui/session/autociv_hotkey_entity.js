@@ -3,30 +3,30 @@ var g_autociv_hotkey_entity = {
     "by": function (ev, expression)
     {
         if (this.by.rate.rate(expression))
-            return;
+            return
 
         // "filter1.parameter1.parameter2.by.filter2.parameter1" ... =>
         // [["filter1", "parameter1", "parameter2"], ["filter2", "parameter1", ...], ...]
-        let filters = expression.split(".by.").map(v => v.split("."));
+        const filters = expression.split(".by.").map(v => v.split("."))
 
-        let list = Engine.GuiInterfaceCall("GetPlayerEntities");
+        let list = Engine.GuiInterfaceCall("GetPlayerEntities")
         for (let [filter, ...parameters] of filters)
         {
             if (filter in g_autociv_hotkey_entity_by_filter)
-                list = g_autociv_hotkey_entity_by_filter[filter](ev, list, parameters);
+                list = g_autociv_hotkey_entity_by_filter[filter](ev, list, parameters)
             else
-                warn(`Hotkey "${ev.hotkey}" has invalid filter "${filter}"`);
+                warn(`Hotkey "${ev.hotkey}" has invalid filter "${filter}"`)
         }
-        g_Selection.reset();
-        g_Selection.addList(list);
-        return true;
+        g_Selection.reset()
+        g_Selection.addList(list)
+        return true
     },
     "select": function (ev, templateName)
     {
-        autociv_select.entityWithTemplateName(templateName);
-        return true;
+        autociv_select.entityWithTemplateName(templateName)
+        return true
     }
-};
+}
 
 // Time rate "by" function, given is expensive
 g_autociv_hotkey_entity.by.rate = {
@@ -38,12 +38,12 @@ g_autociv_hotkey_entity.by.rate = {
     "rate": function (input)
     {
         if (Engine.GetMicroseconds() - this.last.time < this.interval && this.last.input == input)
-            return true;
+            return true
 
-        this.last.time = Engine.GetMicroseconds();
-        this.last.input = input;
+        this.last.time = Engine.GetMicroseconds()
+        this.last.input = input
     }
-};
+}
 
 // All possible "autociv.session.entity.by." possible entries
 var g_autociv_hotkey_entity_by_filter = {
@@ -52,12 +52,12 @@ var g_autociv_hotkey_entity_by_filter = {
         switch (parameters[0])
         {
             case "wounded":
-                return list.filter(unitFilters.isWounded);
+                return list.filter(unitFilters.isWounded)
             case "nowounded":
-                return list.filter(unitFilters.autociv_isNotWounded);
+                return list.filter(unitFilters.autociv_isNotWounded)
             default:
-                error(`Invalid hotkey "${ev.hotkey}" for by.health. parameter "${parameters[0]}"`);
-                return list;
+                error(`Invalid hotkey "${ev.hotkey}" for by.health. parameter "${parameters[0]}"`)
+                return list
         }
     },
     "class": function (ev, list, parameters)
@@ -68,38 +68,38 @@ var g_autociv_hotkey_entity_by_filter = {
                 return Engine.GuiInterfaceCall("autociv_FindEntitiesWithClassesExpression", {
                     "classesExpression": parameters[1].replace("_", " "),
                     "list": list
-                });
+                })
             default:
-                error(`Invalid hotkey "${ev.hotkey}" for by.class. parameter "${parameters[0]}"`);
-                return list;
+                error(`Invalid hotkey "${ev.hotkey}" for by.class. parameter "${parameters[0]}"`)
+                return list
         }
     },
     "rank": function (ev, list, parameters)
     {
-        let expression = parameters[0];
+        let expression = parameters[0]
         for (let [id, rank] of [[1, "Basic"], [2, "Advanced"], [3, "Elite"]])
-            expression = expression.replace(id, rank);
+            expression = expression.replace(id, rank)
 
-        let evalExpression = autociv_getExpressionEvaluator(expression);
+        const evalExpression = autociv_getExpressionEvaluator(expression)
         if (!evalExpression)
         {
-            error(`Invalid hotkey "${ev.hotkey}" for by.rank. parameter "${parameters[0]}"`);
-            return list;
+            error(`Invalid hotkey "${ev.hotkey}" for by.rank. parameter "${parameters[0]}"`)
+            return list
         }
 
         return list.filter(entity =>
         {
-            let entityState = GetEntityState(entity);
-            return entityState && entityState.identity && evalExpression([entityState.identity.rank]);
-        });
+            const entityState = GetEntityState(entity)
+            return entityState?.identity && evalExpression([entityState.identity.rank])
+        })
     },
     "group": function (ev, list, parameters)
     {
-        let [expression] = parameters;
+        const expression = parameters[0]
         switch (expression)
         {
             case "none": {
-                let entitiesNotGrouped = new Set(list)
+                const entitiesNotGrouped = new Set(list)
                 for (let group of g_Groups.groups)
                     for (let entity in group.ents)
                         entitiesNotGrouped.delete(+entity)
@@ -107,6 +107,9 @@ var g_autociv_hotkey_entity_by_filter = {
                 return Array.from(entitiesNotGrouped)
             }
             default:
+                error(`Invalid hotkey "${ev.hotkey}" for by.group. parameter "${expression}"`)
+                return list
+        }
     },
     "state": function (ev, list, parameters)
     {
@@ -123,9 +126,8 @@ var g_autociv_hotkey_entity_by_filter = {
             const state = GetEntityState(entity)
             return state?.unitAI && evalExpression([state.unitAI.state])
         })
-        }
     }
-};
+}
 
 
 /**
@@ -141,24 +143,24 @@ function autociv_getExpressionEvaluator(expression)
             list.indexOf(match) == -1 ? "0" : "1")
 
     // Test if expression is a valid expression ([] as dummy data)
-    const testExpression = genExpression([]);
+    const testExpression = genExpression([])
     // /^[01&!|()]+$/ regex matches only 0 1 and boolean operators
     if (!/^[01&!|()]+$/.test(testExpression))
     {
         // Known pitfall:
         // & and && ( | and || ) are equivalent for 1 bit operations.
         // Use & and | or && and || but do not mix both in the same expression.
-        warn(`INVALID EXPRESSION: "${expression}" Only allowed operators are: & ! | ( )`);
-        return;
+        warn(`INVALID EXPRESSION: "${expression}" Only allowed operators are: & ! | ( )`)
+        return
     }
 
     // Test expression is well defined (doesn't throw errors)
     try { !!Function("return " + testExpression)() }
     catch (err)
     {
-        warn(`INVALID EXPRESSION: "${expression}" Expression wrongly defined`);
-        return;
+        warn(`INVALID EXPRESSION: "${expression}" Expression wrongly defined`)
+        return
     }
 
-    return list => !!Function("return " + genExpression(list))();
-};
+    return list => !!Function("return " + genExpression(list))()
+}
