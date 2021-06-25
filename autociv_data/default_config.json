@@ -173,6 +173,7 @@
 	"hotkey.autociv.session.entity.by.rank.1": "",
 	"hotkey.autociv.session.entity.by.rank.2": "",
 	"hotkey.autociv.session.entity.by.rank.3": "",
+	"hotkey.autociv.session.entity.by.state.idle": "",
 	"hotkey.autociv.session.production.queue.clear": "Alt+R",
 	"hotkey.autociv.session.formation.set.null": "Space+1",
 	"hotkey.autociv.session.formation.set.box": "Space+2",
