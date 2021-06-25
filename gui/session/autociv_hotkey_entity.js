@@ -107,8 +107,22 @@ var g_autociv_hotkey_entity_by_filter = {
                 return Array.from(entitiesNotGrouped)
             }
             default:
-                error(`Invalid hotkey "${ev.hotkey}" for by.group. parameter "${expression}"`);
-                return list;
+    },
+    "state": function (ev, list, parameters)
+    {
+        const expression = parameters[0].replace("idle", "INDIVIDUAL.IDLE")
+        const evalExpression = autociv_getExpressionEvaluator(expression)
+        if (!evalExpression)
+        {
+            error(`Invalid hotkey "${ev.hotkey}" for by.state. parameter "${parameters[0]}"`)
+            return list
+        }
+
+        return list.filter(entity =>
+        {
+            const state = GetEntityState(entity)
+            return state?.unitAI && evalExpression([state.unitAI.state])
+        })
         }
     }
 };
