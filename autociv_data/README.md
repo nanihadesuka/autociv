@@ -46,18 +46,20 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 	- Max corpses visible
 
 ## Download
-There are two ways:
+There are three ways:
+- Download and install from the wildfiregames forum autociv page topic (files on first page)
+	- https://wildfiregames.com/forum/index.php?/topic/24649-autociv-mod-0ad-enhancer/
+- Download and install manually the github repository (instalation file on the releases section)
+	- https://github.com/nanihadesuka/autociv
 - Use 0 A.D. mod downloader (not always newest version)
 	- https://0ad.mod.io/autociv
-- Download and install manually with one of these two files (newest version)
-	- https://wildfiregames.com/forum/index.php?/topic/24649-autociv-mod-0ad-enhancer/
 
 
 ## Instructions to install manually
-	- #### MacOS (thanks @HMS-Surprise):
+	#### MacOS (thanks @HMS-Surprise):
 		https://wildfiregames.com/forum/index.php?/topic/25444-how-to-install-autociv-mod-on-mac/
 
-	- #### Linux/Windows:
+	#### Linux/Windows:
 		Open the downloaded file with (both ways should work):
 		- pyromod file (two ways)
 			- Double click the file (should autoinstall the mod for you and send  you to the mods page inside 0ad)
@@ -80,6 +82,7 @@ The mod is compatible with:
 
 ## More stuff & goodies
 For more info just read the whole thread where I post new features.
+https://wildfiregames.com/forum/index.php?/topic/24649-autociv-mod-0ad-enhancer/
 
 ## Questions & feedback
 You don't understand how it works? Feeling confused? Just wanna comment? Ask and post.
