@@ -30,7 +30,7 @@ jobs: # A workflow run is made up of one or more jobs that can run sequentially 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          name: NovelDokusha v${{ env.PYROMOD_MOD_VERSION }}
+          name: ${{ env.PYROMOD_MOD_NAME }} v${{ env.PYROMOD_MOD_VERSION }}
           tag_name: v${{ env.PYROMOD_MOD_VERSION }}
           files: |
             ${{ env.PYROMOD_PYROMOD_FILE_PATH }}

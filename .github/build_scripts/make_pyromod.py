@@ -82,6 +82,7 @@ def setEnvValue(key, value):
     os.system(f"echo \"{key}={value}\" >> $GITHUB_ENV ")
 
 
+setEnvValue("PYROMOD_MOD_NAME", modName)
 setEnvValue("PYROMOD_MOD_VERSION", modVersion)
 setEnvValue("PYROMOD_PYROMOD_FILE_PATH", outFilePyromod)
 setEnvValue("PYROMOD_ZIP_FILE_PATH", outFileZip)
