@@ -55,8 +55,8 @@ def ignoreFilter(filePath):
 
 
 outFile = os.path.join(homeDir, "output", modName + "_v" + modVersion)
-outFileZip = outFile+".zip"
-outFilePyromod = outFile+".zip"
+outFileZip = outFile + ".zip"
+outFilePyromod = outFile + ".pyromod"
 
 print("Making pyromod file: " + outFilePyromod)
 with tempfile.TemporaryDirectory() as tempDir:
@@ -83,5 +83,5 @@ def setEnvValue(key, value):
 
 
 setEnvValue("PYROMOD_MOD_VERSION", modVersion)
-setEnvValue("PYROMOD_PYROMOD_FILE_PATH", outFileZip)
-setEnvValue("PYROMOD_ZIP_FILE_PATH", outFilePyromod)
+setEnvValue("PYROMOD_PYROMOD_FILE_PATH", outFilePyromod)
+setEnvValue("PYROMOD_ZIP_FILE_PATH", outFileZip)
