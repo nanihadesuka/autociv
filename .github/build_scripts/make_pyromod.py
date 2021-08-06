@@ -18,6 +18,7 @@ def msgExit(msg):
 
 homeDir = os.path.expanduser("~")
 modDir = os.getcwd()
+print("Mod dir is: " + modDir)
 modInfoFile = os.path.join(modDir, "mod.json")
 modPyromodIgnoreFile = os.path.join(modDir, ".pyromodignore")
 
@@ -31,8 +32,10 @@ with open(modInfoFile, "r") as file:
     modInfo = json.load(file)
     modVersion = "_v" + modInfo['version'] if "version" in modInfo else msgExit(
         "mod.json missing 'version' entry")
+    print("Mod version is: " + modVersion)
     modName = modInfo['name'] if "name" in modInfo else msgExit(
         "mod.json missing 'name' entry")
+    print("Mod name is: " + modName)
 
 if os.path.isfile(os.path.join(modDir, modName + ".zip")):
     msgExit("Mod folder has zip inside. Remove to fix.")
@@ -55,7 +58,7 @@ outFile = os.path.join(homeDir, "output", modName + modVersion)
 outFileZip = outFile+".zip"
 outFilePyromod = outFile+".zip"
 
-# Make pyromod
+print("Making pyromod file: " + outFilePyromod)
 with tempfile.TemporaryDirectory() as tempDir:
     stripped_mod = os.path.join(tempDir, modName)
     shutil.copytree(src=modDir,
@@ -64,7 +67,7 @@ with tempfile.TemporaryDirectory() as tempDir:
     shutil.make_archive(outFile, "zip", stripped_mod)
     shutil.move(outFile+".zip", outFile+".pyromod")
 
-# Make zip from the pyromod
+print("Making zip file: " + outFileZip)
 with tempfile.TemporaryDirectory() as tempDir:
     deepPath = os.path.join(tempDir, modName)
     os.makedirs(deepPath)
@@ -74,6 +77,11 @@ with tempfile.TemporaryDirectory() as tempDir:
     shutil.make_archive(outFile, "zip", tempDir)
 
 
-os.environ["PYROMOD_MOD_VERSION"] = modVersion
-os.environ["PYROMOD_PYROMOD_FILE_PATH"] = outFileZip
-os.environ["PYROMOD_ZIP_FILE_PATH"] = outFilePyromod
+def setEnvValue(key, value):
+    print(f"Setting env varaible: {key}={value}")
+    os.system(f"echo \"{key}={value}\" >> $GITHUB_ENV ")
+
+
+setEnvValue("PYROMOD_MOD_VERSION", modVersion)
+setEnvValue("PYROMOD_PYROMOD_FILE_PATH", outFileZip)
+setEnvValue("PYROMOD_ZIP_FILE_PATH", outFilePyromod)
