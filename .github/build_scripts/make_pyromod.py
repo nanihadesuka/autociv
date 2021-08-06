@@ -30,7 +30,7 @@ if not os.path.isfile(modInfoFile):
 # Get mod info
 with open(modInfoFile, "r") as file:
     modInfo = json.load(file)
-    modVersion = "_v" + modInfo['version'] if "version" in modInfo else msgExit(
+    modVersion = modInfo['version'] if "version" in modInfo else msgExit(
         "mod.json missing 'version' entry")
     print("Mod version is: " + modVersion)
     modName = modInfo['name'] if "name" in modInfo else msgExit(
@@ -54,7 +54,7 @@ def ignoreFilter(filePath):
     return ignore
 
 
-outFile = os.path.join(homeDir, "output", modName + modVersion)
+outFile = os.path.join(homeDir, "output", modName + "_v" + modVersion)
 outFileZip = outFile+".zip"
 outFilePyromod = outFile+".zip"
 
