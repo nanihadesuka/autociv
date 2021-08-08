@@ -9,6 +9,17 @@ var g_autociv_hotkeys = {
 	{
 		Engine.GetGUIObjectByName("chatInput").blur();
 		Engine.GetGUIObjectByName("chatInput").focus();
+	},
+	/**
+ 	 * Can't unfocus chat input without mouse, use cancel hotkey to unfocus from it
+ 	 * (seems they still get triggered if the hotkey was assigned defined in a xml
+ 	 * object but won't if they were from Engine.SetGlobalHotkey call)
+ 	 */
+	"cancel": ev =>
+	{
+		const obj = Engine.GetGUIObjectByName("gameStateNotifications")
+		obj?.blur()
+		obj?.focus()
 	}
 };
 

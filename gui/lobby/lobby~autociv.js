@@ -19,7 +19,18 @@ var g_autociv_hotkeys = {
 	"autociv.lobby.gameList.selected.join": () => g_LobbyHandler.lobbyPage.lobbyPage.buttons.joinButton.onPress(),
 	"autociv.open.autociv_readme": ev => Engine.PushGuiPage("page_autociv_readme.xml"),
 	"autociv.lobby.host": ev => g_LobbyHandler.lobbyPage.lobbyPage.buttons.hostButton.onPress(),
-	"summary": ev => autociv_showLastGameSummary()
+	"summary": ev => autociv_showLastGameSummary(),
+	/**
+	 * Can't unfocus chat input without mouse, use cancel hotkey to unfocus from it
+	 * (seems they still get triggered if the hotkey was assigned defined in a xml
+	 * object but won't if they were from Engine.SetGlobalHotkey call)
+	 */
+	"cancel": ev =>
+	{
+		const obj = Engine.GetGUIObjectByName("gameStateNotifications")
+		obj?.blur()
+		obj?.focus()
+	}
 };
 
 
