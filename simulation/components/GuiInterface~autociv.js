@@ -183,11 +183,11 @@ GuiInterface.prototype.autociv_GetStatsOverlay = function ()
 
     const cmpPlayerManager = Engine.QueryInterface(SYSTEM_ENTITY, IID_PlayerManager);
     const numPlayers = cmpPlayerManager.GetNumPlayers();
-    for (let i = 0; i < numPlayers; ++i)
+    for (let player = 0; player < numPlayers; ++player)
     {
         // Work out which phase we are in.
         let phase = 0;
-        const cmpTechnologyManager = QueryPlayerIDInterface(i, IID_TechnologyManager);
+        const cmpTechnologyManager = QueryPlayerIDInterface(player, IID_TechnologyManager);
         if (cmpTechnologyManager)
         {
             if (cmpTechnologyManager.IsTechnologyResearched("phase_city"))
@@ -198,8 +198,8 @@ GuiInterface.prototype.autociv_GetStatsOverlay = function ()
                 phase = 1;
         }
 
-        const cmpPlayer = QueryPlayerIDInterface(i);
-        const cmpPlayerStatisticsTracker = QueryPlayerIDInterface(i, IID_StatisticsTracker);
+        const cmpPlayer = QueryPlayerIDInterface(player);
+        const cmpPlayerStatisticsTracker = QueryPlayerIDInterface(player, IID_StatisticsTracker);
         const classCounts = cmpTechnologyManager?.GetClassCounts()
 
         ret.players.push({
@@ -211,9 +211,11 @@ GuiInterface.prototype.autociv_GetStatsOverlay = function ()
             "hasSharedLos": cmpPlayer.HasSharedLos(),
             "phase": phase,
             "researchedTechsCount": cmpTechnologyManager?.GetResearchedTechs().size ?? 0,
+            "classCounts_Support": classCounts?.Support ?? 0,
             "classCounts_Infantry": classCounts?.Infantry ?? 0,
             "classCounts_Cavalry": classCounts?.Cavalry ?? 0,
-            "classCounts_Seige": (classCounts?.Siege ?? 0) + (classCounts?.Elephant ?? 0),
+            "classCounts_Seige": (classCounts?.Siege ?? 0),
+            "classCounts_Champion": (classCounts?.Champion ?? 0),
             "enemyUnitsKilledTotal": cmpPlayerStatisticsTracker?.enemyUnitsKilled.total ?? 0
         });
     }
