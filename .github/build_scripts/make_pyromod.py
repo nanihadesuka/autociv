@@ -54,7 +54,7 @@ def ignoreFilter(filePath):
     return ignore
 
 
-outFile = os.path.join(homeDir, "output", modName + "_v" + modVersion)
+outFile = os.path.join(homeDir, "output", modName)
 outFileZip = outFile + ".zip"
 outFilePyromod = outFile + ".pyromod"
 
