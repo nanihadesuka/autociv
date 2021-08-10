@@ -1,6 +1,7 @@
 {
 	"autociv.settings.reset.all": "false",
 	"autociv.settings.autociv_readme.seen": "false",
+	"autociv.mainmenu.suggestDefaultChanges": "true",
 	"autociv.lobby.chat.subject.hide": "flase",
 	"autociv.lobby.gamelist.showHostName": "false",
 	"autociv.gamesetup.countdown.enabled": "false",

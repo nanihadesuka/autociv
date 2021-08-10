@@ -19,9 +19,9 @@ var config = {
 function autociv_initCheck()
 {
     let state = {
-        "needsRestart": false,
         "reasons": new Set(),
-        "showReadme": false
+        "showReadme": false,
+        "showSuggestDefaultChanges": false
     };
 
     // Check settings
@@ -58,6 +58,16 @@ function autociv_initCheck()
         }
     }
 
+    // Check for showSuggestDefaultChanges
+    {
+        const key = "autociv.mainmenu.suggestDefaultChanges"
+        if (config.get(key) == "true")
+        {
+            state.showSuggestDefaultChanges = true
+            config.set(key, "false")
+        }
+    }
+
     // Check if show readme (first time user case)
     {
         const key = "autociv.settings.autociv_readme.seen"
@@ -80,28 +90,44 @@ Engine.SetGlobalHotkey("autociv.open.autociv_readme", "Press", () =>
 autociv_patchApplyN("init", function (target, that, args)
 {
     let state = autociv_initCheck();
-    if (state.needsRestart)
+    if (state.reasons.size != 0)
     {
-        let message = ["0 A.D needs to restart.\n", "Reasons:\n"].
-            concat(Array.from(state.reasons).map(v => ` · ${v}`)).
-            join("\n");
-
-        messageBox(500, 300, message,
-            "AutoCiv mod notice",
-            ["Cancel", "Restart"],
-            [() => { }, () => Engine.RestartEngine()]
-        );
-    }
-    else if (state.reasons.size != 0)
-    {
-        let message = ["AutoCiv made some changes.\n", "Reasons:\n"].
+        let message = ["AutoCiv made some changes.\n"].
             concat(Array.from(state.reasons).map(v => ` · ${v}`)).
             join("\n");
 
         messageBox(500, 300, message,
             "AutoCiv mod notice",
             ["Ok"],
-            [() => { }, () => Engine.RestartEngine()]
+            [() => { }, () => { }]
+        );
+    }
+
+    if (state.showSuggestDefaultChanges)
+    {
+        let message = `
+Some default settings will improve with AutoCiv if changed.
+
+Do you want to make these changes?
+
+Disable hotkey:
+"hotkey.camera.lastattackfocus" = "Space"
+
+Add auto-queue hotkeys:
+hotkey.session.queueunit.autoqueueoff = "Alt+W"
+hotkey.session.queueunit.autoqueueon = "Alt+Q"
+        `;
+
+        messageBox(500, 300, message,
+            "AutoCiv mod notice",
+            ["Ok, change", "No"],
+            [() =>
+            {
+                config.set("hotkey.camera.lastattackfocus", "Space")
+                config.set("hotkey.session.queueunit.autoqueueoff", "Alt+W")
+                config.set("hotkey.session.queueunit.autoqueueon", "Alt+Q")
+                config.save()
+            }, () => { }]
         );
     }
 
