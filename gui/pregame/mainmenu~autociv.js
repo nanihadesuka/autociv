@@ -123,7 +123,7 @@ hotkey.session.queueunit.autoqueueon = "Alt+Q"
             ["Ok, change", "No"],
             [() =>
             {
-                config.set("hotkey.camera.lastattackfocus", "Space")
+                config.set("hotkey.camera.lastattackfocus", "")
                 config.set("hotkey.session.queueunit.autoqueueoff", "Alt+W")
                 config.set("hotkey.session.queueunit.autoqueueon", "Alt+Q")
                 config.save()
