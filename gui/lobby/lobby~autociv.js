@@ -114,10 +114,13 @@ autociv_patchApplyN("init", function (target, that, args)
 		g_resizeBarManager.add("middlePanel", "left", undefined, [["leftPanel", "right"]]);
 		g_resizeBarManager.add("middlePanel", "right", undefined, [["rightPanel", "left"]]);
 
-		let gameInfo = Engine.GetGUIObjectByName("sgMapName").parent;
-		let gameInfoUsers = gameInfo.children[gameInfo.children.length - 1];
-		let gameInfoDescription = gameInfo.children[gameInfo.children.length - 2];
-		g_resizeBarManager.add(gameInfoUsers, "top", undefined, [[gameInfoDescription, "bottom"]], () => !gameInfo.hidden);
+		let gameInfo = Engine.GetGUIObjectByName("sgMapName")?.parent;
+		if (gameInfo)
+		{
+			let gameInfoUsers = gameInfo.children[gameInfo.children.length - 1];
+			let gameInfoDescription = gameInfo.children[gameInfo.children.length - 2];
+			g_resizeBarManager.add(gameInfoUsers, "top", undefined, [[gameInfoDescription, "bottom"]], () => !gameInfo.hidden);
+		}
 	}
 
 	// Disable/enable resize bars when these "pages" open/close
