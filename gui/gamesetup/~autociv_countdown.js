@@ -7,16 +7,17 @@ var g_autociv_countdown = {
 	"running": false,
 	"next": function ()
 	{
-		if (this.time < 0)
+		if (this.time <= 0)
 		{
 			this.stopCountdown()
 			game.panelsButtons.startGameButton.onPress()
 			return
 		}
 
+		sendMessage(`Game will start in ${this.time} seconds.`)
 		this.timeoutid = setTimeout(() =>
 		{
-			sendMessage(`Game will start in ${this.time--} seconds.`)
+			this.time -= 1
 			this.next()
 		}, 1000)
 	},
