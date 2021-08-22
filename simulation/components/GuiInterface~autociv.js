@@ -9,6 +9,7 @@ autociv_patchApplyN(GuiInterface.prototype, "Init", function (target, that, args
             "entities": new Set(),
             "max": Infinity
         },
+        setHealersInitialStanceAggressive: true,
     };
     return target.apply(that, args);
 })
@@ -223,6 +224,11 @@ GuiInterface.prototype.autociv_GetStatsOverlay = function ()
     return ret;
 };
 
+GuiInterface.prototype.autociv_setHealersInitialStanceAggressive = function (player, active)
+{
+    this.autociv.setHealersInitialStanceAggressive = active
+}
+
 // Original variable declaration is prefixed with let instead of var so we can't
 // just add new entries directly (global let declaration rules)
 var autociv_exposedFunctions = {
@@ -231,7 +237,8 @@ var autociv_exposedFunctions = {
     "autociv_FindEntitiesWithClasses": 1,
     "autociv_FindEntitiesWithClassesExpression": 1,
     "autociv_SetCorpsesMax": 1,
-    "autociv_GetStatsOverlay": 1
+    "autociv_GetStatsOverlay": 1,
+    "autociv_setHealersInitialStanceAggressive": 1
 };
 
 autociv_patchApplyN(GuiInterface.prototype, "ScriptCall", function (target, that, args)

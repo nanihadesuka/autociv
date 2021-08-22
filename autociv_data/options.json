@@ -89,6 +89,12 @@
 			},
 			{
 				"type": "boolean",
+				"label": "[color=\"220 185 70\"]Game:[/color] Default stance healers",
+				"tooltip": "Default stance healers have when they spawn",
+				"config": "autociv.session.setHealersInitialStanceAgressive"
+			},
+			{
+				"type": "boolean",
 				"label": "[color=\"220 185 70\"]Global:[/color] Reset all AutoCiv settings",
 				"tooltip": "Resets all AutoCiv (REQUIRES RESTART) (DOESN'T RESET CUSTOM AUTOCIV SETTINGS)",
 				"config": "autociv.settings.reset.all"
