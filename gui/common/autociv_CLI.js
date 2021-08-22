@@ -222,16 +222,20 @@ class Autociv_CLI
 			return
 
 		const result = this.evalInput()
+		this.printToStdout(result)
+	}
 
+	printToStdout(text)
+	{
 		// Count number of lines
 		this.GUI.stdout.caption = ""
-		const nLines1 = (result.match(/\n/g) || '').length + 1
-		const nLines2 = Math.ceil(result.length / 100)
+		const nLines1 = (text.match(/\n/g) || '').length + 1
+		const nLines2 = Math.ceil(text.length / 100)
 		this.GUI.stdout.size = Object.assign(this.GUI.stdout.size, {
 			"top": -Math.min(Math.max(nLines1, nLines2) * this.vlineSize, this.stdOutMaxVisibleSize) - 10
 		})
 
-		this.GUI.stdout.caption = result
+		this.GUI.stdout.caption = text
 	}
 
 	getFunctionParameterCandidates(functionObject)
@@ -387,9 +391,19 @@ class Autociv_CLI
 		let representation = ""
 		try
 		{
+			const showInStdOut = text.endsWith(">")
+			if (showInStdOut)
+				text = text.slice(0, -1)
+
 			const result = eval(text)
 			representation = this.getObjectRepresentation(result, undefined, undefined, false)
 			warn(text + " -> " + representation.slice(0, 200))
+
+			if (showInStdOut)
+			{
+				this.GUI.stdout.hidden = false
+				this.printToStdout(representation)
+			}
 		}
 		catch (er)
 		{
