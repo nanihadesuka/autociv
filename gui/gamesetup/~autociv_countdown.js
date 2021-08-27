@@ -49,7 +49,7 @@ var g_autociv_countdown = {
 	"isEveryoneReady": () => g_SetupWindow.pages.GameSetupPage.panelButtons.startGameButton.isEveryoneReady(),
 	"valid": function ()
 	{
-		return game.is.full() && game.is.allReady() && this.isEveryoneReady()
+		return game.is.full() && game.is.allReady() && this.isEveryoneReady() &&
 			(game.get.numberOfSlots() == 2 ? !game.is.rated() : true)
 	},
 	"gameUpdate": function ()
