@@ -15,6 +15,7 @@ class Autociv_CLI
 	searchFilter = ""
 	seeOwnPropertyNames = false
 	lastVariableNameExpressionInspector = ""
+	placeholder_text = `prefix: ?=reset u?=undef b?=bool n?=number i?=int s?=string f?=func l?=null a?=array o?=obj p?=see proto ; suffix: >=stdout`
 
 	functionAutocomplete = new Map([
 		[Engine?.GetGUIObjectByName, "guiObjectNames"],
@@ -80,6 +81,7 @@ class Autociv_CLI
 				"sprite": "color:90 90 90",
 				"textcolor": "245 245 245",
 				"textcolor_selected": "255 255 255",
+				"placeholder_color": "170 170 170",
 				"sprite_selectarea": "color:69 200 161",
 				"tooltip": "Press Enter to eval expression"
 			},
@@ -145,6 +147,7 @@ class Autociv_CLI
 
 		Engine.SetGlobalHotkey("autociv.CLI.toggle", "Press", () => this.toggle())
 
+		this.GUI.input.placeholder_text = this.placeholder_text
 		this.GUI.input.onTextEdit = () => this.updateSuggestions()
 		this.GUI.input.onTab = () => this.tab()
 		this.GUI.input.onPress = () => this.evalInput()
@@ -773,35 +776,33 @@ class Autociv_CLI
 	{
 		const original = text
 
+		// Clear prefixes filter
+		if (text.startsWith("?"))
+		{
+			this.searchFilter = ""
+			text = text.slice(1)
+			this.GUI.sortMode.size = Object.assign(this.GUI.sortMode.size, {
+				"left": 0
+			})
+		}
 		// Toggle own property names search
-		if (text.startsWith("p?"))
+		else if (text.startsWith("p?"))
 		{
 			this.seeOwnPropertyNames = !this.seeOwnPropertyNames
 			text = text.slice(2)
 		}
 		// searchFilter prefix
-		else if (/^\w{0,1}\?.*/.test(text))
+		else if (/^\w\?.*/.test(text) && text[0] in this.searchFilterKeys)
 		{
-			if (text[0] == "?")
-			{
-				this.searchFilter = ""
-				text = text.slice(1)
-				this.GUI.sortMode.size = Object.assign(this.GUI.sortMode.size, {
-					"left": 0
-				})
-			}
-			else if (text[0] in this.searchFilterKeys)
-			{
-				this.searchFilter = text[0]
-				text = text.slice(2)
+			this.searchFilter = text[0]
+			text = text.slice(2)
 
-				let type = this.searchFilterKeys[this.searchFilter]
-				this.GUI.sortMode.caption = type.slice(0, 6)
-				this.GUI.sortMode.textcolor = this.style.type[type] || this.style.type["default"]
-				this.GUI.sortMode.size = Object.assign(this.GUI.sortMode.size, {
-					"left": -50
-				})
-			}
+			let type = this.searchFilterKeys[this.searchFilter]
+			this.GUI.sortMode.caption = type.slice(0, 6)
+			this.GUI.sortMode.textcolor = this.style.type[type] || this.style.type["default"]
+			this.GUI.sortMode.size = Object.assign(this.GUI.sortMode.size, {
+				"left": -50
+			})
 		}
 
 		// Caption setter doesn't trigger a textedit event (no infinite loop)
