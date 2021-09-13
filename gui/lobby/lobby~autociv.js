@@ -146,6 +146,10 @@ function initChatFilterInput()
 
 	autociv_patchApplyN(ChatMessagesPanel.prototype, "addText", function (target, that, args)
 	{
+		if (active)
+		{
+			chatText.list = originalList
+		}
 		const res = target.apply(that, args)
 		if (active)
 		{
