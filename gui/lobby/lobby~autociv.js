@@ -5,7 +5,7 @@ var autociv_focus = {
 		GUIobject.blur();
 		GUIobject.focus();
 	},
-	"chatInput"()
+	"chatInput" ()
 	{
 		let GUIobject = Engine.GetGUIObjectByName("chatInput");
 		GUIobject.blur();
@@ -34,7 +34,7 @@ var g_autociv_hotkeys = {
 };
 
 
-function autociv_showLastGameSummary()
+function autociv_showLastGameSummary ()
 {
 	const replays = Engine.GetReplays(false)
 	if (!replays.length)
@@ -67,13 +67,13 @@ function autociv_showLastGameSummary()
 		}
 	})
 }
-function handleInputBeforeGui(ev)
+function handleInputBeforeGui (ev)
 {
 	g_resizeBarManager.onEvent(ev);
 	return false;
 }
 
-function autociv_InitBots()
+function autociv_InitBots ()
 {
 	botManager.get("playerReminder").load(true);
 	botManager.get("mute").load(true);
@@ -106,20 +106,20 @@ autociv_patchApplyN("init", function (target, that, args)
 
 	// React to hotkeys
 	for (let hotkey in g_autociv_hotkeys)
-		Engine.SetGlobalHotkey(hotkey, "Press", g_autociv_hotkeys[hotkey]);
+		Engine.SetGlobalHotkey(hotkey, "Press", g_autociv_hotkeys[ hotkey ]);
 
 	// React to GUI objects resize bars
 	{
-		g_resizeBarManager.add("chatPanel", "top", undefined, [["gamesBox", "bottom"]])
-		g_resizeBarManager.add("middlePanel", "left", undefined, [["leftPanel", "right"]]);
-		g_resizeBarManager.add("middlePanel", "right", undefined, [["rightPanel", "left"]]);
+		g_resizeBarManager.add("chatPanel", "top", undefined, [ [ "gamesBox", "bottom" ] ])
+		g_resizeBarManager.add("middlePanel", "left", undefined, [ [ "leftPanel", "right" ] ]);
+		g_resizeBarManager.add("middlePanel", "right", undefined, [ [ "rightPanel", "left" ] ]);
 
 		let gameInfo = Engine.GetGUIObjectByName("sgMapName")?.parent;
 		if (gameInfo)
 		{
-			let gameInfoUsers = gameInfo.children[gameInfo.children.length - 1];
-			let gameInfoDescription = gameInfo.children[gameInfo.children.length - 2];
-			g_resizeBarManager.add(gameInfoUsers, "top", undefined, [[gameInfoDescription, "bottom"]], () => !gameInfo.hidden);
+			let gameInfoUsers = gameInfo.children[ gameInfo.children.length - 1 ];
+			let gameInfoDescription = gameInfo.children[ gameInfo.children.length - 2 ];
+			g_resizeBarManager.add(gameInfoUsers, "top", undefined, [ [ gameInfoDescription, "bottom" ] ], () => !gameInfo.hidden);
 		}
 	}
 
@@ -131,7 +131,55 @@ autociv_patchApplyN("init", function (target, that, args)
 	autociv_focus.chatInput();
 	g_LobbyHandler.lobbyPage.autocivLobbyStats = new AutocivLobbyStats()
 
+	initChatFilterInput()
 });
+
+// Start the lobby chat input with s? to filter all the chat messages, remove s? to disable
+function initChatFilterInput()
+{
+	let active = false
+	let searchText = ""
+
+	const chatInput = Engine.GetGUIObjectByName("chatInput")
+	const chatText = Engine.GetGUIObjectByName("chatText")
+	let originalList = []
+
+	autociv_patchApplyN(ChatMessagesPanel.prototype, "addText", function (target, that, args)
+	{
+		const res = target.apply(that, args)
+		if (active)
+		{
+			originalList = chatText.list
+			chatText.list = originalList.filter(t => t.includes(searchText))
+		}
+		return res
+	})
+
+	// This might cause some other functionality to stop working
+	chatInput.onTextEdit = () =>
+	{
+		const text = chatInput.caption
+		const inFilterMode = text.startsWith("s?")
+
+		if(inFilterMode && !active)
+		{
+			originalList = chatText.list
+		}
+
+		if (inFilterMode)
+		{
+			active = true
+			searchText = text.slice(2)
+			chatText.list = originalList.filter(t => t.includes(searchText))
+		}
+		else
+		{
+			if (!active) return
+			active = false
+			chatText.list = originalList
+		}
+	}
+}
 
 class AutocivLobbyStats
 {
@@ -162,7 +210,7 @@ class AutocivLobbyStats
 		})
 	}
 
-	update()
+	update ()
 	{
 		this.lobbyPageTitle.caption = `${this.pageTitle}  P:${this.nOfPlayers}  G:${this.nOfGames}`
 	}

@@ -15,6 +15,7 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 	- Remember playerlist state
 	- Better performance when reloading lobby
 	- Shortcuts to create host, navigate gamelist
+	- Write s?search_text_here at the chat input to search lobby chat
 - Game setup
 	- Auto-assign civilization with chat (only works if host has the mod)
 	- Custom population limit
