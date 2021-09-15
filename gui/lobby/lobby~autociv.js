@@ -173,7 +173,7 @@ function initChatFilterInput()
 		if (inFilterMode)
 		{
 			active = true
-			searchText = text.slice(2)
+			searchText = text.slice(2).trimStart()
 			chatText.list = originalList.filter(t => t.includes(searchText))
 		}
 		else
