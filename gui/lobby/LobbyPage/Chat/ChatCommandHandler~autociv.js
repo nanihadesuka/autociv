@@ -3,7 +3,7 @@ ChatCommandHandler.prototype.ChatCommands["pingall"] = {
     "handler": function (args)
     {
         const selfNick = Engine.LobbyGetNick();
-        const ignore = new Set([selfNick, "Ratings", "WFGbot", "Triumvir", "user1", "Dunedan", "Rollo"]);
+        const ignore = new Set([selfNick, "Ratings", "WFGBot", "Triumvir", "user1", "Dunedan", "Rollo"]);
         const candidatesToAnnoy = new Set();
 
         const gameList = g_LobbyHandler.lobbyPage.lobbyPage.panels.gameList.gameList;
