@@ -386,6 +386,13 @@ botManager.addBot("autociv", {
 			return;
 		}
 
+		// Special case: play makes a player take a free slot.
+		if (firstWord == "play")
+		{
+			game.set.player.play(data.sender);
+			return;
+		}
+
 		game.set.player.civ(data.sender, this.searchForCivInText(firstWord));
 	},
 	"generateFuzzySearcher": function ()

@@ -95,6 +95,29 @@ var game = {
 					return;
 
 				Engine.AssignNetworkPlayer(playerPos, '');
+			},
+			'play': (playerName) =>
+			{
+				let playerId = game.get.player.id(playerName);
+				let numberOfSlots = game.get.numberOfSlots();
+
+				let assignedPos = new Set(); // set of assigned positions
+
+				for (let guid in g_PlayerAssignments) {
+					let playerPos = g_PlayerAssignments[guid].player;
+					// return if player already assigned
+					if (guid === playerId && playerPos > 0 && playerPos <= numberOfSlots) return;
+					assignedPos.add(playerPos)
+				}
+
+				// find first available slot
+				for (let pos = 1; pos <= numberOfSlots; ++pos) {
+					if (assignedPos.has(pos)) continue;
+					else {
+						Engine.AssignNetworkPlayer(pos, playerId);
+						return;
+					}
+				}
 			}
 		},
 		/**
