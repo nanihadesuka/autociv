@@ -1,23 +1,13 @@
-NetMessages.prototype.pollNextMessage = function ()
-{
-    let message = Engine.PollNetworkClient();
-    if (this.netMessageHandlers[message?.type])
-        if (botManager.react(message))
-        {
-            log("Net message: " + uneval(message));
-            return;
-        }
-
-    return message;
-}
-
-NetMessages.prototype.onTick = function ()
+NetMessages.prototype.pollPendingMessages = function ()
 {
     while (true)
     {
-        let message = this.pollNextMessage()
+        let message = Engine.PollNetworkClient();
         if (!message)
             break;
+
+        if(botManager.react(message))
+            continue;
 
         log("Net message: " + uneval(message));
 
