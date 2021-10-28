@@ -75,18 +75,21 @@ var game = {
 				if (playerPos === undefined || playerPos == -1)
 					return;
 
-				let civCodeIndex = ["random", ...Object.keys(g_CivData)].indexOf(playerCivCode);
-				if (civCodeIndex == -1)
-					return;
-
-				g_SetupWindow.
+				const playerCiv = g_SetupWindow.
 					pages.
 					GameSetupPage.
 					gameSettingControlManager.
 					playerSettingControlManagers[playerPos - 1].
 					playerSettingControls.
-					PlayerCiv.
-					onSelectionChange(civCodeIndex)
+					PlayerCiv
+
+				// List order can change depending of active language !!
+				const dropDownCivCodes = playerCiv.dropdown.list_data
+				let civCodeIndex = dropDownCivCodes.indexOf(playerCivCode);
+				if (civCodeIndex == -1)
+					return;
+
+				playerCiv.onSelectionChange(civCodeIndex)
 			},
 			'observer': (playerName) =>
 			{
