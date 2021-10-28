@@ -23,7 +23,7 @@
 			{
 				"type": "autociv_number_int",
 				"label": "[color=\"220 185 70\"]Graphics:[/color] corpses max",
-				"tooltip": "Maximum number of corpses to show. 0 means none, 200 means unlimited",
+				"tooltip": "Maximum number of corpses to show. 0 means none, 200 means unlimited. Performance degrades above 50",
 				"config": "autociv.session.graphics.corpses.max",
 				"min": 0,
 				"max": 200
