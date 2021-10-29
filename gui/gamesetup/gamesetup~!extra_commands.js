@@ -259,6 +259,13 @@ g_NetworkCommands['/help'] = () =>
 	}
 	selfMessage(text);
 }
+g_NetworkCommands['/playToggle'] = () => {
+	const key = "autociv.gamesetup.countdown.enabled"
+	const enabled = Engine.ConfigDB_GetValue("user", key) == "true"
+	Engine.ConfigDB_CreateAndWriteValueToFile("user", key, enabled ? "false" : "true", "config/user.cfg")
+	selfMessage(`Player play autoassign slot ${enabled ? "enabled" : "disabled"}`)
+}
+
 g_NetworkCommands['/resources'] = quantity => game.set.resources(quantity);
 g_NetworkCommands['/resourcesUnlimited'] = () => game.set.resources(Infinity);
 g_NetworkCommands['/population'] = population => game.set.population(population);
