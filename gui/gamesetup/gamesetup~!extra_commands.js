@@ -242,6 +242,36 @@ var game = {
 	}
 };
 
+if(!("g_NetworkCommandsDescriptions" in global))
+	global.g_NetworkCommandsDescriptions = {}
+
+
+g_NetworkCommandsDescriptions = Object.assign(g_NetworkCommandsDescriptions,{
+	"/help" : "Shows all gamesetup chat commands",
+	"/playToggle" : "Toggle want to play action. If enabled observers that type play will be set added to the game",
+	"/resources" : "Set a specific amount of resources. Can be negative",
+	"/resourcesUnlimited" : "Set resources to be unlimited",
+	"/population" : "Set a specific amount of population for each player",
+	"/mapsize" : "Set a specific size for the map. Only for random maps. Small values (<64) might crash the game",
+	"/mapcircular" : "Force the map to be circular. Only for random maps",
+	"/mapsquare" : "Force the map to be square. Only for random maps",
+	"/resetcivs" : "Reset all slots civilizations to random",
+	"/autociv" : "Toggle autociv (will also disable spec and play actions)",
+	"/ready" : "Toggle your ready state",
+	"/start" : "Start the game",
+	"/countdown" : "Toggle countdown. Default is 5 seconds. For diferent time type /countdown time_in_seconds ",
+	"/gameName" : "Change game name that the lobby shows. (Doesn't work currently)",
+	"/team" : "Make teams combinations. Ex: /team 3v4  /team 2v2v2  /team ffa  /team 4v4",
+	"/randomCivs" : "Set random civs for all players. Can exclude some civs (needs full name) by typing ex: /randomCivs Mauryas Iberians Romans",
+	"/kick": "Kick player",
+	"/kickspecs": "Kick all specs",
+	"/ban": "Ban player",
+	"/banspecs": "Ban all specs",
+	"/list": "List all the players and observers currently here",
+	"/clear": "Clear the chat comments"
+})
+
+
 g_NetworkCommands['/help'] = () =>
 {
 	const g_ChatCommandColor = "200 200 255";
@@ -249,16 +279,17 @@ g_NetworkCommands['/help'] = () =>
 	for (let command in g_NetworkCommands)
 	{
 		let noSlashCommand = command.slice(1);
-		const nc = g_NetworkCommands[command];
 		const asc = g_autociv_SharedCommands[noSlashCommand]
+		const ncd = g_NetworkCommandsDescriptions[command]
 		text += "\n";
 		text += sprintf(translate("%(command)s - %(description)s"), {
 			"command": "/" + coloredText(noSlashCommand, g_ChatCommandColor),
-			"description": nc.description || asc && asc.description || ""
+			"description": ncd ?? asc?.description ?? ""
 		});
 	}
 	selfMessage(text);
 }
+
 g_NetworkCommands['/playToggle'] = () => {
 	const key = "autociv.gamesetup.countdown.enabled"
 	const enabled = Engine.ConfigDB_GetValue("user", key) == "true"
