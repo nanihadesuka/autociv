@@ -350,12 +350,12 @@ g_NetworkCommands['/gameName'] = text =>
 {
 	if (!g_IsController || !Engine.HasNetServer())
 		return;
-	if (!g_SetupWindow.lobbyGameRegistrationController)
+	if (!g_SetupWindow.controls.lobbyGameRegistrationController)
 		return
 	text = `${text}`
-	g_SetupWindow.lobbyGameRegistrationController.serverName = text
-	selfMessage(`Game name changed to: ${g_ServerName}`)
-	g_SetupWindow.lobbyGameRegistrationController.sendDelayed()
+	g_SetupWindow.controls.lobbyGameRegistrationController.serverName = text
+	selfMessage(`Game name changed to: ${text}`)
+	g_SetupWindow.controls.lobbyGameRegistrationController.sendImmediately()
 }
 
 g_NetworkCommands['/team'] = text => game.set.teams(text);
