@@ -389,7 +389,7 @@ botManager.addBot("autociv", {
 		// Special case: play makes a player take a free slot.
 		if (
 			firstWord == "play" &&
-			Engine.ConfigDB_GetValue("user", "autociv.gamesetup.countdown.enabled") == "true"
+			Engine.ConfigDB_GetValue("user", "autociv.gamesetup.play.enabled") == "true"
 		)
 		{
 			game.set.player.play(data.sender);
