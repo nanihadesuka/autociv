@@ -126,6 +126,23 @@ var g_autociv_hotkey_entity_by_filter = {
             const state = GetEntityState(entity)
             return state?.unitAI && evalExpression([state.unitAI.state])
         })
+    },
+    "screen" : function (ev, list, parameters)
+    {
+        const expression = parameters[0]
+        const entitiesOnScreen = new Set(Engine.PickPlayerEntitiesOnScreen())
+        switch(expression){
+            case "yes": {
+                return list.filter(entity => entitiesOnScreen.has(entity))
+            }
+            case "no" : {
+                return list.filter(entity => !entitiesOnScreen.has(entity))
+            }
+            default: {
+                error(`Invalid hotkey "${ev.hotkey}" for by.group. parameter "${expression}". Only "yes" or "no" are valid.`)
+                return list
+            }
+        }
     }
 }
 
