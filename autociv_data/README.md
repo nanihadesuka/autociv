@@ -41,6 +41,7 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 			- rank
 			- class
 			- group
+			- screen
 	- Stats overlay
 	- Pause game overlay now shows only in the top area
 - Settings
