@@ -1,13 +1,14 @@
 {
 	"name": "autociv",
-	"version": "25.3.0",
+	"version": "26.0.0",
 	"label": "Autociv mod 0 A.D. enhancer. Author: nani",
 	"description": "Features: chat civ picker, building placement hotkeys, building selection hotkeys, local mute, chat link opener, etc. Compatible with vanilla.",
 	"ignoreInCompatibilityChecks": true,
 	"dependencies": [
-		"0ad=0.0.25"
+		"0ad=0.0.26"
 	],
-	"url": "https://wildfiregames.com/forum/index.php?/topic/24649-autociv-mod-0ad-game-enhancer/",
+	"url": "https://wildfiregames.com/forum/topic/28753-autociv-mod-0ad-enhancer/",
 	"author_name": "nani",
-	"author_profile": "https://wildfiregames.com/forum/index.php?/profile/27866-nani/"
+	"author_profile": "https://wildfiregames.com/forum/index.php?/profile/27866-nani/",
+	"url_source_code": "https://github.com/nanihadesuka/autociv"
 }

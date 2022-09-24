@@ -186,9 +186,13 @@ GuiInterface.prototype.autociv_GetStatsOverlay = function ()
     const numPlayers = cmpPlayerManager.GetNumPlayers();
     for (let player = 0; player < numPlayers; ++player)
     {
+        const playerEnt = cmpPlayerManager.GetPlayerByID(player);
+        const cmpPlayer = Engine.QueryInterface(playerEnt, IID_Player);
+   		const cmpIdentity = Engine.QueryInterface(playerEnt, IID_Identity);
+
         // Work out which phase we are in.
         let phase = 0;
-        const cmpTechnologyManager = QueryPlayerIDInterface(player, IID_TechnologyManager);
+		const cmpTechnologyManager = Engine.QueryInterface(playerEnt, IID_TechnologyManager);
         if (cmpTechnologyManager)
         {
             if (cmpTechnologyManager.IsTechnologyResearched("phase_city"))
@@ -199,12 +203,11 @@ GuiInterface.prototype.autociv_GetStatsOverlay = function ()
                 phase = 1;
         }
 
-        const cmpPlayer = QueryPlayerIDInterface(player);
         const cmpPlayerStatisticsTracker = QueryPlayerIDInterface(player, IID_StatisticsTracker);
         const classCounts = cmpTechnologyManager?.GetClassCounts()
 
         ret.players.push({
-            "name": cmpPlayer.GetName(),
+            "name": cmpIdentity.GetName(),
             "popCount": cmpPlayer.GetPopulationCount(),
             "resourceCounts": cmpPlayer.GetResourceCounts(),
             "state": cmpPlayer.GetState(),
