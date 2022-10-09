@@ -50,7 +50,7 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 ## Download
 There are three ways:
 - Download and install from the wildfiregames forum autociv page topic (files on first page)
-	- https://wildfiregames.com/forum/index.php?/topic/24649-autociv-mod-0ad-enhancer/
+	- https://wildfiregames.com/forum/topic/28753-autociv-mod-0ad-enhancer/
 - Download and install manually the github repository (instalation file on the releases section)
 	- https://github.com/nanihadesuka/autociv
 - Use 0 A.D. mod downloader (not always newest version)
@@ -72,9 +72,10 @@ There are three ways:
 
 ## Mod compatibility(s)
 The mod is compatible with:
-- 0 A.D 0.0.25
+- 0 A.D 0.0.26
 - Probable to work with the folloing mods
-	- FGod
+	- boonGUI mod
+	- star mod
 	- ffm_visibility mod
 	- balanced maps mod
 	- spec mod (monitor) mod
@@ -84,7 +85,7 @@ The mod is compatible with:
 
 ## More stuff & goodies
 For more info just read the whole thread where I post new features.
-https://wildfiregames.com/forum/index.php?/topic/24649-autociv-mod-0ad-enhancer/
+https://wildfiregames.com/forum/topic/28753-autociv-mod-0ad-enhancer/
 
 ## Questions & feedback
 You don't understand how it works? Feeling confused? Just wanna comment? Ask and post.
