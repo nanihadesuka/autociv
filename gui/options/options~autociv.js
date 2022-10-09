@@ -201,20 +201,29 @@ enableButtons = function ()
 {
 	g_Options[g_TabCategorySelected].options.forEach((option, i) =>
 	{
+		const isDependencyMet = (dependency) => {
+			if (typeof dependency === "string")
+				return Engine.ConfigDB_GetValue("user", dependency) == "true";
+			else if (typeof dependency === "object") {
+				const availableOps = {
+				"==": (config, value) => config == value,
+				"!=": (config, value) => config != value,
+				};
+				const op = availableOps[dependency.op] || availableOps["=="];
+				return op(
+				Engine.ConfigDB_GetValue("user", dependency.config),
+				dependency.value
+				);
+			}
+			error("Unsupported dependency: " + uneval(dependency));
+			return false;
+		};
 
-		let enabled =
-			!option.dependencies ||
-			option.dependencies.every(config => Engine.ConfigDB_GetValue("user", config) == "true");
+    	const enabled = !option.dependencies || option.dependencies.every(isDependencyMet);
 
 		const objectType = g_OptionType[option.type].objectType ?? option.type
 		Engine.GetGUIObjectByName("option_label[" + i + "]").enabled = enabled;
-		const control = Engine.GetGUIObjectByName("option_control_" + objectType + "[" + i + "]")
-		control.enabled = enabled;
-		if (objectType == "string")
-		{
-			control.textcolor = enabled ? "255 255 255" : "130 130 130"
-			control.ghost = !enabled
-		}
+		Engine.GetGUIObjectByName("option_control_" + objectType + "[" + i + "]").enabled = enabled;
 	});
 
 	let hasChanges = Engine.ConfigDB_HasChanges("user");
