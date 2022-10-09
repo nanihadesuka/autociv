@@ -12,5 +12,6 @@
 	"pers"  : ["persians", "persa"],
 	"ptol"  : ["ptolemies", "ptol", "ptolo", "ptololo", "ptolomeos", "ptoleme"],
 	"rome"  : ["romans", "rome","S.P.Q.R"],
-	"sele"  : ["seleucids", "seleuc", "seles"]
+	"sele"  : ["seleucids", "seleuc", "seles"],
+	"han"	: ["han","china","asia","chinese"]
 }
