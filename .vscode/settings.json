@@ -1,9 +1,10 @@
 {
-    "editor.suggestSelection": "first",
-    "files.trimTrailingWhitespace": true,
-    "files.trimFinalNewlines": true,
-    "files.insertFinalNewline": true,
-    "search.exclude": {
-        "**/.git": true
-    }
+  "editor.suggestSelection": "first",
+  "files.trimTrailingWhitespace": true,
+  "files.trimFinalNewlines": true,
+  "files.insertFinalNewline": true,
+  "search.exclude": {
+    "**/.git": true
+  },
+  "vscode.tsc.compiler.alertTSConfigChanges": "never"
 }

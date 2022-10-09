@@ -12,7 +12,6 @@ PlayerList = new Proxy(PlayerList, {
 
     let instance = new target(...args);
     instance.autociv_playersBox_preferences = autociv_playersBox_preferences;
-    warn("1");
     return instance;
   },
 });
@@ -22,7 +21,6 @@ autociv_patchApplyN(
   "onPlayerListSelection",
   function (target, that, args) {
     if (that.autociv_playersBox_preferences) {
-      warn("2");
       const needsSave = ["selected_column", "selected_column_order"]
         .map((id) => {
           let old = that.autociv_playersBox_preferences.getValue(id);
