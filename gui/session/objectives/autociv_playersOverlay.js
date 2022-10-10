@@ -52,7 +52,8 @@ AutocivControls.PlayersOverlay = class
 
         const caption = list.map(([name, isPlayer]) =>
         {
-            return isPlayer ? setStringTags(name, { "color": this.playerOfflineColor, }) : name
+            const color = PlayerColor.GetPlayerColor(splitRatingFromNick(name).nick);
+            return isPlayer ? setStringTags(name, { "color": this.playerOfflineColor, }) : setStringTags(name, { color });
         }).join(", ")
 
         this.autociv_playersOverlay.hidden = !caption
