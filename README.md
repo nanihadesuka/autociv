@@ -1,3 +1,12 @@
+## This project is in maintenance mode
+
+But will be updated for the following cases:
+- Bug fixes
+- Compatibility with new 0 A.D. versions
+- Any reasonable pull request somebody might want to make 
+
+Thanks to all the 0 A.D. players who found it useful. Nani :)
+
 # AutoCiv
 This mod is an aggregation of features meant to enhance the 0 A.D. game experience. I usually implement these extra features as they come up with no general plan in mind.
 
