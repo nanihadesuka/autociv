@@ -13,12 +13,18 @@
 				"label": "[color=\"220 185 70\"]Lobby:[/color] game list show host name",
 				"tooltip": "Show the name of the host for every game in the list",
 				"config": "autociv.lobby.gamelist.showHostName"
-            },
+			},
 			{
 				"type": "boolean",
 				"label": "[color=\"220 185 70\"]Lobby:[/color] resize bars enabled",
 				"tooltip": "Have resize bars enabled",
 				"config": "autociv.resizebar.enabled"
+			},
+			{
+				"type": "string",
+				"label": "[color=\"220 185 70\"]Lobby:[/color] pingall ignore users list",
+				"tooltip": "List of users you don't want to ping when using the command pingall. Each entry must be separated by a comma.",
+				"config": "autociv.lobby.pingPlayers.ignoreList"
 			},
 			{
 				"type": "autociv_number_int",
@@ -47,13 +53,13 @@
 				"label": "[color=\"220 185 70\"]Game:[/color] stats overlay visible",
 				"tooltip": "Show players basic statistics in an overlay",
 				"config": "autociv.session.statsOverlay.visible"
-            },
+			},
 			{
 				"type": "boolean",
 				"label": "[color=\"220 185 70\"]Game:[/color] players overlay visible",
 				"tooltip": "Show observers and offline players in an overlay",
 				"config": "autociv.session.playersOverlay.visible"
-            },
+			},
 			{
 				"type": "boolean",
 				"label": "[color=\"220 185 70\"]Game:[/color] Delete no warning",
