@@ -93,7 +93,7 @@ class ResizeBar
 	}
 
 	/**
-	 * Returns the opposite and complementary paramter.
+	 * Returns the opposite and complementary parameter.
 	 */
 	sideCrossed(side = this.side)
 	{

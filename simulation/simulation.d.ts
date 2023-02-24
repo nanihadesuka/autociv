@@ -56,7 +56,7 @@ declare namespace Engine
 	function QueryInterface(entityID: number, IID: number): object | undefined;
 
 	/**
-	 * Get all entities with specified iterface ID.
+	 * Get all entities with specified interface ID.
 	 * @param IID - Interface ID
 	 */
 	function GetEntitiesWithInterface(IID: number): number[];

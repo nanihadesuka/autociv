@@ -259,7 +259,7 @@ g_NetworkCommandsDescriptions = Object.assign(g_NetworkCommandsDescriptions,{
 	"/autociv" : "Toggle autociv (will also disable spec and play actions)",
 	"/ready" : "Toggle your ready state",
 	"/start" : "Start the game",
-	"/countdown" : "Toggle countdown. Default is 5 seconds. For diferent time type /countdown time_in_seconds ",
+	"/countdown" : "Toggle countdown. Default is 5 seconds. For different time type /countdown time_in_seconds ",
 	"/gameName" : "Change game name that the lobby shows. (Doesn't work currently)",
 	"/team" : "Make teams combinations. Ex: /team 3v4  /team 2v2v2  /team ffa  /team 4v4",
 	"/randomCivs" : "Set random civs for all players. Can exclude some civs (needs full name) by typing ex: /randomCivs Mauryas Iberians Romans",

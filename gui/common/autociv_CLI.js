@@ -140,8 +140,8 @@ class Autociv_CLI
 
 		for (let name in this.style.GUI)
 		{
-			for (let proprety in this.style.GUI[name])
-				this.GUI[name][proprety] = this.style.GUI[name][proprety]
+			for (let property in this.style.GUI[name])
+				this.GUI[name][property] = this.style.GUI[name][property]
 			this.GUI[name].font = this.style.font
 		}
 
@@ -717,8 +717,8 @@ class Autociv_CLI
 		const truncate = (text, start) =>
 		{
 			text = text.split("\n")[0]
-			let alloted = this.previewLength - start - 3
-			return alloted < text.length ? text.slice(0, alloted) + "..." : text
+			let allotted = this.previewLength - start - 3
+			return allotted < text.length ? text.slice(0, allotted) + "..." : text
 		}
 
 		return suggestions.map(value =>

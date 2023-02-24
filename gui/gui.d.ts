@@ -8,7 +8,7 @@ declare namespace Engine
 	function ConfigDB_HasChanges(namespace: "default" | "mod" | "system" | "user" | "hwdetect"): boolean
 
 	/**
-	 * Set configuration namepace as changed or not changed.
+	 * Set configuration namespace as changed or not changed.
 	 * @param namespace - Configuration namespace
 	 * @param changes - True if changes, false if no changes
 	 * @returns True if successful
@@ -19,7 +19,7 @@ declare namespace Engine
 	 * Get value from configuration namespace.
 	 * @param namespace - Configuration namespace
 	 * @param key - Name of the value
-	 * @returns Emptry string if no value defined (the key doesn't exist)
+	 * @returns Empty string if no value defined (the key doesn't exist)
 	 */
 	function ConfigDB_GetValue(namespace: "default" | "mod" | "system" | "user" | "hwdetect", key: string): string
 
@@ -371,7 +371,7 @@ declare namespace Engine
 	/**
 	 * Get terrain position at screen point `X`,`Y`
 	 * @param X - Horizontal window coordinate (left to right)
-	 * @param Y - Vertical window coodinate (top to bottom)
+	 * @param Y - Vertical window coordinate (top to bottom)
 	 */
 	function GetTerrainAtScreenPoint(X: number, Y: number): { x: number, y: number, z: number }
 
@@ -427,17 +427,17 @@ declare namespace Engine
 
 	/**
 	 * Localized version of a time given in milliseconds.
-	 * @param dateMiliseconds - Date or number in miliseconds
+	 * @param dateMilliseconds - Date or number in milliseconds
 	 * @param formatString - Date format (e.g. "Y-M-d H:m")
 	 */
-	function FormatMillisecondsIntoDateStringLocal(dateMiliseconds: number | Date, formatString: string): string
+	function FormatMillisecondsIntoDateStringLocal(dateMilliseconds: number | Date, formatString: string): string
 
 	/**
 	 * GMT version of a time given in milliseconds.
-	 * @param dateMiliseconds - Date or number in miliseconds
+	 * @param dateMilliseconds - Date or number in milliseconds
 	 * @param formatString - Date format (e.g. "Y-M-d H:m")
 	 */
-	function FormatMillisecondsIntoDateStringGMT(dateMiliseconds: number | Date, formatString: string): string
+	function FormatMillisecondsIntoDateStringGMT(dateMilliseconds: number | Date, formatString: string): string
 
 	/**
 	 * Localized version of the given decimal number.
@@ -719,7 +719,7 @@ declare namespace Engine
 	/**
 	 * Array containing all known players and their presences (lobby)
 	 */
-	function GetPlayerList(): { name: string, presense: string, rating: string, role: string }[]
+	function GetPlayerList(): { name: string, presence: string, rating: string, role: string }[]
 
 	/**
 	 * Clears all presence updates from the message queue.
@@ -833,7 +833,7 @@ declare namespace Engine
 
 
 	/**
-	 * Retuns histic messages.
+	 * Returns histic messages.
 	 * Each key entry represents a message.
 	 * Only normal chat messages will returned.
 	 */

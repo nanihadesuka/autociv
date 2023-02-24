@@ -427,7 +427,7 @@ botManager.addBot("autociv", {
 
 		for (let civ of [randomCivData, ...Object.values(g_CivData)])
 		{
-			// Oficial full name (translated).
+			// Official full name (translated).
 			const civNameVariations = [civ.Name];
 			// Custom names if any.
 			if (civ.Code in customNamesCivs)
