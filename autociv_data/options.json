@@ -97,7 +97,7 @@
 				"type": "boolean",
 				"label": "[color=\"220 185 70\"]Game:[/color] Default stance healers",
 				"tooltip": "Default stance healers have when they spawn",
-				"config": "autociv.session.setHealersInitialStanceAgressive"
+				"config": "autociv.session.setHealersInitialStanceAggressive"
 			},
 			{
 				"type": "boolean",

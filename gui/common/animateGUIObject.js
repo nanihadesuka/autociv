@@ -49,7 +49,7 @@ class AnimateGUIObject
 		for (let v in AnimateGUIObject.defaults)
 			data[v] = clone(raw[v] ?? AnimateGUIObject.defaults[v])
 
-		// Curve input can be string or function and is outputed as function
+		// Curve input can be string or function and is outputted as function
 		data.curve = AnimateGUIObject.curves[data.curve] || data.curve
 
 		return data
@@ -209,7 +209,7 @@ class AnimateGUIObject
 	/**
 	 * Jump to the end of the animation.
 	 * onStart/onTick/onComplete behaviour doesn't change.
-	 * @param {Boolean} noTasksUpdate Ends animations witout updating tasks.
+	 * @param {Boolean} noTasksUpdate Ends animations without updating tasks.
 	 */
 	complete(noTasksUpdate = false)
 	{

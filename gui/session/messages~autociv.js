@@ -4,9 +4,9 @@ autociv_patchApplyN("addChatMessage", function (target, that, args)
     return botManager.react(msg) || target.apply(that, args);
 })
 
-class SetHealersInitialStanceAgressive
+class SetHealersInitialStanceAggressive
 {
-    configKey = "autociv.session.setHealersInitialStanceAgressive"
+    configKey = "autociv.session.setHealersInitialStanceAggressive"
     callName = "autociv_setHealersInitialStanceAggressive"
 
     constructor()
@@ -42,4 +42,4 @@ class SetHealersInitialStanceAgressive
     }
 }
 
-var g_SetHealersInitialStanceAgressive = new SetHealersInitialStanceAgressive()
+var g_SetHealersInitialStanceAggressive = new SetHealersInitialStanceAggressive()
