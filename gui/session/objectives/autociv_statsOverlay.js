@@ -93,9 +93,9 @@ AutocivControls.StatsOverlay = class
         return index
     }
 
-    playerColor(state)
+    brightenedPlayerColor(state)
     {
-        return rgbToGuiColor(g_DiplomacyColors.displayedPlayerColors[state.playerNumber])
+        return brightenedColor(rgbToGuiColor(g_DiplomacyColors.displayedPlayerColors[state.playerNumber]))
     }
 
     leftPadTrunc(text, size)
@@ -175,7 +175,7 @@ AutocivControls.StatsOverlay = class
             if (state.state == "defeated")
                 return setStringTags(preStats + stats, { "color": "255 255 255 128" })
 
-            return setStringTags(preStats, { "color": this.playerColor(state) }) + stats
+            return setStringTags(preStats, { "color": this.brightenedPlayerColor(state) }) + stats
 
         }).join("\n")
 

@@ -92,3 +92,16 @@ autoCompleteText.state = {
     "oldCaption": "",
     "tries": 0
 }
+
+/**
+ * See gui/lobby/LobbyPage/PlayerColor.GetPlayerColor function for explanation
+ * Some colors must become brighter so that they are readable on dark backgrounds.
+ * @param   {string}  color  string of rgb color, e.g. "10 10 190" ("Dark Blue")
+ * @return  {string}         string of brighter rgb color, e.g. "61 61 245" ("Blue")
+ */
+function brightenedColor(color)
+{
+	const [r, g, b] = color.split(" ").map(x => +x);
+	const [h, s, l] = rgbToHsl(r, g, b);
+	return hslToRgb(h, s, Math.max(0.65, l)).join(" ");
+}
