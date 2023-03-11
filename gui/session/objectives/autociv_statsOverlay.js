@@ -95,7 +95,7 @@ AutocivControls.StatsOverlay = class
 
     playerColor(state)
     {
-        return rgbToGuiColor(g_DiplomacyColors.displayedPlayerColors[state.playerNumber])
+        return brightenedColor(rgbToGuiColor(g_DiplomacyColors.displayedPlayerColors[state.playerNumber]))
     }
 
     leftPadTrunc(text, size)
