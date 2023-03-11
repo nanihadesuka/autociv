@@ -103,7 +103,7 @@ const autociv_ColorsSeenBefore = {};
  * https://www.w3.org/TR/AERT/#color-contrast
  * Additional check for "standardDeviation", because gray colors have the "perceivedBrightness" but are not colorful enough.
  * @param   {string}  color  string of rgb color, e.g. "10 10 190" ("Dark Blue")
- * @return  {string}         string of brighter rgb color, e.g. "57 57 245" ("Blue")
+ * @return  {string}         string of brighter rgb color, e.g. "61 61 245" ("Blue")
  */
 function brightenedColor(color)
 {
