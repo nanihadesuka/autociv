@@ -93,21 +93,34 @@ autoCompleteText.state = {
     "tries": 0
 }
 
+// Use the JS cache, instead of recomputing the same color
+const autociv_ColorsSeenBefore = {};
+
 /**
  * Some colors must become brighter so that they are readable on dark backgrounds.
- * Modified version from gui/lobby/LobbyPage/PlayerColor.GetPlayerColor function
+ * Modified version from gui/lobby/LobbyPage/PlayerColor.GetPlayerColor
  * Additional check for "perceivedBrightness", if the color is already bright enough don't change it
  * https://www.w3.org/TR/AERT/#color-contrast
+ * Additional check for "standardDeviation", because gray colors have the "perceivedBrightness" but are not colorful enough.
  * @param   {string}  color  string of rgb color, e.g. "10 10 190" ("Dark Blue")
  * @return  {string}         string of brighter rgb color, e.g. "57 57 245" ("Blue")
  */
 function brightenedColor(color)
 {
+    if (autociv_ColorsSeenBefore[color])
+        return autociv_ColorsSeenBefore[color]
     const [r, g, b] = color.split(" ").map(x => +x);
     const perceivedBrightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-    if (perceivedBrightness > 80)
+    const standardDeviation = (arr) => {
+        const mean = arr.reduce((acc, val) => acc + val, 0) / arr.length;
+        return Math.sqrt(arr.reduce((acc, val) => acc + (val - mean) ** 2, 0) / arr.length);
+    }
+    if (perceivedBrightness >= 125 || (perceivedBrightness >= 75 && standardDeviation([r, g, b]) > 10))
+    {
+        autociv_ColorsSeenBefore[color] = color;
         return color;
+    }
     const [h, s, l] = rgbToHsl(r, g, b);
-    return hslToRgb(h, s, Math.min(l + 0.2, 0.6)).join(" ");
-
+    autociv_ColorsSeenBefore[color] = hslToRgb(h, s, Math.min(l + 0.3, 0.6)).join(" ");
+    return autociv_ColorsSeenBefore[color];
 }
