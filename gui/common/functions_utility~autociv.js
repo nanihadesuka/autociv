@@ -102,17 +102,20 @@ const autociv_ColorsSeenBefore = {};
  * Additional check for "perceived brightness", if the color is already bright enough don't change it,
  * otherwise go up in small incremental steps till it is bright enough.
  * https://www.w3.org/TR/AERT/#color-contrast
- * @param   {string}  color  				string of rgb color, e.g. "10 10 190" ("Dark Blue")
- * @param   {number}  brightnessThreshold 	Value when a color is considered bright enough; Range:0-255
- * @return  {string}        				string of brighter rgb color, e.g. "100 100 248" ("Blue")
+ * @param   {string}  color                 string of rgb color, e.g. "10 10 190" ("Dark Blue")
+ * @param   {number}  brightnessThreshold   Value when a color is considered bright enough; Range:0-255
+ * @return  {string}                        string of brighter rgb color, e.g. "100 100 248" ("Blue")
 */
-function brightenedColor(color, brightnessThreshold = 100) {
+function brightenedColor(color, brightnessThreshold = 110)
+{
     // check if a cached version is already available
     let key = `${color} ${brightnessThreshold}`
-    if (!autociv_ColorsSeenBefore[key]) {
+    if (!autociv_ColorsSeenBefore[key])
+    {
         let [r, g, b] = color.split(" ").map(x => +x);
         let i = 0;
-        while (r * 0.299 + g * 0.587 + b * 0.114 <= +brightnessThreshold) {
+        while (r * 0.299 + g * 0.587 + b * 0.114 <= +brightnessThreshold)
+        {
             i += 0.001;
             const [h, s, l] = rgbToHsl(r, g, b);
             [r, g, b] = hslToRgb(h, s, l + i);
