@@ -137,8 +137,8 @@ function truncateString(str, num)
 {
     if (!autociv_NameSeenBefore[str])
     {
-        let nick = splitRatingFromNick(str).nick
-        autociv_NameSeenBefore[str] = nick.length <= num ? nick : nick.slice(0, num) + "…"
+        let {nick} = splitRatingFromNick(str)
+        autociv_NameSeenBefore[str] = nick.length > num ? nick.slice(0, num-1) + "…" : nick;
     }
     return autociv_NameSeenBefore[str]
 }

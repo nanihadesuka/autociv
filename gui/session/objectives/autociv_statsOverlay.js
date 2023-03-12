@@ -3,7 +3,7 @@ AutocivControls.StatsOverlay = class
 {
     autociv_statsOverlay = Engine.GetGUIObjectByName("autociv_statsOverlay")
     preStats = {
-        "     Player": state => truncateString(state.name,Object.keys(this.widths)[0].length-1), // Player name
+        "     Player": state => truncateString(state.name,Object.keys(this.widths)[0].length), // Player name
         " ■": state => "■", // Player color
         " #": state => `${state.playerNumber}`, // Player number
         " T": state => state.team != -1 ? `${state.team + 1}` : "", // Team number
