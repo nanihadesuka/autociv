@@ -1,22 +1,20 @@
 name: Publish Release
 
 on:
-  workflow_dispatch: # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
-jobs: # A workflow run is made up of one or more jobs that can run sequentially or in parallel
-  buildRelease: # Job
+jobs:
+  buildRelease:
     name: Build Release
-    runs-on: ubuntu-latest # The type of runner that the job will run on
-    steps: # Steps represent a sequence of tasks that will be executed as part of the job
-
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    runs-on: ubuntu-20.04
+    steps:
       - name: Clone repo
         uses: actions/checkout@v2
 
       - name: Setup Python enviroment
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8.5
+          python-version: 3.11
 
       - name: Install python dependencies
         run: |
