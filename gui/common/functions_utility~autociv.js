@@ -124,21 +124,3 @@ function brightenedColor(color, brightnessThreshold = 110)
     }
     return autociv_ColorsSeenBefore[key];
 }
-
-const autociv_NameSeenBefore = {};
-
-/**
- * Truncates a string if it is longer than the specified maximum string length.
- * @param   {string}  str  [str description]
- * @param   {number}  num  [num description]
- * @return  {string}       Truncated string with a horizontal ellipsis
- */
-function truncateString(str, num)
-{
-    if (!autociv_NameSeenBefore[str])
-    {
-        let {nick} = splitRatingFromNick(str)
-        autociv_NameSeenBefore[str] = nick.length > num ? nick.slice(0, num-1) + "…" : nick;
-    }
-    return autociv_NameSeenBefore[str]
-}
