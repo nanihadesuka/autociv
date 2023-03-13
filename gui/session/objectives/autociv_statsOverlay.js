@@ -3,13 +3,13 @@ AutocivControls.StatsOverlay = class
 {
     autociv_statsOverlay = Engine.GetGUIObjectByName("autociv_statsOverlay")
     preStats = {
-        "     Player": state => state.name, // Player name
-        " ■": state => "■", // Player color
-        " #": state => `${state.playerNumber}`, // Player number
-        " T": state => state.team != -1 ? `${state.team + 1}` : "", // Team number
+        "Player      ": state => state.name, // Player name
+        "■ ": state => "■", // Player color
+        "# ": state => `${state.playerNumber}`, // Player number
+        "T ": state => state.team != -1 ? `${state.team + 1}` : "", // Team number
     }
     stats = {
-        " P": state => state.phase,
+        "P": state => state.phase,
         " Pop": state => state.popCount,
         " Sup": state => state.classCounts_Support,
         " Inf": state => state.classCounts_Infantry,
@@ -107,6 +107,17 @@ AutocivControls.StatsOverlay = class
         return text.substring(0, size).padStart(size)
     }
 
+    rightPadTruncPreStats(text, num)
+    {
+        let key = `${text} ${num}`
+        if (!this.autociv_preStatsSeenBefore[key])
+        {
+            let str = num > 2 ? splitRatingFromNick(text).nick : text
+            this.autociv_preStatsSeenBefore[key] = str.slice(0, num - 1).padEnd(num);
+        }
+        return this.autociv_preStatsSeenBefore[key]
+    }
+
     calcWidth(rowLength)
     {
         return Engine.GetTextWidth(this.textFont, " ") * rowLength + this.autociv_statsOverlay.buffer_zone * 2
@@ -162,7 +173,7 @@ AutocivControls.StatsOverlay = class
         const entries = playerStates.map((state, index) =>
         {
             const preStats = Object.keys(this.preStats).
-                map(row => this.leftPadTrunc(this.preStats[row](state), this.widths[row])).
+                map(row => this.rightPadTruncPreStats(this.preStats[row](state), this.widths[row])).
                 join("")
 
             const stats = Object.keys(values).map(stat =>
@@ -192,3 +203,6 @@ AutocivControls.StatsOverlay = class
         Engine.ProfileStop()
     }
 }
+
+// Use JS cache for preStats
+AutocivControls.StatsOverlay.prototype.autociv_preStatsSeenBefore = {}
