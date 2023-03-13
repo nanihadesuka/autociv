@@ -27,10 +27,12 @@ AutocivControls.StatsOverlay = class
     tickPeriod = 10
     textFont = "mono-stroke-10"
     configKey_visible = "autociv.session.statsOverlay.visible"
+    configKey_brightnessThreshold = "autociv.session.statsOverlay.brightnessThreshold"
 
     constructor()
     {
         this.autociv_statsOverlay.hidden = Engine.ConfigDB_GetValue("user", this.configKey_visible) == "false"
+        this.autociv_brightnessThreshold = Engine.ConfigDB_GetValue("user", this.configKey_brightnessThreshold);
 
         for (let name in this.preStats)
             this.widths[name] = name.length
@@ -47,6 +49,8 @@ AutocivControls.StatsOverlay = class
     {
         if (changes.has(this.configKey_visible))
             this.autociv_statsOverlay.hidden = Engine.ConfigDB_GetValue("user", this.configKey_visible) == "false"
+        if (changes.has(this.configKey_brightnessThreshold))
+            this.autociv_brightnessThreshold = Engine.ConfigDB_GetValue("user", this.configKey_brightnessThreshold)
     }
 
     toggle()
@@ -95,7 +99,7 @@ AutocivControls.StatsOverlay = class
 
     playerColor(state)
     {
-        return brightenedColor(rgbToGuiColor(g_DiplomacyColors.displayedPlayerColors[state.playerNumber]))
+        return brightenedColor(rgbToGuiColor(g_DiplomacyColors.displayedPlayerColors[state.playerNumber]), this.autociv_brightnessThreshold)
     }
 
     leftPadTrunc(text, size)

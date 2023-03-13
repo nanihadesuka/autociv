@@ -55,6 +55,15 @@
 				"config": "autociv.session.statsOverlay.visible"
 			},
 			{
+				"type": "slider",
+				"label": "[color=\"220 185 70\"]Game:[/color] Brightness of player names",
+				"tooltip": "Adjust the brightness intensity for the player names.",
+				"config": "autociv.session.statsOverlay.brightnessThreshold",
+				"dependencies": ["autociv.session.statsOverlay.visible"],
+				"min": 50,
+				"max": 150
+			},
+			{
 				"type": "boolean",
 				"label": "[color=\"220 185 70\"]Game:[/color] players overlay visible",
 				"tooltip": "Show observers and offline players in an overlay",
