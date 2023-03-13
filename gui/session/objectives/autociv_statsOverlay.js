@@ -112,7 +112,7 @@ AutocivControls.StatsOverlay = class
         let key = `${text} ${num}`
         if (!this.autociv_preStatsSeenBefore[key])
         {
-            let str = splitRatingFromNick(text).nick
+            let str = num > 2 ? splitRatingFromNick(text).nick : text
             this.autociv_preStatsSeenBefore[key] = str.slice(0, num - 1).padEnd(num);
         }
         return this.autociv_preStatsSeenBefore[key]
