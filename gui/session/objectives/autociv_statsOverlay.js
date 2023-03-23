@@ -3,7 +3,7 @@ AutocivControls.StatsOverlay = class
 {
     autociv_statsOverlay = Engine.GetGUIObjectByName("autociv_statsOverlay")
     preStats = {
-        "Player      ": state => state.state == "defeated" ? `[icon="icon_defeated_autociv" displace="-2 3"]${state.name}` : state.state == "won" ? `[icon="icon_won_autociv" displace="-2 3"]${state.name}` : state.name, // Player name
+        "Player      ": state => this.stateName(state), // Player name
         "■ ": state => "■", // Player color
         "# ": state => `${state.playerNumber}`, // Player number
         "T ": state => state.team != -1 ? `${state.team + 1}` : "", // Team number
@@ -53,6 +53,15 @@ AutocivControls.StatsOverlay = class
             this.autociv_brightnessThreshold = Engine.ConfigDB_GetValue("user", this.configKey_brightnessThreshold)
     }
 
+    stateName(state)
+    {
+        if (state.state == "defeated")
+            return `[icon="icon_defeated_autociv" displace="-2 3"]${state.name}`
+        else if (state.state == "won")
+            return `[icon="icon_won_autociv" displace="-2 3"]${state.name}`
+        return state.name
+    }
+
     toggle()
     {
         this.autociv_statsOverlay.hidden = !this.autociv_statsOverlay.hidden
@@ -73,21 +82,21 @@ AutocivControls.StatsOverlay = class
             this.update()
     }
 
-    indexDefeated(state)
+    indexNonDefeated(state)
     {
-        let indexListDefeated = []
+        let listNonDefeated = []
         for (let i = 0; i < state.length; i++)
-            if (state[i].state === "defeated")
-                indexListDefeated.push(i)
-        return indexListDefeated
+            if (state[i].state !== "defeated")
+                listNonDefeated.push(i)
+        return listNonDefeated
     }
 
-    maxIndex(list, indexListDefeated)
+    maxIndex(list, listNonDefeated)
     {
-        let index = 0
+        let index = listNonDefeated[0] ?? 0
         let value = list[index]
-        for (let i = 1; i < list.length; i++)
-            if (list[i] > value && !indexListDefeated.includes(i))
+        for (let i = index + 1; i < list.length; i++)
+            if (listNonDefeated.includes(i) && list[i] > value)
             {
                 value = list[i]
                 index = i
@@ -95,12 +104,12 @@ AutocivControls.StatsOverlay = class
         return index
     }
 
-    minIndex(list, indexListDefeated)
+    minIndex(list, listNonDefeated)
     {
-        let index = 0
+        let index = listNonDefeated[0] ?? 0
         let value = list[index]
-        for (let i = 1; i < list.length; i++)
-            if (list[i] < value && !indexListDefeated.includes(i))
+        for (let i = index + 1; i < list.length; i++)
+            if (listNonDefeated.includes(i) && list[i] < value)
             {
                 value = list[i]
                 index = i
@@ -184,11 +193,11 @@ AutocivControls.StatsOverlay = class
         for (let stat of Object.keys(this.stats))
         {
             let list = playerStates.map(this.stats[stat])
-            let indexListDefeated = this.indexDefeated(playerStates)
+            let listNonDefeated = this.indexNonDefeated(playerStates)
             values[stat] = {
                 "list": list,
-                "min": this.minIndex(list, indexListDefeated),
-                "max": this.maxIndex(list, indexListDefeated),
+                "min": this.minIndex(list, listNonDefeated),
+                "max": this.maxIndex(list, listNonDefeated),
             }
         }
 
