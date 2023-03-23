@@ -73,27 +73,38 @@ AutocivControls.StatsOverlay = class
             this.update()
     }
 
-    maxIndex(list)
+    indexDefeated(state)
+    {
+        let indexListDefeated = []
+        for (let i = 0; i < state.length; i++)
+            if (state[i].state === "defeated")
+                indexListDefeated.push(i)
+        return indexListDefeated
+    }
+
+    maxIndex(list, indexListDefeated)
     {
         let index = 0
         let value = list[index]
-        for (let i = 1; i < list.length; i++) if (list[i] > value)
-        {
-            value = list[i]
-            index = i
-        }
+        for (let i = 1; i < list.length; i++)
+            if (list[i] > value && !indexListDefeated.includes(i))
+            {
+                value = list[i]
+                index = i
+            }
         return index
     }
 
-    minIndex(list)
+    minIndex(list, indexListDefeated)
     {
         let index = 0
         let value = list[index]
-        for (let i = 1; i < list.length; i++) if (list[i] < value)
-        {
-            value = list[i]
-            index = i
-        }
+        for (let i = 1; i < list.length; i++)
+            if (list[i] < value && !indexListDefeated.includes(i))
+            {
+                value = list[i]
+                index = i
+            }
         return index
     }
 
@@ -173,10 +184,11 @@ AutocivControls.StatsOverlay = class
         for (let stat of Object.keys(this.stats))
         {
             let list = playerStates.map(this.stats[stat])
+            let indexListDefeated = this.indexDefeated(playerStates)
             values[stat] = {
                 "list": list,
-                "min": this.minIndex(list),
-                "max": this.maxIndex(list),
+                "min": this.minIndex(list, indexListDefeated),
+                "max": this.maxIndex(list, indexListDefeated),
             }
         }
 
