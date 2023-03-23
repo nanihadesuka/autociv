@@ -3,7 +3,7 @@ AutocivControls.StatsOverlay = class
 {
     autociv_statsOverlay = Engine.GetGUIObjectByName("autociv_statsOverlay")
     preStats = {
-        "Player      ": state => state.name, // Player name
+        "Player      ": state => state.state == "defeated" ? `[icon="icon_defeated_autociv" displace="-2 3"]${state.name}` : state.state == "won" ? `[icon="icon_won_autociv" displace="-2 3"]${state.name}` : state.name, // Player name
         "■ ": state => "■", // Player color
         "# ": state => `${state.playerNumber}`, // Player number
         "T ": state => state.team != -1 ? `${state.team + 1}` : "", // Team number
@@ -112,8 +112,18 @@ AutocivControls.StatsOverlay = class
         let key = `${text} ${num}`
         if (!this.autociv_preStatsSeenBefore[key])
         {
-            let str = num > 2 ? splitRatingFromNick(text).nick : text
-            this.autociv_preStatsSeenBefore[key] = str.slice(0, num - 1).padEnd(num);
+            const Regexp = /(^\[.*?\])(.*)/
+            let str = ""
+            // Icons have a width of 18, a single letter has a width of 6
+            // Engine.GetTextWidth(this.textFont, "A") = 6
+            // Slice of 3 characters more when the text has an icon.
+            if (num > 2 && Regexp.test(text))
+                str = text.replace(Regexp, "$1") + splitRatingFromNick(text.replace(Regexp, "$2")).nick.slice(0, num - 4).padEnd(num - 3)
+            else if (num > 2)
+                str = splitRatingFromNick(text).nick.slice(0, num - 1).padEnd(num)
+            else
+                str = text.padEnd(num)
+            this.autociv_preStatsSeenBefore[key] = str;
         }
         return this.autociv_preStatsSeenBefore[key]
     }
