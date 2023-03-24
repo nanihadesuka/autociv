@@ -25,6 +25,10 @@ AutocivControls.StatsOverlay = class
         " Tec": state => state.researchedTechsCount,
         " Kil": state => state.enemyUnitsKilledTotal ?? 0,
     }
+
+    listTeamRepresentatives = {}
+    listUndefeatedPlayerIndices = []
+    preStatsSeenBefore = {}
     widths = {} // Will be filled on the constructor
     tickPeriod = 10
     textFont = "mono-stroke-10"
@@ -40,8 +44,8 @@ AutocivControls.StatsOverlay = class
             this.widths[name] = name.length
 
         this.autociv_statsOverlay.onTick = this.onTick.bind(this)
-        this.updateListObjects()
-        registerPlayersFinishedHandler(this.updateListObjects.bind(this));
+        this.updatePlayerLists()
+        registerPlayersFinishedHandler(this.updatePlayerLists.bind(this));
         this.update()
         registerConfigChangeHandler(this.onConfigChanges.bind(this))
     }
@@ -83,30 +87,30 @@ AutocivControls.StatsOverlay = class
             this.update()
     }
 
-    updateListObjects()
+    updatePlayerLists()
     {
-        this.autociv_listUndefeatedPlayer = []
-        this.autociv_teamRepresentatives = {}
+        this.listUndefeatedPlayerIndices = []
+        this.listTeamRepresentatives = {}
         for (let i = 1; i < g_Players.length; ++i)
         {
             // state can be "won", "defeated" or "active"
             if (g_Players[i].state !== "defeated")
             {
                 // GAIA is not part of the autociv state for determining min/max values, thus 1 is subtracted for the index.
-                this.autociv_listUndefeatedPlayer.push(i - 1)
+                this.listUndefeatedPlayerIndices.push(i - 1)
                 const group = g_Players[i].team
-                if (group != -1 && !this.autociv_teamRepresentatives[group])
-                    this.autociv_teamRepresentatives[group] = i;
+                if (group != -1 && !this.listTeamRepresentatives[group])
+                    this.listTeamRepresentatives[group] = i;
             }
         }
     }
 
     maxIndex(list)
     {
-        let index = this.autociv_listUndefeatedPlayer[0] ?? 0
+        let index = this.listUndefeatedPlayerIndices[0] ?? 0
         let value = list[index]
         for (let i = index + 1; i < list.length; i++)
-            if (this.autociv_listUndefeatedPlayer.includes(i) && list[i] > value)
+            if (this.listUndefeatedPlayerIndices.includes(i) && list[i] > value)
             {
                 value = list[i]
                 index = i
@@ -116,10 +120,10 @@ AutocivControls.StatsOverlay = class
 
     minIndex(list)
     {
-        let index = this.autociv_listUndefeatedPlayer[0] ?? 0
+        let index = this.listUndefeatedPlayerIndices[0] ?? 0
         let value = list[index]
         for (let i = index + 1; i < list.length; i++)
-            if (this.autociv_listUndefeatedPlayer.includes(i) && list[i] < value)
+            if (this.listUndefeatedPlayerIndices.includes(i) && list[i] < value)
             {
                 value = list[i]
                 index = i
@@ -134,7 +138,7 @@ AutocivControls.StatsOverlay = class
 
     teamColor(state)
     {
-        return brightenedColor(g_DiplomacyColors.getPlayerColor([this.autociv_teamRepresentatives[state.team] || state.playerNumber]), this.autociv_brightnessThreshold)
+        return brightenedColor(g_DiplomacyColors.getPlayerColor([this.listTeamRepresentatives[state.team] || state.playerNumber]), this.autociv_brightnessThreshold)
     }
 
     leftPadTrunc(text, size)
@@ -145,7 +149,7 @@ AutocivControls.StatsOverlay = class
     rightPadTruncPreStats(text, num)
     {
         let key = `${text} ${num}`
-        if (!this.autociv_preStatsSeenBefore[key])
+        if (!this.preStatsSeenBefore[key])
         {
             const Regexp = /(^\[.*?\])(.*)/
             let str = ""
@@ -158,9 +162,9 @@ AutocivControls.StatsOverlay = class
                 str = splitRatingFromNick(text).nick.slice(0, num - 1).padEnd(num)
             else
                 str = text.padEnd(num)
-            this.autociv_preStatsSeenBefore[key] = str;
+            this.preStatsSeenBefore[key] = str;
         }
-        return this.autociv_preStatsSeenBefore[key]
+        return this.preStatsSeenBefore[key]
     }
 
     calcWidth(rowLength)
@@ -252,16 +256,3 @@ AutocivControls.StatsOverlay = class
         Engine.ProfileStop()
     }
 }
-
-/**
- * List indices of undefeated players, e.g. [4,5,8].
- */
-AutocivControls.StatsOverlay.prototype.autociv_listUndefeatedPlayer = []
-/**
- * Prestat strings
- */
-AutocivControls.StatsOverlay.prototype.autociv_preStatsSeenBefore = {}
-/**
- * Team representatives , e.g. {0:1, 1:4}
- */
-AutocivControls.StatsOverlay.prototype.autociv_teamRepresentatives = {}
