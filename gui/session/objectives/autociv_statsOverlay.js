@@ -82,21 +82,21 @@ AutocivControls.StatsOverlay = class
             this.update()
     }
 
-    indexNonDefeated(state)
+    listOfNotDefeated(state)
     {
-        let listNonDefeated = []
+        let listOfNotDefeated = []
         for (let i = 0; i < state.length; i++)
             if (state[i].state !== "defeated")
-                listNonDefeated.push(i)
-        return listNonDefeated
+                listOfNotDefeated.push(i)
+        return listOfNotDefeated
     }
 
-    maxIndex(list, listNonDefeated)
+    maxIndex(list, listOfNotDefeated)
     {
-        let index = listNonDefeated[0] ?? 0
+        let index = listOfNotDefeated[0] ?? 0
         let value = list[index]
         for (let i = index + 1; i < list.length; i++)
-            if (listNonDefeated.includes(i) && list[i] > value)
+            if (listOfNotDefeated.includes(i) && list[i] > value)
             {
                 value = list[i]
                 index = i
@@ -104,12 +104,12 @@ AutocivControls.StatsOverlay = class
         return index
     }
 
-    minIndex(list, listNonDefeated)
+    minIndex(list, listOfNotDefeated)
     {
-        let index = listNonDefeated[0] ?? 0
+        let index = listOfNotDefeated[0] ?? 0
         let value = list[index]
         for (let i = index + 1; i < list.length; i++)
-            if (listNonDefeated.includes(i) && list[i] < value)
+            if (listOfNotDefeated.includes(i) && list[i] < value)
             {
                 value = list[i]
                 index = i
@@ -190,14 +190,14 @@ AutocivControls.StatsOverlay = class
         header += "\n"
 
         const values = {}
+        let listOfNotDefeated = this.listOfNotDefeated(playerStates)
         for (let stat of Object.keys(this.stats))
         {
             let list = playerStates.map(this.stats[stat])
-            let listNonDefeated = this.indexNonDefeated(playerStates)
             values[stat] = {
                 "list": list,
-                "min": this.minIndex(list, listNonDefeated),
-                "max": this.maxIndex(list, listNonDefeated),
+                "min": this.minIndex(list, listOfNotDefeated),
+                "max": this.maxIndex(list, listOfNotDefeated),
             }
         }
 
