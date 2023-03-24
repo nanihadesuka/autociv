@@ -2,10 +2,12 @@
 AutocivControls.StatsOverlay = class
 {
     autociv_statsOverlay = Engine.GetGUIObjectByName("autociv_statsOverlay")
-    preStats = {
-        "Player      ": state => state.state == "defeated" ? `[icon="icon_defeated_autociv" displace="-2 3"]${state.name}` : state.state == "won" ? `[icon="icon_won_autociv" displace="-2 3"]${state.name}` : state.name, // Player name
+    preStatsDefault = {
+        "Player      ": state => this.stateName(state), // Player name
         "■ ": state => "■", // Player color
         "# ": state => `${state.playerNumber}`, // Player number
+    }
+    preStatsTeam = {
         "T ": state => state.team != -1 ? `${state.team + 1}` : "", // Team number
     }
     stats = {
@@ -34,13 +36,12 @@ AutocivControls.StatsOverlay = class
         this.autociv_statsOverlay.hidden = Engine.ConfigDB_GetValue("user", this.configKey_visible) == "false"
         this.autociv_brightnessThreshold = Engine.ConfigDB_GetValue("user", this.configKey_brightnessThreshold);
 
-        for (let name in this.preStats)
-            this.widths[name] = name.length
-
-        for (let name in this.stats)
+        for (let name in { ...this.preStatsDefault, ...this.preStatsTeam, ...this.stats })
             this.widths[name] = name.length
 
         this.autociv_statsOverlay.onTick = this.onTick.bind(this)
+        this.updateListObjects()
+        registerPlayersFinishedHandler(this.updateListObjects.bind(this));
         this.update()
         registerConfigChangeHandler(this.onConfigChanges.bind(this))
     }
@@ -51,6 +52,15 @@ AutocivControls.StatsOverlay = class
             this.autociv_statsOverlay.hidden = Engine.ConfigDB_GetValue("user", this.configKey_visible) == "false"
         if (changes.has(this.configKey_brightnessThreshold))
             this.autociv_brightnessThreshold = Engine.ConfigDB_GetValue("user", this.configKey_brightnessThreshold)
+    }
+
+    stateName(state)
+    {
+        if (state.state == "defeated")
+            return `[icon="icon_defeated_autociv" displace="-2 3"]${state.name}`
+        else if (state.state == "won")
+            return `[icon="icon_won_autociv" displace="-2 3"]${state.name}`
+        return state.name
     }
 
     toggle()
@@ -73,21 +83,30 @@ AutocivControls.StatsOverlay = class
             this.update()
     }
 
-    indexDefeated(state)
+    updateListObjects()
     {
-        let indexListDefeated = []
-        for (let i = 0; i < state.length; i++)
-            if (state[i].state === "defeated")
-                indexListDefeated.push(i)
-        return indexListDefeated
+        this.autociv_listUndefeatedPlayer = []
+        this.autociv_teamRepresentatives = {}
+        for (let i = 1; i < g_Players.length; ++i)
+        {
+            // state can be "won", "defeated" or "active"
+            if (g_Players[i].state !== "defeated")
+            {
+                // GAIA is not part of the autociv state for determining min/max values, thus 1 is subtracted for the index.
+                this.autociv_listUndefeatedPlayer.push(i - 1)
+                const group = g_Players[i].team
+                if (group != -1 && !this.autociv_teamRepresentatives[group])
+                    this.autociv_teamRepresentatives[group] = i;
+            }
+        }
     }
 
-    maxIndex(list, indexListDefeated)
+    maxIndex(list)
     {
-        let index = 0
+        let index = this.autociv_listUndefeatedPlayer[0] ?? 0
         let value = list[index]
-        for (let i = 1; i < list.length; i++)
-            if (list[i] > value && !indexListDefeated.includes(i))
+        for (let i = index + 1; i < list.length; i++)
+            if (this.autociv_listUndefeatedPlayer.includes(i) && list[i] > value)
             {
                 value = list[i]
                 index = i
@@ -95,12 +114,12 @@ AutocivControls.StatsOverlay = class
         return index
     }
 
-    minIndex(list, indexListDefeated)
+    minIndex(list)
     {
-        let index = 0
+        let index = this.autociv_listUndefeatedPlayer[0] ?? 0
         let value = list[index]
-        for (let i = 1; i < list.length; i++)
-            if (list[i] < value && !indexListDefeated.includes(i))
+        for (let i = index + 1; i < list.length; i++)
+            if (this.autociv_listUndefeatedPlayer.includes(i) && list[i] < value)
             {
                 value = list[i]
                 index = i
@@ -110,7 +129,12 @@ AutocivControls.StatsOverlay = class
 
     playerColor(state)
     {
-        return brightenedColor(rgbToGuiColor(g_DiplomacyColors.displayedPlayerColors[state.playerNumber]), this.autociv_brightnessThreshold)
+        return brightenedColor(g_DiplomacyColors.getPlayerColor(state.playerNumber), this.autociv_brightnessThreshold)
+    }
+
+    teamColor(state)
+    {
+        return brightenedColor(g_DiplomacyColors.getPlayerColor([this.autociv_teamRepresentatives[state.team] || state.playerNumber]), this.autociv_brightnessThreshold)
     }
 
     leftPadTrunc(text, size)
@@ -127,7 +151,7 @@ AutocivControls.StatsOverlay = class
             let str = ""
             // Icons have a width of 18, a single letter has a width of 6
             // Engine.GetTextWidth(this.textFont, "A") = 6
-            // Slice of 3 characters more when the text has an icon.
+            // Slice three characters more if the text has an icon.
             if (num > 2 && Regexp.test(text))
                 str = text.replace(Regexp, "$1") + splitRatingFromNick(text.replace(Regexp, "$2")).nick.slice(0, num - 4).padEnd(num - 3)
             else if (num > 2)
@@ -184,18 +208,21 @@ AutocivControls.StatsOverlay = class
         for (let stat of Object.keys(this.stats))
         {
             let list = playerStates.map(this.stats[stat])
-            let indexListDefeated = this.indexDefeated(playerStates)
             values[stat] = {
                 "list": list,
-                "min": this.minIndex(list, indexListDefeated),
-                "max": this.maxIndex(list, indexListDefeated),
+                "min": this.minIndex(list),
+                "max": this.maxIndex(list),
             }
         }
 
         const entries = playerStates.map((state, index) =>
         {
-            const preStats = Object.keys(this.preStats).
-                map(row => this.rightPadTruncPreStats(this.preStats[row](state), this.widths[row])).
+            const preStatsDefault = Object.keys(this.preStatsDefault).
+                map(row => this.rightPadTruncPreStats(this.preStatsDefault[row](state), this.widths[row])).
+                join("")
+
+            const preStatsTeam = Object.keys(this.preStatsTeam).
+                map(row => this.rightPadTruncPreStats(this.preStatsTeam[row](state), this.widths[row])).
                 join("")
 
             const stats = Object.keys(values).map(stat =>
@@ -210,9 +237,9 @@ AutocivControls.StatsOverlay = class
             }).join("")
 
             if (state.state == "defeated")
-                return setStringTags(preStats + stats, { "color": "255 255 255 128" })
+                return setStringTags(preStatsDefault + preStatsTeam + stats, { "color": "255 255 255 128" })
 
-            return setStringTags(preStats, { "color": this.playerColor(state) }) + stats
+            return setStringTags(preStatsDefault, { "color": this.playerColor(state) }) + setStringTags(preStatsTeam, { "color": this.teamColor(state) }) + stats
 
         }).join("\n")
 
@@ -226,5 +253,15 @@ AutocivControls.StatsOverlay = class
     }
 }
 
-// Use JS cache for preStats
+/**
+ * List indices of undefeated players, e.g. [4,5,8].
+ */
+AutocivControls.StatsOverlay.prototype.autociv_listUndefeatedPlayer = []
+/**
+ * Prestat strings
+ */
 AutocivControls.StatsOverlay.prototype.autociv_preStatsSeenBefore = {}
+/**
+ * Team representatives , e.g. {0:1, 1:4}
+ */
+AutocivControls.StatsOverlay.prototype.autociv_teamRepresentatives = {}
