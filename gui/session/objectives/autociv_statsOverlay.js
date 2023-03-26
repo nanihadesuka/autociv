@@ -4,7 +4,7 @@ AutocivControls.StatsOverlay = class
     autociv_statsOverlay = Engine.GetGUIObjectByName("autociv_statsOverlay")
     preStatsDefault = {
         "Player      ": state => this.stateName(state), // Player name
-        "■ ": state => "■", // Player color
+        "■ ": state => this.stateStrength(state), // Player color
         "# ": state => `${state.playerNumber}`, // Player number
     }
     preStatsTeam = {
@@ -29,16 +29,19 @@ AutocivControls.StatsOverlay = class
     listTeamRepresentatives = {}
     listUndefeatedPlayerIndices = []
     preStatsSeenBefore = {}
+    stateStrengthsCached = {}
     widths = {} // Will be filled on the constructor
     tickPeriod = 10
     textFont = "mono-stroke-10"
     configKey_visible = "autociv.session.statsOverlay.visible"
     configKey_brightnessThreshold = "autociv.session.statsOverlay.brightnessThreshold"
+    configKey_symbolizeRating = "autociv.session.statsOverlay.symbolizeRating"
 
     constructor()
     {
         this.autociv_statsOverlay.hidden = Engine.ConfigDB_GetValue("user", this.configKey_visible) == "false"
-        this.autociv_brightnessThreshold = Engine.ConfigDB_GetValue("user", this.configKey_brightnessThreshold);
+        this.autociv_brightnessThreshold = Engine.ConfigDB_GetValue("user", this.configKey_brightnessThreshold)
+        this.autociv_symbolizeRating = Engine.ConfigDB_GetValue("user", this.configKey_symbolizeRating) == "true"
 
         for (let name in { ...this.preStatsDefault, ...this.preStatsTeam, ...this.stats })
             this.widths[name] = name.length
@@ -56,6 +59,8 @@ AutocivControls.StatsOverlay = class
             this.autociv_statsOverlay.hidden = Engine.ConfigDB_GetValue("user", this.configKey_visible) == "false"
         if (changes.has(this.configKey_brightnessThreshold))
             this.autociv_brightnessThreshold = Engine.ConfigDB_GetValue("user", this.configKey_brightnessThreshold)
+        if (changes.has(this.configKey_symbolizeRating))
+            this.autociv_symbolizeRating = Engine.ConfigDB_GetValue("user", this.configKey_symbolizeRating) == "true"
     }
 
     stateName(state)
@@ -65,6 +70,34 @@ AutocivControls.StatsOverlay = class
         else if (state.state == "won")
             return `[icon="icon_won_autociv" displace="-2 3"]${state.name}`
         return state.name
+    }
+
+    stateStrength(state)
+    {
+        // if the options is turned off or the user is actively playing a local game
+        if (!this.autociv_symbolizeRating || (controlsPlayer(g_ViewedPlayer) && !g_IsNetworked))
+            return "\u25A0"; // ◼ black square
+        if (!this.stateStrengthsCached[state.playerNumber])
+        {
+            const aiDiff = g_InitAttributes.settings.PlayerData[state.playerNumber].AIDiff
+            const userRating = splitRatingFromNick(state.name).rating
+
+            // 5 strength levels shown as unicode characters
+            // https://www.unicode.org/charts/PDF/U25A0.pdf
+            // Use options.json to teach the player the meaning of the symbol.
+
+            if (userRating > 1800 || aiDiff === 5)
+                this.stateStrengthsCached[state.playerNumber] = "\u25B2"; // ▲ black up-pointing triangle
+            else if (userRating > 1600 || aiDiff === 4)
+                this.stateStrengthsCached[state.playerNumber] = "\u25C6"; // ◆ black diamond
+            else if (userRating > 1400 || aiDiff === 3)
+                this.stateStrengthsCached[state.playerNumber] = "\u25A0"; // ◼ black square
+            else if (userRating > 1200 || aiDiff === 2)
+                this.stateStrengthsCached[state.playerNumber] = "\u25AC"; // ▬ black rectangle
+            else
+                this.stateStrengthsCached[state.playerNumber] = "\u25A1"; // □ white square
+        }
+        return this.stateStrengthsCached[state.playerNumber]
     }
 
     toggle()
