@@ -372,9 +372,17 @@ g_NetworkCommands["/jitsi"] = text =>
 	  `write /link to open a link in your WebBrowser if you have autoCiv-mod installed to open a link more easy.`
 	)
 
+	let linkLong = `https://meet.jit.si/0ad${linkidShort}audio`
+
+	let linkTeam1example = `https://meet.jit.si/0ad${linkidShort}team123`
+	selfMessage(
+		` recommendation: send later in your private team-game-chat in other unique link for audio chat. Example:  ${linkTeam1example}`
+	)
+
 	selfMessage(
 		` this autoCiv-mod modification you could donwload here: ${gitHubLinkAutoCivModificationSL5}`
 	)
+
 
 	let population = 250
 	game.set.population(population)
@@ -382,7 +390,6 @@ g_NetworkCommands["/jitsi"] = text =>
 	g_GameSettings.startingResources.resources = 200
 	game.updateSettings()
 
-	let linkLong = `https://meet.jit.si/0ad${linkidShort}audio`
 	selfMessage(linkLong)
 	openURL(linkLong) // openURL("https://webchat.quakenet.org/?channels=0ad")
 
