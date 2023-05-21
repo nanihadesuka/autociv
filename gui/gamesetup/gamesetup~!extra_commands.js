@@ -376,23 +376,23 @@ g_NetworkCommands["/jitsi"] = text =>
 
 	openURL(linkLong) // openURL("https://webchat.quakenet.org/?channels=0ad")
 
-	let text = `want use Jitsi as a fully encrypted, open source video conferencing, with no account needed.`
+	let gameText = `want use Jitsi as a fully encrypted, open source video conferencing, with no account needed.`
 
 
-	// if (!g_IsController || !Engine.HasNetServer())
-	// 	return;
-	// if (!g_SetupWindow.controls.lobbyGameRegistrationController)
-	// 	return
-	// g_SetupWindow.controls.lobbyGameRegistrationController.serverName = text
-	// selfMessage(`Game name changed to: ${text}`)
-	// g_SetupWindow.controls.lobbyGameRegistrationController.sendImmediately()
+	if (!g_IsController || !Engine.HasNetServer())
+		return;
+	if (!g_SetupWindow.controls.lobbyGameRegistrationController)
+		return
+	g_SetupWindow.controls.lobbyGameRegistrationController.serverName = gameText
+	selfMessage(`Game name changed to: ${gameText}`)
+	g_SetupWindow.controls.lobbyGameRegistrationController.sendImmediately()
 
 
-	// let population = 250
-	// game.set.population(population)
+	let population = 250
+	game.set.population(population)
 
-	// g_GameSettings.startingResources.resources = 200
-	// game.updateSettings()
+	g_GameSettings.startingResources.resources = 200
+	game.updateSettings()
   }
 
 
