@@ -370,7 +370,7 @@ g_NetworkCommands["/jitsi"] = text =>
 
 	let gitHubLinkAutoCivModificationSL5 = 'https://github.com/sl5net/autociv';
 
-	let textBest = `Jitsi is best for having a quick conference call without having to think of its setup process.`;
+	let textBest = `Jitsi is best for having a quick conference call without having to think of its setup process.`
 	selfMessage(
 		textBest
 	)
@@ -383,30 +383,27 @@ g_NetworkCommands["/jitsi"] = text =>
 		` this autoCiv-mod modification you could donwload here: ${gitHubLinkAutoCivModificationSL5}`
 	)
 
-	let linkLong = `https://meet.jit.si/0ad${linkidShort}audio`
-	selfMessage(linkLong)
-
-
-	openURL(linkLong) // openURL("https://webchat.quakenet.org/?channels=0ad")
-
-	let gameTextJitsiExplainded = `want use Jitsi as a fully encrypted, open source video conferencing, with no account needed.`
-	gameText = `${gameTextJitsiExplainded} ${textBest} ${linkLong}`;
-
-	if (!g_IsController || !Engine.HasNetServer())
-		return;
-	if (!g_SetupWindow.controls.lobbyGameRegistrationController)
-		return
-	g_SetupWindow.controls.lobbyGameRegistrationController.serverName = gameText
-	selfMessage(`Game name changed to: ${gameText}`)
-	g_SetupWindow.controls.lobbyGameRegistrationController.sendImmediately()
-
-
 	let population = 250
 	game.set.population(population)
 
 	g_GameSettings.startingResources.resources = 200
 	game.updateSettings()
-  }
+
+	let linkLong = `https://meet.jit.si/0ad${linkidShort}audio`
+	selfMessage(linkLong)
+	openURL(linkLong) // openURL("https://webchat.quakenet.org/?channels=0ad")
+
+	// let gameTextJitsiExplainded = `want use Jitsi as a fully encrypted, open source video conferencing, with no account needed.`
+	// gameText = ` ${textBest} ${linkLong} `;
+	gameText = `${textBest} ${linkLong}`
+	if (!g_IsController || !Engine.HasNetServer())
+		return;
+	if (!g_SetupWindow.controls.lobbyGameRegistrationController)
+		return
+	g_SetupWindow.controls.lobbyGameRegistrationController.serverName = text
+	selfMessage(`Game name changed to: ${text}`)
+	g_SetupWindow.controls.lobbyGameRegistrationController.sendImmediately()
+}
 
 
 g_NetworkCommands['/team'] = text => game.set.teams(text);
