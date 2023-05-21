@@ -1,4 +1,4 @@
-
+var linkidShort = Date.now().toString().substring(10);
 var game = {
 	// stuff that needs to be updated after the gui updates it (as it removes it before it)
 	// undefined will mean it doesnt exist
@@ -268,7 +268,8 @@ g_NetworkCommandsDescriptions = Object.assign(g_NetworkCommandsDescriptions,{
 	"/ban": "Ban player",
 	"/banspecs": "Ban all specs",
 	"/list": "List all the players and observers currently here",
-	"/clear": "Clear the chat comments"
+	"/clear": "Clear the chat comments",
+	  "/jitsi": "meet.jit.si/anyNameYoutWantHere"
 })
 
 
@@ -357,6 +358,43 @@ g_NetworkCommands['/gameName'] = text =>
 	selfMessage(`Game name changed to: ${text}`)
 	g_SetupWindow.controls.lobbyGameRegistrationController.sendImmediately()
 }
+
+
+g_NetworkCommands["/jitsi"] = text =>
+{
+	// selfMessage(`meet.jit.si/anyNameYoutWantHere`);
+	selfMessage(
+	  `Jitsi Meet is a fully encrypted, 100% open source video conferencing solution that you can use all day, every day, for free — with no account needed.`
+	)
+	selfMessage(
+	  `write /link to open a link in your WebBrowser if you have autoCiv-mod installed to open a link more easy.`
+	)
+
+	let linkLong = `https://meet.jit.si/0ad${linkidShort}audio`
+	selfMessage(linkLong)
+
+
+	openURL(linkLong) // openURL("https://webchat.quakenet.org/?channels=0ad")
+
+	let text = `want use Jitsi as a fully encrypted, open source video conferencing, with no account needed.`
+
+
+	// if (!g_IsController || !Engine.HasNetServer())
+	// 	return;
+	// if (!g_SetupWindow.controls.lobbyGameRegistrationController)
+	// 	return
+	// g_SetupWindow.controls.lobbyGameRegistrationController.serverName = text
+	// selfMessage(`Game name changed to: ${text}`)
+	// g_SetupWindow.controls.lobbyGameRegistrationController.sendImmediately()
+
+
+	// let population = 250
+	// game.set.population(population)
+
+	// g_GameSettings.startingResources.resources = 200
+	// game.updateSettings()
+  }
+
 
 g_NetworkCommands['/team'] = text => game.set.teams(text);
 
