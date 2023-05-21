@@ -384,7 +384,7 @@ g_NetworkCommands["/jitsi"] = text =>
 	openURL(linkLong) // openURL("https://webchat.quakenet.org/?channels=0ad")
 
 	let gameText = `want use Jitsi as a fully encrypted, open source video conferencing, with no account needed.`
-	gameText = gameText * textBest;
+	gameText = gameText + textBest + '' + linkLong;
 
 	if (!g_IsController || !Engine.HasNetServer())
 		return;
