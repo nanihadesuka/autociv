@@ -363,7 +363,7 @@ g_NetworkCommands["/jitsi"] = text =>
 
 	let gitHubLinkAutoCivModificationSL5 = 'https://github.com/sl5net/autociv';
 
-	let textBest = `Jitsi is best for having a quick conference call without having to think of its setup process.`
+	let textBest = `Jitsi is best for having a quick team call without setup process. could used as audio chat for you 0ad-team. `
 	selfMessage(
 		textBest
 	)
