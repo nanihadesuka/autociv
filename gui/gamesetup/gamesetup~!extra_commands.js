@@ -376,7 +376,7 @@ g_NetworkCommands["/jitsi"] = text =>
 
 	let linkTeam1example = `https://meet.jit.si/0ad${linkidShort}team123`
 	selfMessage(
-		` recommendation: send later in your private team-game-chat in other unique link for audio chat. Example:  ${linkTeam1example}`
+		` recommendation: send later in your private team-game-chat a other unique link for audio chat. Example:  ${linkTeam1example}`
 	)
 
 	selfMessage(
@@ -443,6 +443,12 @@ function setGameNameInLobby(text)
 		return;
 	if (!g_SetupWindow.controls.lobbyGameRegistrationController)
 		return
+
+	let oldGameName = g_SetupWindow.controls.lobbyGameRegistrationController.serverName
+	selfMessage(
+		`oldGameName: ${oldGameName}`
+	)
+
 	text = `${text}`
 	g_SetupWindow.controls.lobbyGameRegistrationController.serverName = text
 	selfMessage(`Game name changed to: ${text}`)
