@@ -366,6 +366,13 @@ g_NetworkCommands["/jitsi"] = text =>
 	selfMessage(
 	  `Jitsi Meet is a fully encrypted, 100% open source video conferencing solution that you can use all day, every day, for free — with no account needed.`
 	)
+
+
+	let textBest = `Jitsi is best for having a quick conference call without having to think of its setup process.`;
+	selfMessage(
+		textBest
+	)
+
 	selfMessage(
 	  `write /link to open a link in your WebBrowser if you have autoCiv-mod installed to open a link more easy.`
 	)
@@ -377,7 +384,7 @@ g_NetworkCommands["/jitsi"] = text =>
 	openURL(linkLong) // openURL("https://webchat.quakenet.org/?channels=0ad")
 
 	let gameText = `want use Jitsi as a fully encrypted, open source video conferencing, with no account needed.`
-
+	gameText = gameText * textBest;
 
 	if (!g_IsController || !Engine.HasNetServer())
 		return;
