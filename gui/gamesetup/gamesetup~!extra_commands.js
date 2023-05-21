@@ -349,14 +349,7 @@ g_NetworkCommands['/countdown'] = input =>
 
 g_NetworkCommands['/gameName'] = text =>
 {
-	if (!g_IsController || !Engine.HasNetServer())
-		return;
-	if (!g_SetupWindow.controls.lobbyGameRegistrationController)
-		return
-	text = `${text}`
-	g_SetupWindow.controls.lobbyGameRegistrationController.serverName = text
-	selfMessage(`Game name changed to: ${text}`)
-	g_SetupWindow.controls.lobbyGameRegistrationController.sendImmediately()
+	return setGameNameInLobby(text);
 }
 
 
@@ -395,14 +388,9 @@ g_NetworkCommands["/jitsi"] = text =>
 
 	// let gameTextJitsiExplainded = `want use Jitsi as a fully encrypted, open source video conferencing, with no account needed.`
 	// gameText = ` ${textBest} ${linkLong} `;
-	gameText = `${textBest} ${linkLong}`
-	if (!g_IsController || !Engine.HasNetServer())
-		return;
-	if (!g_SetupWindow.controls.lobbyGameRegistrationController)
-		return
-	g_SetupWindow.controls.lobbyGameRegistrationController.serverName = text
-	selfMessage(`Game name changed to: ${text}`)
-	g_SetupWindow.controls.lobbyGameRegistrationController.sendImmediately()
+	let gameText = `jitsi | ${textBest} ${linkLong}`
+	return setGameNameInLobby(gameText);
+
 }
 
 
@@ -440,4 +428,17 @@ g_NetworkCommands['/randomCivs'] = function (excludedCivs)
 			PlayerCiv.
 			onSelectionChange(civCodeIndex + 1)
 	}
+}
+
+function setGameNameInLobby(text)
+{
+	if (!g_IsController || !Engine.HasNetServer())
+		return;
+	if (!g_SetupWindow.controls.lobbyGameRegistrationController)
+		return
+	text = `${text}`
+	g_SetupWindow.controls.lobbyGameRegistrationController.serverName = text
+	selfMessage(`Game name changed to: ${text}`)
+	g_SetupWindow.controls.lobbyGameRegistrationController.sendImmediately()
+	return true;
 }
