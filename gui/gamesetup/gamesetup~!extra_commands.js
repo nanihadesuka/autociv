@@ -368,6 +368,8 @@ g_NetworkCommands["/jitsi"] = text =>
 	)
 
 
+	let gitHubLinkAutoCivModificationSL5 = 'https://github.com/sl5net/autociv';
+
 	let textBest = `Jitsi is best for having a quick conference call without having to think of its setup process.`;
 	selfMessage(
 		textBest
@@ -377,14 +379,18 @@ g_NetworkCommands["/jitsi"] = text =>
 	  `write /link to open a link in your WebBrowser if you have autoCiv-mod installed to open a link more easy.`
 	)
 
+	selfMessage(
+		` this autoCiv-mod modification you could donwload here: ${gitHubLinkAutoCivModificationSL5}`
+	)
+
 	let linkLong = `https://meet.jit.si/0ad${linkidShort}audio`
 	selfMessage(linkLong)
 
 
 	openURL(linkLong) // openURL("https://webchat.quakenet.org/?channels=0ad")
 
-	let gameText = `want use Jitsi as a fully encrypted, open source video conferencing, with no account needed.`
-	gameText = gameText + textBest + '' + linkLong;
+	let gameTextJitsiExplainded = `want use Jitsi as a fully encrypted, open source video conferencing, with no account needed.`
+	gameText = `${gameTextJitsiExplainded} ${textBest} ${linkLong}`;
 
 	if (!g_IsController || !Engine.HasNetServer())
 		return;
