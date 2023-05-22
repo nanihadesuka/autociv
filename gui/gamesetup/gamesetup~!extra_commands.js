@@ -269,7 +269,7 @@ g_NetworkCommandsDescriptions = Object.assign(g_NetworkCommandsDescriptions,{
 	"/banspecs": "Ban all specs",
 	"/list": "List all the players and observers currently here",
 	"/clear": "Clear the chat comments",
-	"/profile1": "AlliedView will be togled",
+	"/profile1": "set to profile1",
 	  "/jitsi": "meet.jit.si/anyNameYoutWantHere"
 })
 
