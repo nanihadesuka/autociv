@@ -127,39 +127,7 @@ var game = {
 		 * @param {string} text E.g : "1v1v3" "ffa" "4v4" "2v2v2v2"
 		 */
 		"teams": (text) =>
-		{
-			if (!g_IsController)
-				return;
-
-			if (g_GameSettings.mapType == "scenario")
-				return selfMessage("Can't set teams with map type scenario.");
-
-			let teams = text.trim().toLowerCase();
-			if ("ffa" == teams)
-			{
-				g_GameSettings.playerTeam.values = g_GameSettings.playerTeam.values.map(v => -1)
-				game.updateSettings()
-				return;
-			}
-
-			teams = text.match(/(\d+)/g);
-			if (teams == null)
-				return selfMessage("Invalid input.");
-
-			// Transform string to number discarding 0 size teams
-			teams = teams.map(v => +v).filter(v => v != 0);
-
-			if (teams.length < 1 || teams.length > 4)
-				return selfMessage("Invalid number of teams (min 1 max 4).");
-
-			let numOfSlots = teams.reduce((v, a) => a += v, 0);
-			if (numOfSlots < 1 || numOfSlots > 8)
-				return selfMessage("Invalid number of players (max 8).");
-
-			g_GameSettings.playerCount.nbPlayers = numOfSlots
-			g_GameSettings.playerTeam.values = teams.flatMap((size, i) => Array(size).fill(i))
-			game.updateSettings()
-		},
+		setTeams(text),
 		"slotName": (slotNumber, name) =>
 		{
 			let values = g_GameSettings.playerName.values
@@ -575,6 +543,8 @@ var getKeys = function(obj){
 	}
 
 
+	setTeams("team 2v2")
+
 
 	game.updateSettings()
 
@@ -605,4 +575,38 @@ var getKeys = function(obj){
 	// 	`${alliedView}`
 	//   )
 	  return;
+}
+function setTeams(text)
+{
+	if (!g_IsController)
+		return;
+
+	if (g_GameSettings.mapType == "scenario")
+		return selfMessage("Can't set teams with map type scenario.");
+
+	let teams = text.trim().toLowerCase();
+	if ("ffa" == teams)
+	{
+		g_GameSettings.playerTeam.values = g_GameSettings.playerTeam.values.map(v => -1)
+		game.updateSettings()
+		return;
+	}
+
+	teams = text.match(/(\d+)/g);
+	if (teams == null)
+		return selfMessage("Invalid input.");
+
+	// Transform string to number discarding 0 size teams
+	teams = teams.map(v => +v).filter(v => v != 0);
+
+	if (teams.length < 1 || teams.length > 4)
+		return selfMessage("Invalid number of teams (min 1 max 4).");
+
+	let numOfSlots = teams.reduce((v, a) => a += v, 0);
+	if (numOfSlots < 1 || numOfSlots > 8)
+		return selfMessage("Invalid number of players (max 8).");
+
+	g_GameSettings.playerCount.nbPlayers = numOfSlots
+	g_GameSettings.playerTeam.values = teams.flatMap((size, i) => Array(size).fill(i))
+	game.updateSettings()
 }
