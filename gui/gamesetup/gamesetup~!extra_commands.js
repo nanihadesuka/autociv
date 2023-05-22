@@ -269,7 +269,7 @@ g_NetworkCommandsDescriptions = Object.assign(g_NetworkCommandsDescriptions,{
 	"/banspecs": "Ban all specs",
 	"/list": "List all the players and observers currently here",
 	"/clear": "Clear the chat comments",
-	"/alliedViewToggle": "AlliedView will be togled",
+	"/profile1": "AlliedView will be togled",
 	  "/jitsi": "meet.jit.si/anyNameYoutWantHere"
 })
 
@@ -353,7 +353,7 @@ g_NetworkCommands['/gameName'] = text =>
 	return setGameNameInLobby(text);
 }
 
-g_NetworkCommands['/setDefaults'] = text =>
+g_NetworkCommands['/profile1'] = text =>
 {
 	// "/alliedViewToggle": "AlliedView will be togled",
 	// g_GameSettings.alliedview = false // AlliedView
@@ -368,7 +368,7 @@ g_NetworkCommands['/setDefaults'] = text =>
 		// this.setChecked(g_GameSettings.mapExploration.allied);
 
 	// onPress(checked)
-	// {
+	// {f
 	// 	g_GameSettings.mapExploration.setAllied(checked);
 	// 	this.gameSettingsController.setNetworkInitAttributes();
 	// }
