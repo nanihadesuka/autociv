@@ -402,14 +402,32 @@ g_NetworkCommands['/profile1'] = text =>
 	// this.gameSettingsController.guiData.mapFilter.filter,
 	// g_GameSettings.map.filter.filter = 1 // dont work
 	let doItYourSelfStr = ' Please select this manually. '
+	// doItYourSelfStr = ''
 	selfMessage(
 		`"Map Filter": often used "Default". ${doItYourSelfStr} `
 	)
 
 	selfMessage(
-		`"Select Map": often used "Mainland" or "Mainland balanced"(needs FeldFeld-Mod) . ${doItYourSelfStr}`
+		`"Select Map": often used "Mainland" or "Mainland balanced"(needs FeldFeld-Mod) . `
 	)
 
+	if (!g_GameSettings.filter)
+	{
+		let info = "No selected filter"
+		selfMessage(
+			`${info}`
+		  )
+	}else{
+		selfMessage(
+			`map.map = ${g_GameSettings.filter}`
+		)
+	}
+
+
+
+
+
+	g_GameSettings.map.map = "maps/random/mainland"
 
 	if (!g_GameSettings.map.map)
 	{
