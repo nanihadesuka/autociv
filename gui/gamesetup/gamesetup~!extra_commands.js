@@ -225,7 +225,8 @@ g_NetworkCommandsDescriptions = Object.assign(g_NetworkCommandsDescriptions, {
   "/banspecs": "Ban all specs",
   "/list": "List all the players and observers currently here",
   "/clear": "Clear the chat comments",
-  "/profile1": "set to profile1",
+  "/pMainland_typically_defaults": "set to mainland 250popMax, 300res",
+  "/pExtinct_volcano": "set to extinct_volcano",
   "/jitsi": "meet.jit.si/anyNameYoutWantHere",
 });
 
@@ -304,12 +305,29 @@ g_NetworkCommands["/gameName"] = (text) => {
   return setGameNameInLobby(text);
 };
 
-g_NetworkCommands["/profile1"] = (text) => {
-  set2profile1();
+g_NetworkCommands["/pMainland_typically_defaults"] = (text) => {
+  pMainland_typically_defaults();
+};
+g_NetworkCommands["/pExtinct_volcano"] = (text) => {
+  pExtinct_volcano();
 };
 
 g_NetworkCommands["/jitsi"] = (text) => {
   // selfMessage(`meet.jit.si/anyNameYoutWantHere`);
+
+  /*
+Jitsi for Quick Team Calls
+Jitsi is a great way to have quick team calls without any setup process. It can also be used as an audio chat for your 0ad-team.
+
+Jitsi is an easy, no-setup way to have quick team calls and audio chats. Perfect for 0ad-teams.
+
+Jitsi: Quick team calls, no setup, audio chat.
+
+*/
+
+  let jitsi8words =
+    "Jitsi: team audio chat, no setup, OS (necessary a web browser and Mic).";
+
   selfMessage(
     `Jitsi Meet is a fully encrypted, 100% open source video conferencing solution that you can use all day, every day, for free — with no account needed.`
   );
@@ -334,15 +352,21 @@ g_NetworkCommands["/jitsi"] = (text) => {
     ` this autoCiv-mod modification you could donwload here: ${gitHubLinkAutoCivModificationSL5}`
   );
 
-  set2profile1();
+  let populationMax = pMainland_typically_defaults();
 
   selfMessage(linkLong);
   openURL(linkLong); // openURL("https://webchat.quakenet.org/?channels=0ad")
 
   // let gameTextJitsiExplainded = `want use Jitsi as a fully encrypted, open source video conferencing, with no account needed.`
   // gameText = ` ${textBest} ${linkLong} `;
-  let gameText = `jitsi | ${textBest} ${linkLong}`;
-  return setGameNameInLobby(gameText);
+
+  let resources = g_GameSettings.startingResources.resources; // works ist a radio selct field
+
+  let gameTitleInLobby = ``;
+  // let gameText = `jitsi | ${textBest} ${linkLong}`;
+  //    gameText = `jitsi | ${textBest} ${linkLong}`;
+  gameTitleInLobby = `unrated | ${jitsi8words} ${linkLong} | ${populationMax}popMax, ${resources}res`; // 250popMax, 300res
+  return setGameNameInLobby(gameTitleInLobby);
 };
 
 g_NetworkCommands["/team"] = (text) => game.set.teams(text);
@@ -398,40 +422,52 @@ var getKeys = function (obj) {
   return keys;
 };
 
-function set2profile1() {
-  // "/alliedViewToggle": "AlliedView will be togled",
-  // g_GameSettings.alliedview = false // AlliedView
-  // g_GameSettings.alliedView.enabled = false // alliedView undefined
-  // g_GameSettings.AlliedView.enabled = false // AlliedView undefined
-  // g_GameSettings.alliedview.enabled = false // alliedview undefined
-
-  // let str = JSON.stringify(g_GameSettings);
-  // warn(str.toString);
-
-  // setEnabled(g_GameSettings.map.type != "scenario");
-  // this.setChecked(g_GameSettings.mapExploration.allied);
-
-  // onPress(checked)
-  // {f
-  // 	g_GameSettings.mapExploration.setAllied(checked);
-  // 	this.gameSettingsController.setNetworkInitAttributes();
-  // }
-
-  // // Translation: View what your allies can see.
-  // GameSettingControls.AlliedView.prototype.TitleCaption =
-  // 	translate("Allied View");
-
-  // // Translation: Enable viewing what your allies can see from the start of the game.
-  // GameSettingControls.AlliedView.prototype.Tooltip =
-  // 	translate("Toggle allied view (see what your allies see).");
-
-  // alliedViewToggle
-
+function pExtinct_volcano() {
   g_GameSettings.mapExploration.allied = true; // woks :)  AlliedView
-  // g_GameSettings.mapExploration.allied = true // woks :) AlliedView
-
   g_GameSettings.rating.enabled = false; // no error and test in the lobby. it works
+  g_GameSettings.disableTreasures.enabled = true;
+  g_GameSettings.nomad.enabled = false; // works
 
+  // Map Type
+  g_GameSettings.map.type = "random"; // works
+
+  let doItYourSelfStr = " Please select this manually. ";
+  // doItYourSelfStr = ''
+
+  g_GameSettings.map.map = "maps/random/extinct_volcano";
+
+  //   #: gui/gamesetup/Pages/GameSetupPage/GameSettings/Single/Sliders/SeaLevelRiseTime.js:38
+  // msgid "Sea Level Rise Time"
+  // g_GameSettings.SeaLevelRiseTime = 10; // no error but no effect. extinct_volcano SeaLevelRiseTime
+  // g_GameSettings.SeaLevelRiseTime.val = 10; // error but no effect. extinct_volcano SeaLevelRiseTime
+  // g_GameSettings.SeaLevelRiseTime.value = 10; // error but no effect. extinct_volcano SeaLevelRiseTime
+  // g_GameSettings.seaLevelRiseTime.value = 10; // error undefined but no effect. extinct_volcano SeaLevelRiseTime
+  // g_GameSettings.SeaLevelRiseTime.cap = 10; // erro. extinct_volcano SeaLevelRiseTime
+
+  if (!g_GameSettings.map.map) {
+    let info = "No selected map";
+    selfMessage(`${info}`);
+  } else {
+    selfMessage(`map.map = ${g_GameSettings.map.map}`);
+  }
+
+  setTeams("team 2v2");
+
+  g_GameSettings.startingResources.resources = 300; // works ist a radio selct field
+  g_GameSettings.population.cap = 250; // works its a number option vield
+
+  game.updateSettings();
+
+  let populationMax = g_GameSettings.population.cap; // works its a number option vield
+  let resources = g_GameSettings.startingResources.resources; // works ist a radio selct field
+  selfMessage(`pop= ${populationMax}`);
+  selfMessage(`res= ${resources}`);
+  return populationMax;
+}
+
+function pMainland_typically_defaults() {
+  g_GameSettings.mapExploration.allied = true; // woks :)  AlliedView
+  g_GameSettings.rating.enabled = false; // no error and test in the lobby. it works
   // gui/gamesetup/Pages/GameSetupPage/GameSettings/Single/Checkboxes/Treasures.js
   g_GameSettings.disableTreasures.enabled = true;
   g_GameSettings.nomad.enabled = false; // works
@@ -486,27 +522,16 @@ function set2profile1() {
 
   setTeams("team 2v2");
 
+  g_GameSettings.startingResources.resources = 300; // works ist a radio selct field
+  g_GameSettings.population.cap = 250; // works its a number option vield
+
   game.updateSettings();
 
   let resources = g_GameSettings.startingResources.resources; // works ist a radio selct field
-  let population = g_GameSettings.population.cap; // works its a number option vield
-  // let alliedView = g_GameSettings.alliedView.cap
-  // let oldGameName = g_SetupWindow.controls.lobbyGameRegistrationController.serverName
-
-  // this.disabled = Engine.ConfigDB_GetValue("user", "autociv.resizebar.enabled") != "true"
-
-  // g_GameSettings.rating.enabled found somwhere i kateAutoCiv
-
-  // warn(g_GameSettings.alliedView.toString)
-  // getKeys(g_GameSettings.alliedView) // alliedView is not defined
-
-  selfMessage(`hi from 363`);
-  selfMessage(`pop= ${population}`);
+  let populationMax = g_GameSettings.population.cap; // works its a number option vield
+  selfMessage(`pop= ${populationMax}`);
   selfMessage(`res= ${resources}`);
-  // selfMessage(
-  // 	`${alliedView}`
-  //   )
-  return;
+  return populationMax;
 }
 function setTeams(text) {
   if (!g_IsController) return;
@@ -548,14 +573,26 @@ HowTo create a JavaScript function in the 0ad mod autoCiv that changes the map f
 HowTo fix the error 'mapFilter is null' in the following JS-function inside file 'gamesetup~!extra_commands' inside the mod autoCiv?
 
 Whey the following function inside 'gamesetup~!extra_commands' of autoCiv dont work and how to fix it?  function setMapFilterTo2() {     var mapFilter = Engine.GetGUIObjectByName("mapFilter");     mapFilter.selected = 2; }
+
+
+Whey is it unpossible to develop a mod like autoCiv to set the mapFilter but easily possble to set resources?
+
+The mapFilter is a more complex setting, as it requires more logic and data manipulation than simply setting resources. For example, when setting resources, you just need to assign a certain value to a certain tile. However, when setting the mapFilter, you have to create a logic that determines which tiles should be included in the filter. This requires more complex coding and data manipulation.
+
+How to set the more complex mapFilter and which tiles should be included in the filter while developing a new verson of AutoCiv mod?
 */
 
 function setMapFilterTo2() {
   // TODO: how to do this? 23-0522_1624-23
 
   // this.mapTypeFilter = Engine.GetGUIObjectByName("mapTypeFilter"); //  result is null
-  let mapFilter = Engine.GetGUIObjectByName("mapTypeFilter"); // result is null
+
+  let mapFilter = {
+    tiles: ["grass", "dirt", "mountain", "water", "forest"],
+  };
+
+  // let mapFilter2 = Engine.GetGUIObjectByName(mapFilter); // result is null
 
   // let mapFilter = Engine.GetGUIObjectByName("mapFilter"); // result is null
-  if (mapFilter) mapFilter.selected = 2;
+  // if (mapFilter) mapFilter2.selected = 2;
 }
