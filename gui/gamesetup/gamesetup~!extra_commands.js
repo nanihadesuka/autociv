@@ -525,7 +525,7 @@ var getKeys = function(obj){
 	}
 
 
-
+	setMapFilterTo2(2)
 
 
 	g_GameSettings.map.map = "maps/random/mainland"
@@ -609,4 +609,19 @@ function setTeams(text)
 	g_GameSettings.playerCount.nbPlayers = numOfSlots
 	g_GameSettings.playerTeam.values = teams.flatMap((size, i) => Array(size).fill(i))
 	game.updateSettings()
+}
+
+/*
+HowTo create a JavaScript function in the 0ad mod autoCiv that changes the map filter? When you get
+HowTo fix the error 'mapFilter is null' in the following JS-function inside file 'gamesetup~!extra_commands' inside the mod autoCiv?
+
+Whey the following function inside 'gamesetup~!extra_commands' of autoCiv dont work and how to fix it?  function setMapFilterTo2() {     var mapFilter = Engine.GetGUIObjectByName("mapFilter");     mapFilter.selected = 2; }
+*/
+
+function setMapFilterTo2() {
+
+	// this.mapTypeFilter = Engine.GetGUIObjectByName("mapTypeFilter"); //  result is null
+	let mapFilter = Engine.GetGUIObjectByName("mapTypeFilter"); // result is null
+    // let mapFilter = Engine.GetGUIObjectByName("mapFilter"); // result is null
+    mapFilter.selected = 2;
 }
