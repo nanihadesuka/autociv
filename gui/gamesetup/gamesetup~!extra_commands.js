@@ -395,6 +395,35 @@ g_NetworkCommands['/profile1'] = text =>
 	g_GameSettings.nomad.enabled = false // works
 	g_GameSettings.mapExploration.enabled = false // todo: dont work
 
+	// Map Type
+	g_GameSettings.map.type = "random" // works
+
+	// Map Filter
+	// this.gameSettingsController.guiData.mapFilter.filter,
+	// g_GameSettings.map.filter.filter = 1 // dont work
+	let doItYourSelfStr = ' Please select this manually. '
+	selfMessage(
+		`"Map Filter": often used "Default". ${doItYourSelfStr} `
+	)
+
+	selfMessage(
+		`"Select Map": often used "Mainland" or "Mainland balanced"(needs FeldFeld-Mod) . ${doItYourSelfStr}`
+	)
+
+
+	if (!g_GameSettings.map.map)
+	{
+		let info = "No selected map"
+		selfMessage(
+			`${info}`
+		  )
+	}else{
+		selfMessage(
+			`map.map = ${g_GameSettings.map.map}`
+		)
+	}
+
+
 
 	game.updateSettings()
 
