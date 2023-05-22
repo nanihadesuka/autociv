@@ -355,136 +355,7 @@ g_NetworkCommands['/gameName'] = text =>
 
 g_NetworkCommands['/profile1'] = text =>
 {
-	// "/alliedViewToggle": "AlliedView will be togled",
-	// g_GameSettings.alliedview = false // AlliedView
-	// g_GameSettings.alliedView.enabled = false // alliedView undefined
-	// g_GameSettings.AlliedView.enabled = false // AlliedView undefined
-	// g_GameSettings.alliedview.enabled = false // alliedview undefined
-
-	// let str = JSON.stringify(g_GameSettings);
-	// warn(str.toString);
-
-	// setEnabled(g_GameSettings.map.type != "scenario");
-		// this.setChecked(g_GameSettings.mapExploration.allied);
-
-	// onPress(checked)
-	// {f
-	// 	g_GameSettings.mapExploration.setAllied(checked);
-	// 	this.gameSettingsController.setNetworkInitAttributes();
-	// }
-
-// // Translation: View what your allies can see.
-// GameSettingControls.AlliedView.prototype.TitleCaption =
-// 	translate("Allied View");
-
-// // Translation: Enable viewing what your allies can see from the start of the game.
-// GameSettingControls.AlliedView.prototype.Tooltip =
-// 	translate("Toggle allied view (see what your allies see).");
-
-
-// alliedViewToggle
-
-	g_GameSettings.mapExploration.allied = true // woks :)  AlliedView
-	// g_GameSettings.mapExploration.allied = true // woks :) AlliedView
-
-
-	g_GameSettings.rating.enabled = false // no error and test in the lobby. it works
-
-	// gui/gamesetup/Pages/GameSetupPage/GameSettings/Single/Checkboxes/Treasures.js
-	g_GameSettings.disableTreasures.enabled = true
-	g_GameSettings.nomad.enabled = false // works
-	g_GameSettings.mapExploration.enabled = false // todo: dont work
-
-	// Map Type
-	g_GameSettings.map.type = "random" // works
-
-	// Map Filter
-	// this.gameSettingsController.guiData.mapFilter.filter,
-	// g_GameSettings.map.filter.filter = 1 // dont work
-	let doItYourSelfStr = ' Please select this manually. '
-	// doItYourSelfStr = ''
-	selfMessage(
-		`"Map Filter": often used "Default". ${doItYourSelfStr} `
-	)
-
-	selfMessage(
-		`"Select Map": often used "Mainland" or "Mainland balanced"(needs FeldFeld-Mod) . `
-	)
-
-
-	var mapNameFilter = Engine.GetGUIObjectByName("mapNameFilter"); // null    - so dont work here
-	selfMessage(
-		`mapNameFilter = ${mapNameFilter}`
-	)
-
-	let selected = g_GameSettings.map.filter.seleced
-	selfMessage(
-		`mapNameFilter.selected = ${selected}`
-	)
-
-
-
-	if (!g_GameSettings.map.filter) // g_GameSettings.filter dont wor
-	{
-		let info = "No selected filter"
-		selfMessage(
-			`${info}`
-		  )
-	}else{
-		selfMessage(
-			`map.filter = ${g_GameSettings.map.filter}`
-		)
-	}
-
-
-
-
-
-	g_GameSettings.map.map = "maps/random/mainland"
-
-	if (!g_GameSettings.map.map)
-	{
-		let info = "No selected map"
-		selfMessage(
-			`${info}`
-		  )
-	}else{
-		selfMessage(
-			`map.map = ${g_GameSettings.map.map}`
-		)
-	}
-
-
-
-	game.updateSettings()
-
-
-	let resources = g_GameSettings.startingResources.resources // works ist a radio selct field
-	let population = g_GameSettings.population.cap // works its a number option vield
-	// let alliedView = g_GameSettings.alliedView.cap
-	// let oldGameName = g_SetupWindow.controls.lobbyGameRegistrationController.serverName
-
-
-	// this.disabled = Engine.ConfigDB_GetValue("user", "autociv.resizebar.enabled") != "true"
-
-	// g_GameSettings.rating.enabled found somwhere i kateAutoCiv
-
-	// warn(g_GameSettings.alliedView.toString)
-	// getKeys(g_GameSettings.alliedView) // alliedView is not defined
-
-	selfMessage(
-		`hi from 363`
-	  )
-	selfMessage(
-		`pop= ${population}`
-	  )
-	selfMessage(
-		`res= ${resources}`
-	  )
-	// selfMessage(
-	// 	`${alliedView}`
-	//   )
-	  return;
+	set2profile1();
 }
 
 
@@ -518,14 +389,8 @@ g_NetworkCommands["/jitsi"] = text =>
 		` this autoCiv-mod modification you could donwload here: ${gitHubLinkAutoCivModificationSL5}`
 	)
 
+	set2profile1()
 
-	let population = 250
-	game.set.population(population)
-
-	g_GameSettings.startingResources.resources = 200
-
-
-	game.updateSettings()
 
 	selfMessage(linkLong)
 	openURL(linkLong) // openURL("https://webchat.quakenet.org/?channels=0ad")
@@ -601,3 +466,143 @@ var getKeys = function(obj){
 	}
 	return keys;
  }
+
+ function set2profile1 ()
+ {
+	// "/alliedViewToggle": "AlliedView will be togled",
+	// g_GameSettings.alliedview = false // AlliedView
+	// g_GameSettings.alliedView.enabled = false // alliedView undefined
+	// g_GameSettings.AlliedView.enabled = false // AlliedView undefined
+	// g_GameSettings.alliedview.enabled = false // alliedview undefined
+
+	// let str = JSON.stringify(g_GameSettings);
+	// warn(str.toString);
+
+	// setEnabled(g_GameSettings.map.type != "scenario");
+		// this.setChecked(g_GameSettings.mapExploration.allied);
+
+	// onPress(checked)
+	// {f
+	// 	g_GameSettings.mapExploration.setAllied(checked);
+	// 	this.gameSettingsController.setNetworkInitAttributes();
+	// }
+
+// // Translation: View what your allies can see.
+// GameSettingControls.AlliedView.prototype.TitleCaption =
+// 	translate("Allied View");
+
+// // Translation: Enable viewing what your allies can see from the start of the game.
+// GameSettingControls.AlliedView.prototype.Tooltip =
+// 	translate("Toggle allied view (see what your allies see).");
+
+
+// alliedViewToggle
+
+	g_GameSettings.mapExploration.allied = true // woks :)  AlliedView
+	// g_GameSettings.mapExploration.allied = true // woks :) AlliedView
+
+
+	g_GameSettings.rating.enabled = false // no error and test in the lobby. it works
+
+	// gui/gamesetup/Pages/GameSetupPage/GameSettings/Single/Checkboxes/Treasures.js
+	g_GameSettings.disableTreasures.enabled = true
+	g_GameSettings.nomad.enabled = false // works
+	g_GameSettings.mapExploration.enabled = false // todo: dont work
+
+	// Map Type
+	g_GameSettings.map.type = "random" // works
+
+	// Map Filter
+	// this.gameSettingsController.guiData.mapFilter.filter,
+	// g_GameSettings.map.filter.filter = 1 // dont work
+	let doItYourSelfStr = ' Please select this manually. '
+	// doItYourSelfStr = ''
+	selfMessage(
+		`"Map Filter": often used "Default". ${doItYourSelfStr} `
+	)
+
+	selfMessage(
+		`"Select Map": often used "Mainland" or "Mainland balanced"(needs FeldFeld-Mod) . `
+	)
+
+
+	// var mapNameFilter = Engine.GetGUIObjectByName("mapNameFilter"); // null    - so dont work here
+	// selfMessage(
+	// 	`mapNameFilter = ${mapNameFilter}`
+	// )
+
+	// let selected = g_GameSettings.map.filter.seleced // dont work errors
+	// selfMessage(
+	// 	`mapNameFilter.selected = ${selected}`
+	// )
+	// let selected2 = g_SetupWindow.controls.map.filter
+	// selfMessage(
+	// 	`2 = ${selected2}`
+	// )
+
+
+
+
+
+	if (!g_GameSettings.map.filter) // g_GameSettings.filter dont wor
+	{
+		let info = "No selected filter"
+		selfMessage(
+			`${info}`
+		  )
+	}else{
+		selfMessage(
+			`map.filter = ${g_GameSettings.map.filter}`
+		)
+	}
+
+
+
+
+
+	g_GameSettings.map.map = "maps/random/mainland"
+
+	if (!g_GameSettings.map.map)
+	{
+		let info = "No selected map"
+		selfMessage(
+			`${info}`
+		  )
+	}else{
+		selfMessage(
+			`map.map = ${g_GameSettings.map.map}`
+		)
+	}
+
+
+
+	game.updateSettings()
+
+
+	let resources = g_GameSettings.startingResources.resources // works ist a radio selct field
+	let population = g_GameSettings.population.cap // works its a number option vield
+	// let alliedView = g_GameSettings.alliedView.cap
+	// let oldGameName = g_SetupWindow.controls.lobbyGameRegistrationController.serverName
+
+
+	// this.disabled = Engine.ConfigDB_GetValue("user", "autociv.resizebar.enabled") != "true"
+
+	// g_GameSettings.rating.enabled found somwhere i kateAutoCiv
+
+	// warn(g_GameSettings.alliedView.toString)
+	// getKeys(g_GameSettings.alliedView) // alliedView is not defined
+
+	selfMessage(
+		`hi from 363`
+	  )
+	selfMessage(
+		`pop= ${population}`
+	  )
+	selfMessage(
+		`res= ${resources}`
+	  )
+	// selfMessage(
+	// 	`${alliedView}`
+	//   )
+	  return;
+}
