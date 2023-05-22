@@ -226,6 +226,9 @@ g_NetworkCommandsDescriptions = Object.assign(g_NetworkCommandsDescriptions, {
   "/list": "List all the players and observers currently here",
   "/clear": "Clear the chat comments",
   "/pMainland_typically_defaults": "set to mainland 250popMax, 300res",
+  "/pMBMainland_typically_defaults":
+    "set to mainland balanced 250popMax, 300res",
+  "/pUnknown_typically_defaults": "set to map called unknown 250popMax, 300res",
   "/pExtinct_volcano": "set to extinct_volcano",
   "/jitsi": "meet.jit.si/anyNameYoutWantHere",
 });
@@ -308,8 +311,14 @@ g_NetworkCommands["/gameName"] = (text) => {
 g_NetworkCommands["/pMainland_typically_defaults"] = (text) => {
   pMainland_typically_defaults();
 };
+g_NetworkCommands["/pMBMainland_typically_defaults"] = (text) => {
+  pMBMainland_typically_defaults();
+};
 g_NetworkCommands["/pExtinct_volcano"] = (text) => {
   pExtinct_volcano();
+};
+g_NetworkCommands["/pUnknown_typically_defaults"] = (text) => {
+  pUnknown();
 };
 
 g_NetworkCommands["/jitsi"] = (text) => {
@@ -465,6 +474,83 @@ function pExtinct_volcano() {
   return populationMax;
 }
 
+function pMBMainland_typically_defaults() {
+  g_GameSettings.mapExploration.allied = true; // woks :)  AlliedView
+  g_GameSettings.rating.enabled = false; // no error and test in the lobby. it works
+  // gui/gamesetup/Pages/GameSetupPage/GameSettings/Single/Checkboxes/Treasures.js
+  g_GameSettings.disableTreasures.enabled = true;
+  g_GameSettings.nomad.enabled = false; // works
+  g_GameSettings.mapExploration.enabled = false; // todo: dont work
+
+  // Map Type
+  g_GameSettings.map.type = "random"; // works
+
+  setMapFilterTo();
+  selfMessage(
+    `"Select Map": often used "Mainland" or "Mainland balanced"(needs FeldFeld-Mod) . `
+  );
+
+  g_GameSettings.map.map = "maps/random/mainland_balanced";
+
+  if (!g_GameSettings.map.map) {
+    let info = "No selected map";
+    selfMessage(`${info}`);
+  } else {
+    selfMessage(`map.map = ${g_GameSettings.map.map}`);
+  }
+
+  setTeams("team 2v2");
+
+  g_GameSettings.startingResources.resources = 300; // works ist a radio selct field
+  g_GameSettings.population.cap = 250; // works its a number option vield
+
+  game.updateSettings();
+
+  let resources = g_GameSettings.startingResources.resources; // works ist a radio selct field
+  let populationMax = g_GameSettings.population.cap; // works its a number option vield
+  selfMessage(`pop= ${populationMax}`);
+  selfMessage(`res= ${resources}`);
+  return populationMax;
+}
+
+function pUnknown() {
+  g_GameSettings.mapExploration.allied = true; // woks :)  AlliedView
+  g_GameSettings.rating.enabled = false; // no error and test in the lobby. it works
+  // gui/gamesetup/Pages/GameSetupPage/GameSettings/Single/Checkboxes/Treasures.js
+  g_GameSettings.disableTreasures.enabled = true;
+  g_GameSettings.nomad.enabled = false; // works
+  g_GameSettings.mapExploration.enabled = false; // todo: dont work
+
+  // Map Type
+  g_GameSettings.map.type = "random"; // works
+
+  setMapFilterTo();
+  selfMessage(
+    `"Select Map": often used "Mainland" or "Mainland balanced"(needs FeldFeld-Mod) . `
+  );
+
+  g_GameSettings.map.map = "maps/random/mainland_unknown";
+
+  if (!g_GameSettings.map.map) {
+    let info = "No selected map";
+    selfMessage(`${info}`);
+  } else {
+    selfMessage(`map.map = ${g_GameSettings.map.map}`);
+  }
+
+  setTeams("team 2v2");
+
+  g_GameSettings.startingResources.resources = 300; // works ist a radio selct field
+  g_GameSettings.population.cap = 250; // works its a number option vield
+
+  game.updateSettings();
+
+  let resources = g_GameSettings.startingResources.resources; // works ist a radio selct field
+  let populationMax = g_GameSettings.population.cap; // works its a number option vield
+  selfMessage(`pop= ${populationMax}`);
+  selfMessage(`res= ${resources}`);
+  return populationMax;
+}
 function pMainland_typically_defaults() {
   g_GameSettings.mapExploration.allied = true; // woks :)  AlliedView
   g_GameSettings.rating.enabled = false; // no error and test in the lobby. it works
@@ -476,40 +562,10 @@ function pMainland_typically_defaults() {
   // Map Type
   g_GameSettings.map.type = "random"; // works
 
-  // Map Filter
-  // this.gameSettingsController.guiData.mapFilter.filter,
-  // g_GameSettings.map.filter.filter = 1 // dont work
-  let doItYourSelfStr = " Please select this manually. ";
-  // doItYourSelfStr = ''
-  selfMessage(`"Map Filter": often used "Default". ${doItYourSelfStr} `);
-
+  setMapFilterTo();
   selfMessage(
     `"Select Map": often used "Mainland" or "Mainland balanced"(needs FeldFeld-Mod) . `
   );
-
-  // var mapNameFilter = Engine.GetGUIObjectByName("mapNameFilter"); // null    - so dont work here
-  // selfMessage(
-  // 	`mapNameFilter = ${mapNameFilter}`
-  // )
-
-  // let selected = g_GameSettings.map.filter.seleced // dont work errors
-  // selfMessage(
-  // 	`mapNameFilter.selected = ${selected}`
-  // )
-  // let selected2 = g_SetupWindow.controls.map.filter
-  // selfMessage(
-  // 	`2 = ${selected2}`
-  // )
-
-  if (!g_GameSettings.map.filter) {
-    // g_GameSettings.filter dont wor
-    let info = "No selected filter";
-    selfMessage(`${info}`);
-  } else {
-    selfMessage(`map.filter = ${g_GameSettings.map.filter}`);
-  }
-
-  setMapFilterTo2(2);
 
   g_GameSettings.map.map = "maps/random/mainland";
 
@@ -582,7 +638,36 @@ The mapFilter is a more complex setting, as it requires more logic and data mani
 How to set the more complex mapFilter and which tiles should be included in the filter while developing a new verson of AutoCiv mod?
 */
 
-function setMapFilterTo2() {
+function setMapFilterTo() {
+  // var mapNameFilter = Engine.GetGUIObjectByName("mapNameFilter"); // null    - so dont work here
+  // selfMessage(
+  // 	`mapNameFilter = ${mapNameFilter}`
+  // )
+
+  // let selected = g_GameSettings.map.filter.seleced // dont work errors
+  // selfMessage(
+  // 	`mapNameFilter.selected = ${selected}`
+  // )
+  // let selected2 = g_SetupWindow.controls.map.filter
+  // selfMessage(
+  // 	`2 = ${selected2}`
+  // )
+
+  if (!g_GameSettings.map.filter) {
+    // g_GameSettings.filter dont wor
+    let info = "No selected filter";
+    selfMessage(`${info}`);
+  } else {
+    selfMessage(`map.filter = ${g_GameSettings.map.filter}`);
+  }
+
+  // Map Filter
+  // this.gameSettingsController.guiData.mapFilter.filter,
+  // g_GameSettings.map.filter.filter = 1 // dont work
+  let doItYourSelfStr = " Please select this manually. ";
+  // doItYourSelfStr = ''
+  selfMessage(`"Map Filter": often used "Default". ${doItYourSelfStr} `);
+
   // TODO: how to do this? 23-0522_1624-23
 
   // this.mapTypeFilter = Engine.GetGUIObjectByName("mapTypeFilter"); //  result is null
