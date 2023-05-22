@@ -411,7 +411,20 @@ g_NetworkCommands['/profile1'] = text =>
 		`"Select Map": often used "Mainland" or "Mainland balanced"(needs FeldFeld-Mod) . `
 	)
 
-	if (!g_GameSettings.filter)
+
+	var mapNameFilter = Engine.GetGUIObjectByName("mapNameFilter"); // null    - so dont work here
+	selfMessage(
+		`mapNameFilter = ${mapNameFilter}`
+	)
+
+	let selected = g_GameSettings.map.filter.seleced
+	selfMessage(
+		`mapNameFilter.selected = ${selected}`
+	)
+
+
+
+	if (!g_GameSettings.map.filter) // g_GameSettings.filter dont wor
 	{
 		let info = "No selected filter"
 		selfMessage(
@@ -419,7 +432,7 @@ g_NetworkCommands['/profile1'] = text =>
 		  )
 	}else{
 		selfMessage(
-			`map.map = ${g_GameSettings.filter}`
+			`map.filter = ${g_GameSettings.map.filter}`
 		)
 	}
 
