@@ -1,4 +1,4 @@
-var linkidShort = Date.now().toString().substring(10);
+var g_linkLong = null; // init should be available during the game and not changed
 var game = {
   // stuff that needs to be updated after the gui updates it (as it removes it before it)
   // undefined will mean it doesnt exist
@@ -233,6 +233,8 @@ g_NetworkCommandsDescriptions = Object.assign(g_NetworkCommandsDescriptions, {
     "set to map unknown, 250popMax, 300res, and more",
   "/pExtinct_volcano_typically_defaults":
     "set to extinct_volcano and other defaults",
+  "/jitsi":
+    "Create a game call and set a TG config. Uses jitsi (meet.jit.si/anyNameYoutWantHere) service. ",
   "/jitsiPlus":
     "Create a game call and set a TG config. Uses jitsi (meet.jit.si/anyNameYoutWantHere) service. And rename the Game Name(experimental). ",
 });
@@ -354,7 +356,12 @@ Jitsi: Quick team calls, no setup, audio chat.
     `write /link to open a link in your WebBrowser if you have autoCiv-mod installed to open a link more easy.`
   );
 
-  let linkLong = `https://meet.jit.si/0ad${linkidShort}audio`;
+  if (g_linkLong == null) {
+    let linkidShort = Date.now().toString().substring(10);
+    // not open this link always. if you have it already probably
+    g_linkLong = `https://meet.jit.si/0ad${linkidShort}audio`;
+    openURL(g_linkLong);
+  }
 
   let linkTeam1example = `https://meet.jit.si/0ad${linkidShort}team123`;
   selfMessage(
@@ -367,19 +374,29 @@ Jitsi: Quick team calls, no setup, audio chat.
 
   let populationMax = pMainland_typically_defaults();
 
-  selfMessage(linkLong);
-  openURL(linkLong); // openURL("https://webchat.quakenet.org/?channels=0ad")
+  selfMessage(g_linkLong);
 
   // let gameTextJitsiExplainded = `want use Jitsi as a fully encrypted, open source video conferencing, with no account needed.`
-  // gameText = ` ${textBest} ${linkLong} `;
+  // gameText = ` ${textBest} ${g_linkLong} `;
 
   let resources = g_GameSettings.startingResources.resources; // works ist a radio selct field
 
   let gameTitleInLobby = ``;
-  // let gameText = `jitsi | ${textBest} ${linkLong}`;
-  //    gameText = `jitsi | ${textBest} ${linkLong}`;
-  gameTitleInLobby = `unrated | ${jitsi8words} ${linkLong} | ${populationMax}popMax, ${resources}res`; // 250popMax, 300res
+  gameTitleInLobby = `unrated | ${jitsi8words} ${g_linkLong} | ${populationMax}popMax, ${resources}res`; // 250popMax, 300res
   return setGameNameInLobby(gameTitleInLobby);
+};
+
+g_NetworkCommands["/jitsi"] = (text) => {
+  if (g_linkLong == null) {
+    let linkidShort = Date.now().toString().substring(10);
+    // not open this link always. if you have it already probably
+    g_linkLong = `https://meet.jit.si/0ad${linkidShort}audio`;
+    openURL(g_linkLong);
+  }
+  let linkTeam1example = `https://meet.jit.si/0ad${linkidShort}team123`;
+  selfMessage(
+    ` recommendation: send later in your private team-game-chat a other unique link for audio chat. Example:  ${linkTeam1example}`
+  );
 };
 
 g_NetworkCommands["/team"] = (text) => game.set.teams(text);
@@ -448,6 +465,8 @@ function pExtinct_volcano_typically_defaults() {
   // doItYourSelfStr = ''
 
   g_GameSettings.map.map = "maps/random/extinct_volcano";
+
+  // game.updateSettings(); // sometimes onle names but not thgit clone https://gitlab.com/myproject.gitgit clone https://gitlab.com/myproject.gitgit clone https://gitlab.com/myproject.gitgit clone https://gitlab.com/myproject.gitgit clone https://gitlab.com/myproject.gitgit clone https://gitlab.com/myproject.gitgit clone https://gitlab.com/myproject.gite map was realls loadet. therfore i try the   game.updateSettings(); also add this place
 
   //   #: gui/gamesetup/Pages/GameSetupPage/GameSettings/Single/Sliders/SeaLevelRiseTime.js:38
   // msgid "Sea Level Rise Time"
