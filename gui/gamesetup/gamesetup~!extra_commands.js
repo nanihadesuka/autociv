@@ -225,12 +225,16 @@ g_NetworkCommandsDescriptions = Object.assign(g_NetworkCommandsDescriptions, {
   "/banspecs": "Ban all specs",
   "/list": "List all the players and observers currently here",
   "/clear": "Clear the chat comments",
-  "/pMainland_typically_defaults": "set to mainland 250popMax, 300res",
+  "/pMainland_typically_defaults":
+    "set to mainland, 250popMax, 300res, and more",
   "/pMBMainland_typically_defaults":
     "set to mainland balanced 250popMax, 300res",
-  "/pUnknown_typically_defaults": "set to map called unknown 250popMax, 300res",
-  "/pExtinct_volcano": "set to extinct_volcano",
-  "/jitsi": "meet.jit.si/anyNameYoutWantHere",
+  "/pUnknown_typically_defaults":
+    "set to map unknown, 250popMax, 300res, and more",
+  "/pExtinct_volcano_typically_defaults":
+    "set to extinct_volcano and other defaults",
+  "/jitsiPlus":
+    "Create a game call and set a TG config. Uses jitsi (meet.jit.si/anyNameYoutWantHere) service. And rename the Game Name(experimental). ",
 });
 
 g_NetworkCommands["/help"] = () => {
@@ -314,14 +318,14 @@ g_NetworkCommands["/pMainland_typically_defaults"] = (text) => {
 g_NetworkCommands["/pMBMainland_typically_defaults"] = (text) => {
   pMBMainland_typically_defaults();
 };
-g_NetworkCommands["/pExtinct_volcano"] = (text) => {
-  pExtinct_volcano();
+g_NetworkCommands["/pExtinct_volcano_typically_defaults"] = (text) => {
+  pExtinct_volcano_typically_defaults();
 };
 g_NetworkCommands["/pUnknown_typically_defaults"] = (text) => {
   pUnknown();
 };
 
-g_NetworkCommands["/jitsi"] = (text) => {
+g_NetworkCommands["/jitsiPlus"] = (text) => {
   // selfMessage(`meet.jit.si/anyNameYoutWantHere`);
 
   /*
@@ -431,7 +435,7 @@ var getKeys = function (obj) {
   return keys;
 };
 
-function pExtinct_volcano() {
+function pExtinct_volcano_typically_defaults() {
   g_GameSettings.mapExploration.allied = true; // woks :)  AlliedView
   g_GameSettings.rating.enabled = false; // no error and test in the lobby. it works
   g_GameSettings.disableTreasures.enabled = true;
