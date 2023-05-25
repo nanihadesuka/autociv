@@ -524,8 +524,19 @@ function pMBMainland_typically_defaults() {
 
   setTeams("team 2v2");
 
+  let popMaxDefault = Engine.ConfigDB_GetValue(
+    "user",
+    "autociv.TGmainland.PopMaxDefault"
+  );
+  if (!popMaxDefault) {
+    popMaxDefault = 200;
+    selfMessage(
+      "you could set PopMax in your user.cfg. Example: autociv.TGmainland.PopMaxDefault = 200"
+    );
+  }
+  g_GameSettings.population.cap = popMaxDefault; // works its a number option vield
+
   g_GameSettings.startingResources.resources = 300; // works ist a radio selct field
-  g_GameSettings.population.cap = 250; // works its a number option vield
 
   game.updateSettings();
 
@@ -601,18 +612,18 @@ function pMainland_typically_defaults() {
 
   setTeams("team 2v2");
 
-  selfMessage(
-    "you could set PopMax in your user.cfg. Example: autociv.TGmainland.PopMaxDefault = 200"
-  );
-
   let popMaxDefault = Engine.ConfigDB_GetValue(
     "user",
     "autociv.TGmainland.PopMaxDefault"
   );
-  if (!popMaxDefault) popMaxDefault = 200;
-
-  g_GameSettings.startingResources.resources = 300; // works ist a radio selct field
+  if (!popMaxDefault) {
+    popMaxDefault = 200;
+    selfMessage(
+      "you could set PopMax in your user.cfg. Example: autociv.TGmainland.PopMaxDefault = 200"
+    );
+  }
   g_GameSettings.population.cap = popMaxDefault; // works its a number option vield
+  g_GameSettings.startingResources.resources = 300; // works ist a radio selct field
 
   game.updateSettings();
 
