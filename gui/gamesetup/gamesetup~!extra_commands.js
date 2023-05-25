@@ -618,6 +618,8 @@ function setTeams(text) {
   if (g_GameSettings.mapType == "scenario")
     return selfMessage("Can't set teams with map type scenario.");
 
+  // selfMessage(`version= ${version}`); // dont work? howto get 0ad version?
+
   let teams = text.trim().toLowerCase();
   if ("ffa" == teams) {
     g_GameSettings.playerTeam.values = g_GameSettings.playerTeam.values.map(
