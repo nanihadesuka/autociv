@@ -225,14 +225,11 @@ g_NetworkCommandsDescriptions = Object.assign(g_NetworkCommandsDescriptions, {
   "/banspecs": "Ban all specs",
   "/list": "List all the players and observers currently here",
   "/clear": "Clear the chat comments",
-  "/pMainland_typically_defaults":
-    "set to mainland, 250popMax, 300res, and more",
-  "/pMBMainland_typically_defaults":
-    "set to mainland balanced 250popMax, 300res",
-  "/pUnknown_typically_defaults":
-    "set to map unknown, 250popMax, 300res, and more",
-  "/pExtinct_volcano_typically_defaults":
-    "set to extinct_volcano and other defaults",
+  "/pMainland_1v1_defaults": "set to mainland, popMax, 300res, and more",
+  "/pMainland_defaults": "set to mainland, popMax, 300res, and more",
+  "/pMBMainland_defaults": "set to mainland balanced popMax, 300res",
+  "/pUnknown_defaults": "set to map unknown, popMax, 300res, and more",
+  "/pExtinct_volcano_defaults": "set to extinct_volcano and other defaults",
   "/jitsi":
     "Create a game call and set a TG config. Uses jitsi (meet.jit.si/anyNameYoutWantHere) service. ",
   "/jitsiPlus":
@@ -314,16 +311,19 @@ g_NetworkCommands["/gameName"] = (text) => {
   return setGameNameInLobby(text);
 };
 
-g_NetworkCommands["/pMainland_typically_defaults"] = (text) => {
-  pMainland_typically_defaults();
+g_NetworkCommands["/pMainland_1v1_defaults"] = (text) => {
+  pMainland_1v1_defaults();
 };
-g_NetworkCommands["/pMBMainland_typically_defaults"] = (text) => {
-  pMBMainland_typically_defaults();
+g_NetworkCommands["/pMainland_defaults"] = (text) => {
+  pMainland_defaults();
 };
-g_NetworkCommands["/pExtinct_volcano_typically_defaults"] = (text) => {
-  pExtinct_volcano_typically_defaults();
+g_NetworkCommands["/pMBMainland_defaults"] = (text) => {
+  pMBMainland_defaults();
 };
-g_NetworkCommands["/pUnknown_typically_defaults"] = (text) => {
+g_NetworkCommands["/pExtinct_volcano_defaults"] = (text) => {
+  pExtinct_volcano_defaults();
+};
+g_NetworkCommands["/pUnknown_defaults"] = (text) => {
   pUnknown();
 };
 
@@ -372,7 +372,7 @@ Jitsi: Quick team calls, no setup, audio chat.
     ` this autoCiv-mod modification you could donwload here: ${gitHubLinkAutoCivModificationSL5}`
   );
 
-  let populationMax = pMainland_typically_defaults();
+  let populationMax = pMainland_defaults();
 
   selfMessage(g_linkLong);
 
@@ -382,7 +382,7 @@ Jitsi: Quick team calls, no setup, audio chat.
   let resources = g_GameSettings.startingResources.resources; // works ist a radio selct field
 
   let gameTitleInLobby = ``;
-  gameTitleInLobby = `unrated | ${jitsi8words} ${g_linkLong} | ${populationMax}popMax, ${resources}res`; // 250popMax, 300res
+  gameTitleInLobby = `unrated | ${jitsi8words} ${g_linkLong} | ${populationMax}popMax, ${resources}res`; // popMax, 300res
   return setGameNameInLobby(gameTitleInLobby);
 };
 
@@ -452,7 +452,7 @@ var getKeys = function (obj) {
   return keys;
 };
 
-function pExtinct_volcano_typically_defaults() {
+function pExtinct_volcano_defaults() {
   g_GameSettings.mapExploration.allied = true; // woks :)  AlliedView
   g_GameSettings.rating.enabled = false; // no error and test in the lobby. it works
   g_GameSettings.disableTreasures.enabled = true;
@@ -497,7 +497,7 @@ function pExtinct_volcano_typically_defaults() {
   return populationMax;
 }
 
-function pMBMainland_typically_defaults() {
+function pMBMainland_defaults() {
   g_GameSettings.mapExploration.allied = true; // woks :)  AlliedView
   g_GameSettings.rating.enabled = false; // no error and test in the lobby. it works
   // gui/gamesetup/Pages/GameSetupPage/GameSettings/Single/Checkboxes/Treasures.js
@@ -585,7 +585,55 @@ function pUnknown() {
   selfMessage(`res= ${resources}`);
   return populationMax;
 }
-function pMainland_typically_defaults() {
+function pMainland_1v1_defaults() {
+  setTeams("team 1v1");
+  game.updateSettings();
+  g_GameSettings.mapExploration.allied = true; // woks :)  AlliedView
+  g_GameSettings.rating.enabled = false; // no error and test in the lobby. it works
+  // gui/gamesetup/Pages/GameSetupPage/GameSettings/Single/Checkboxes/Treasures.js
+  g_GameSettings.disableTreasures.enabled = true;
+  g_GameSettings.nomad.enabled = false; // works
+  g_GameSettings.mapExploration.enabled = false; // todo: dont work
+
+  // Map Type
+  g_GameSettings.map.type = "random"; // works
+
+  setMapFilterTo();
+  selfMessage(
+    `"Select Map": often used "Mainland" or "Mainland balanced"(needs FeldFeld-Mod) . `
+  );
+
+  g_GameSettings.map.map = "maps/random/mainland";
+
+  if (!g_GameSettings.map.map) {
+    let info = "No selected map";
+    selfMessage(`${info}`);
+  } else {
+    selfMessage(`map.map = ${g_GameSettings.map.map}`);
+  }
+
+  let popMaxDefault = Engine.ConfigDB_GetValue(
+    "user",
+    "autociv.TGmainland.PopMaxDefault"
+  );
+  if (!popMaxDefault) {
+    popMaxDefault = 200;
+    selfMessage(
+      "you could set PopMax in your user.cfg. Example: autociv.TGmainland.PopMaxDefault = 200"
+    );
+  }
+  g_GameSettings.population.cap = popMaxDefault; // works its a number option vield
+  g_GameSettings.startingResources.resources = 300; // works ist a radio selct field
+
+  game.updateSettings();
+
+  let resources = g_GameSettings.startingResources.resources; // works ist a radio selct field
+  let populationMax = g_GameSettings.population.cap; // works its a number option vield
+  selfMessage(`pop= ${populationMax}`);
+  selfMessage(`res= ${resources}`);
+  return populationMax;
+}
+function pMainland_defaults() {
   g_GameSettings.mapExploration.allied = true; // woks :)  AlliedView
   g_GameSettings.rating.enabled = false; // no error and test in the lobby. it works
   // gui/gamesetup/Pages/GameSetupPage/GameSettings/Single/Checkboxes/Treasures.js
