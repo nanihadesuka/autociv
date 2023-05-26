@@ -41,7 +41,7 @@ class BotManager {
    * @returns {Boolean} - True means to stop message flow
    */
   react(msg) {
-    return false; // try make it work in A27 experimental 23-0525_0824-26
+    // return false; // try make it work in A27 experimental 23-0525_0824-26
     let data = this.pipe(msg);
     if (!data) return false;
 

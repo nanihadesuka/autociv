@@ -90,8 +90,7 @@ function autociv_getAvailableFonts() {
     });
 }
 
-// try make it work in A27 experimental 23-0525_0824-26
-return true;
+// return true; // try make it work in A27 experimental 23-0525_0824-26
 
 if (!global.g_autociv_optionsFiles)
   var g_autociv_optionsFiles = ["gui/options/options.json"];

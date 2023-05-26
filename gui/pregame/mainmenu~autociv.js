@@ -72,8 +72,7 @@ function autociv_initCheck() {
   return state;
 }
 
-return true;
-// try make it work in A27 experimental 23-0525_0824-26
+// return true; // try make it work in A27 experimental 23-0525_0824-26
 
 Engine.SetGlobalHotkey("autociv.open.autociv_readme", "Press", () => {
   Engine.PushGuiPage("page_autociv_readme.xml");
