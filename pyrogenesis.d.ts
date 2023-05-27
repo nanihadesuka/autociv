@@ -1,7 +1,7 @@
 declare namespace Engine
 {
 	/**
-	 * Flags the start of a profiling with the indentifier "name"
+	 * Flags the start of a profiling with the identifier "name"
 	 */
 	function ProfileStart(name: string): void;
 
@@ -64,7 +64,7 @@ declare function error(text: string): void;
 declare function clone(data: any): any | undefined;
 
 /**
- * Deep freeez object (recusive freezed)
+ * Deep freeez object (recursive freezed)
  * @returns deep freezed object
  */
 declare function deepfreeze(object: object): object | undefined;

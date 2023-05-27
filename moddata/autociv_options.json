@@ -56,6 +56,22 @@
 			},
 			{
 				"type": "boolean",
+				"label": "[color=\"220 185 70\"]Game:[/color] Symbolize the rating",
+				"tooltip": "Transform the user rating or the AI difficulty level into an icon to indicate their strength.\n\n[color=\"220 185 70\"]\u25B2[/color]  Top\n[color=\"220 185 70\"]\u25C6[/color]  Good\n[color=\"220 185 70\"]\u25A0[/color]  Decent\n[color=\"220 185 70\"]\u25AC[/color]  Beginner\n[color=\"220 185 70\"]\u25A1[/color]  Noob\n",
+				"config": "autociv.session.statsOverlay.symbolizeRating",
+				"dependencies": ["autociv.session.statsOverlay.visible"]
+			},
+			{
+				"type": "slider",
+				"label": "[color=\"220 185 70\"]Game:[/color] Brightness of player names",
+				"tooltip": "Adjust the brightness intensity for the player names.",
+				"config": "autociv.session.statsOverlay.brightnessThreshold",
+				"dependencies": ["autociv.session.statsOverlay.visible"],
+				"min": 50,
+				"max": 150
+			},
+			{
+				"type": "boolean",
 				"label": "[color=\"220 185 70\"]Game:[/color] players overlay visible",
 				"tooltip": "Show observers and offline players in an overlay",
 				"config": "autociv.session.playersOverlay.visible"
@@ -83,7 +99,7 @@
 				"type": "boolean",
 				"label": "[color=\"220 185 70\"]Game:[/color] Default stance healers",
 				"tooltip": "Default stance healers have when they spawn",
-				"config": "autociv.session.setHealersInitialStanceAgressive"
+				"config": "autociv.session.setHealersInitialStanceAggressive"
 			},
 			{
 				"type": "boolean",

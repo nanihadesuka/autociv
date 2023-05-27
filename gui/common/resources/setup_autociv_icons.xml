@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- this file is included through page_session.xml -->
+<setup>
+	<icon name="icon_defeated_autociv"
+		sprite="stretched:color:128 128 128 128:textureAsMask:session/icons/kill_small_disabled.png"
+		size="18 12"
+	/>
+	<icon name="icon_won_autociv"
+		sprite="stretched:session/auras/xp.png"
+		size="18 12"
+	/>
+</setup>

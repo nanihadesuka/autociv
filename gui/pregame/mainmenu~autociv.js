@@ -34,7 +34,7 @@ function autociv_initCheck()
             for (let key in settings)
                 config.set(key, settings[key]);
             config.save()
-            state.reasons.add("AutoCiv settings reseted by user.");
+            state.reasons.add("AutoCiv settings reset by user.");
             return state;
         }
 

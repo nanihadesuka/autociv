@@ -7,7 +7,7 @@
  * 4. By similarity score (lookahead match)
  * 5. Entry is discarded if one of the previous don't apply
  *
- * @param {string} input text to seach for
+ * @param {string} input text to search for
  * @param {string[] | object[]} list
  * @param {string} [key] text to use if the list is made up of objects
  */
