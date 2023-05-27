@@ -372,16 +372,14 @@ botManager.addBot("autociv", {
 
 		let clean = text => text.trim().split(" ")[0].toLowerCase();
 		let firstWord = clean(data.message);
-		if (firstWord.length < 4) // Ignore if less than 4 char
-			return;
 
 		// Ignore if text is player name (to avoid similarity with civ names)
 		if (game.get.players.name().some(name => firstWord == clean(name)))
 			return;
 
+
 		// Special case: spec makes a player observer.
-		if (firstWord == "spec")
-		{
+		if (firstWord == "spec") {
 			game.set.player.observer(data.sender);
 			return;
 		}
@@ -390,11 +388,13 @@ botManager.addBot("autociv", {
 		if (
 			firstWord == "play" &&
 			Engine.ConfigDB_GetValue("user", "autociv.gamesetup.play.enabled") == "true"
-		)
-		{
+		) {
 			game.set.player.play(data.sender);
 			return;
 		}
+
+		if (firstWord.length < 3) // Ignore if less than 3 char
+			return;
 
 		game.set.player.civ(data.sender, this.searchForCivInText(firstWord));
 	},
