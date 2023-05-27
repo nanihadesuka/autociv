@@ -293,7 +293,7 @@ g_NetworkCommands['/help'] = () =>
 g_NetworkCommands['/playToggle'] = () => {
 	const key = "autociv.gamesetup.play.enabled"
 	const enabled = Engine.ConfigDB_GetValue("user", key) == "true"
-	Engine.ConfigDB_CreateAndWriteValueToFile("user", key, enabled ? "false" : "true", "config/user.cfg")
+	Engine.ConfigDB_CreateAndSaveValue("user", key, enabled ? "false" : "true")
 	selfMessage(`Player play autoassign slot ${enabled ? "enabled" : "disabled"}`)
 }
 
