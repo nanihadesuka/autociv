@@ -706,6 +706,7 @@ function setTeams(text) {
   if (teams == null) return selfMessage("Invalid input.");
 
   if (text.indexOf("v") > 0 && !teams[1]) {
+    // little feater. you dont need wirte always the second number. default (if its empty) the fist number
     teams[1] = teams[0]; // if is a 'v' inside and second empty use the first number also. if you want dont have a second team dont write v
     // selfMessage(`teams0= ${teams[0]}`);
     // selfMessage(`teams1= ${teams[1]}`);
