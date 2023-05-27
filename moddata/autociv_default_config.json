@@ -13,8 +13,6 @@
 	"autociv.resizebar.enabled": "true",
 	"autociv.session.chatPanel.size.change": "false",
 	"autociv.session.chatPanel.size": "0 130 100% 100%-240",
-	"autociv.session.chatText.font.change": "false",
-	"autociv.session.chatText.font": "sans-bold-stroke-14",
 	"autociv.session.statsOverlay.visible": "true",
 	"autociv.session.playersOverlay.visible": "true",
 	"autociv.session.setHealersInitialStanceAgressive": "false",

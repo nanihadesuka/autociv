@@ -12,9 +12,9 @@
 #*.bat
 #/tsconfig.json
 #/.pyromodignore
-#/autociv_data/EngineMethods.txt
-#/autociv_data/SDL_keycode_constant_to_0ad_key.json
-#/autociv_data/SDL_keycode_value_to_constant.json
+#/moddata/autociv_autociv_EngineMethods.txt
+#/moddata/autociv_SDL_keycode_constant_to_0ad_key.json
+#/moddata/autociv_SDL_keycode_value_to_constant.json
 
-/autociv_data/0ad_default.cfg
-/autociv_data/0ad_keys.txt
+/moddata/autociv_0ad_default.cfg
+/moddata/autociv_0ad_keys.txt

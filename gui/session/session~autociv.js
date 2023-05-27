@@ -46,11 +46,6 @@ function autociv_SetChatTextFromConfig()
 	const changeSize = Engine.ConfigDB_GetValue("user", "autociv.session.chatPanel.size.change") == "true"
 	const size = changeSize ? Engine.ConfigDB_GetValue("user", "autociv.session.chatPanel.size") : that.default_size
 	Engine.GetGUIObjectByName("chatPanel").size = size
-
-	const changeFont = Engine.ConfigDB_GetValue("user", "autociv.session.chatText.font.change") == "true"
-	const font = changeFont ? Engine.ConfigDB_GetValue("user", "autociv.session.chatText.font") : that.default_font
-	for (let child of Engine.GetGUIObjectByName("chatLines").children)
-		child.font = font
 }
 
 function getGuiObjectsWithHotkey()

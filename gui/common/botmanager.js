@@ -403,7 +403,7 @@ botManager.addBot("autociv", {
 		/**
 		 * customNamesCivs: Mod independent (ignores civs not in current
 		 * enabled mod).
-		 * Loaded from file "autociv_data/civilizations.json".
+		 * Loaded from file "moddata/autociv_civilizations.json".
 		 * You can add any new civ code name you want from any civ you made.
 		 * E.g. if you make a new civ called "FoobarCiv", then your civ
 		 * code will be "foo" and the possible entries ["foo"(civ code
@@ -414,7 +414,7 @@ botManager.addBot("autociv", {
 		 */
 
 		// Load custom civ names.
-		let customNamesCivs = Engine.ReadJSONFile("autociv_data/civilizations.json");
+		let customNamesCivs = Engine.ReadJSONFile("moddata/autociv_civilizations.json");
 
 		// Clear and fill this.fuzzySearch
 		this.generateFuzzySearcher.loaded = true;
