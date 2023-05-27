@@ -56,83 +56,34 @@ g_OptionType["autociv_number_int"] = {
 			})
 }
 
-g_OptionType["autociv_dropdown_runtime_load"] = {
-	"objectType": "dropdown",
-	"configToValue": value => value,
-	"valueToGui": (value, control) =>
-	{
-		control.selected = control.list_data.indexOf(value);
-	},
-	"guiToValue": control => control.list_data[control.selected],
-	"guiSetter": "onSelectionChange",
-	"initGUI": (option, control) =>
-	{
-		if (!option.list)
-			option.list = global[option.autociv_list_load]()
-
-		control.list = option.list.map(e => e.label);
-		control.list_data = option.list.map(e => e.value);
-		control.onHoverChange = () =>
-		{
-			let item = option.list[control.hovered];
-			control.tooltip = item && item.tooltip || option.tooltip;
-		};
+autociv_patchApplyN("init", function (target, that, args) {
+	// Another day another hacky solution
+	let temp = global["translateObjectKeys"]
+	let notAlreadyCalled = true
+	global["translateObjectKeys"] = function (object, keys) {
+		if (notAlreadyCalled) {
+			notAlreadyCalled = false
+			Array.prototype.push.apply(object, Engine.ReadJSONFile("moddata/autociv_options.json"))
+		}
+		temp(object, keys)
 	}
-}
-
-function autociv_getAvailableFonts()
-{
-	return Engine.ListDirectoryFiles("fonts/", "*").
-		map(v => v.match(/fonts\/(.+)\.fnt/)?.[1]).
-		filter(v => v).
-		map(v => { return { "value": v, "label": v } })
-}
-
-if (!global.g_autociv_optionsFiles)
-	var g_autociv_optionsFiles = ["gui/options/options.json"]
-g_autociv_optionsFiles.push("autociv_data/options.json")
-
-init = function (data, hotloadData)
-{
-	g_ChangedKeys = hotloadData ? hotloadData.changedKeys : new Set();
-	g_TabCategorySelected = hotloadData ? hotloadData.tabCategorySelected : 0;
-
-	// CHANGES START /////////////////////////
-	g_Options = []
-	for (let options of g_autociv_optionsFiles)
-		Array.prototype.push.apply(g_Options, Engine.ReadJSONFile(options))
-	// CHANGES END /////////////////////////
-
-	translateObjectKeys(g_Options, ["label", "tooltip"]);
-
-	// DISABLE IF DATA IS LOADED DYNAMICALLY
-	// deepfreeze(g_Options);
-
-	placeTabButtons(
-		g_Options,
-		false,
-		g_TabButtonHeight,
-		g_TabButtonDist,
-		selectPanel,
-		displayOptions);
-}
+	target.apply(that, args);
+	global["translateObjectKeys"] = temp
+})
 
 /**
  * Sets up labels and controls of all options of the currently selected category.
  */
-displayOptions = function ()
-{
+displayOptions = function () {
 	// Hide all controls
-	for (let body of Engine.GetGUIObjectByName("option_controls").children)
-	{
+	for (let body of Engine.GetGUIObjectByName("option_controls").children) {
 		body.hidden = true;
 		for (let control of body.children)
 			control.hidden = true;
 	}
 
 	// Initialize label and control of each option for this category
-	for (let i = 0; i < g_Options[g_TabCategorySelected].options.length; ++i)
-	{
+	for (let i = 0; i < g_Options[g_TabCategorySelected].options.length; ++i) {
 		// Position vertically
 		let body = Engine.GetGUIObjectByName("option_control[" + i + "]");
 		let bodySize = body.size;
@@ -146,8 +97,13 @@ displayOptions = function ()
 		let optionType = g_OptionType[option.type];
 		let value = optionType.configToValue(Engine.ConfigDB_GetValue("user", option.config));
 
+		// ** START CHANGE HERE **
 		// Setup control
-		let control = Engine.GetGUIObjectByName("option_control_" + (g_OptionType[option.type].objectType ?? option.type) + "[" + i + "]");
+		const custom_objectType = g_OptionType[option.type].objectType ?? option.type
+		let control = Engine.GetGUIObjectByName("option_control_" + custom_objectType + "[" + i + "]");
+		// let control = Engine.GetGUIObjectByName("option_control_" + option.type + "[" + i + "]");
+		// ** END CHANGE HERE **
+
 		control.tooltip = option.tooltip + (optionType.tooltip ? "\n" + optionType.tooltip(value, option) : "");
 		control.hidden = false;
 
@@ -159,21 +115,25 @@ displayOptions = function ()
 		if (optionType.sanitizeValue)
 			optionType.sanitizeValue(value, control, option);
 
-		control[optionType.guiSetter] = function ()
-		{
+		control[optionType.guiSetter] = function () {
 
 			let value = optionType.guiToValue(control);
 
 			if (optionType.sanitizeValue)
 				optionType.sanitizeValue(value, control, option);
 
+			const oldValue = optionType.configToValue(Engine.ConfigDB_GetValue("user", option.config));
+
 			control.tooltip = option.tooltip + (optionType.tooltip ? "\n" + optionType.tooltip(value, option) : "");
 
+			const hasChanges = Engine.ConfigDB_HasChanges("user");
 			Engine.ConfigDB_CreateValue("user", option.config, String(value));
-			Engine.ConfigDB_SetChanges("user", true);
 
 			g_ChangedKeys.add(option.config);
 			fireConfigChangeHandlers(new Set([option.config]));
+
+			if (option.timeout)
+				optionType.timeout(option, oldValue, hasChanges, value);
 
 			if (option.function)
 				Engine[option.function](value);
@@ -199,34 +159,34 @@ displayOptions = function ()
 
 enableButtons = function ()
 {
-	g_Options[g_TabCategorySelected].options.forEach((option, i) =>
-	{
-		const isDependencyMet = (dependency) => {
+	g_Options[g_TabCategorySelected].options.forEach((option, i) => {
+		const isDependencyMet = dependency => {
 			if (typeof dependency === "string")
 				return Engine.ConfigDB_GetValue("user", dependency) == "true";
 			else if (typeof dependency === "object") {
 				const availableOps = {
-				"==": (config, value) => config == value,
-				"!=": (config, value) => config != value,
+					"==": (config, value) => config == value,
+					"!=": (config, value) => config != value
 				};
 				const op = availableOps[dependency.op] || availableOps["=="];
-				return op(
-				Engine.ConfigDB_GetValue("user", dependency.config),
-				dependency.value
-				);
+				return op(Engine.ConfigDB_GetValue("user", dependency.config), dependency.value);
 			}
 			error("Unsupported dependency: " + uneval(dependency));
 			return false;
 		};
 
-    	const enabled = !option.dependencies || option.dependencies.every(isDependencyMet);
+		const enabled = !option.dependencies || option.dependencies.every(isDependencyMet);
 
-		const objectType = g_OptionType[option.type].objectType ?? option.type
 		Engine.GetGUIObjectByName("option_label[" + i + "]").enabled = enabled;
-		Engine.GetGUIObjectByName("option_control_" + objectType + "[" + i + "]").enabled = enabled;
+
+		// ** START CHANGE HERE **
+		const custom_objectType = g_OptionType[option.type].objectType ?? option.type
+		Engine.GetGUIObjectByName("option_control_" + custom_objectType + "[" + i + "]").enabled = enabled;
+		// Engine.GetGUIObjectByName("option_control_" + option.type + "[" + i + "]").enabled = enabled;
+		// ** END CHANGE HERE **
 	});
 
-	let hasChanges = Engine.ConfigDB_HasChanges("user");
+	const hasChanges = Engine.ConfigDB_HasChanges("user");
 	Engine.GetGUIObjectByName("revertChanges").enabled = hasChanges;
 	Engine.GetGUIObjectByName("saveChanges").enabled = hasChanges;
 }

@@ -103,11 +103,10 @@ AutocivControls.StatsOverlay = class
     toggle()
     {
         this.autociv_statsOverlay.hidden = !this.autociv_statsOverlay.hidden
-        Engine.ConfigDB_CreateAndWriteValueToFile(
+        Engine.ConfigDB_CreateAndSaveValue(
             "user",
             this.configKey_visible,
-            this.autociv_statsOverlay.hidden ? "false" : "true",
-            "config/user.cfg"
+            this.autociv_statsOverlay.hidden ? "false" : "true"
         )
     }
 

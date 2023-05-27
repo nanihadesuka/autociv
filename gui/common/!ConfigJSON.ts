@@ -37,7 +37,7 @@ class ConfigJSON
         let value = encodeURIComponent(JSON.stringify(this.data))
         Engine.ConfigDB_CreateValue("user", this.key, value)
         if (this.saveToDisk)
-            Engine.ConfigDB_WriteValueToFile("user", this.key, value, "config/user.cfg")
+            Engine.ConfigDB_CreateAndSaveValue("user", this.key, value)
     }
 
     isEmpty(): boolean

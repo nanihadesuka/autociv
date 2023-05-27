@@ -97,20 +97,6 @@
 			},
 			{
 				"type": "boolean",
-				"label": "[color=\"220 185 70\"]Game:[/color] Chat panel font change",
-				"tooltip": "Modify chat panel font",
-				"config": "autociv.session.chatText.font.change"
-			},
-			{
-				"type": "autociv_dropdown_runtime_load",
-				"autociv_list_load": "autociv_getAvailableFonts",
-				"label": "[color=\"220 185 70\"]Game:[/color] Chat panel font",
-				"tooltip": "Font string",
-				"config": "autociv.session.chatText.font",
-				"dependencies": ["autociv.session.chatText.font.change"]
-			},
-			{
-				"type": "boolean",
 				"label": "[color=\"220 185 70\"]Game:[/color] Default stance healers",
 				"tooltip": "Default stance healers have when they spawn",
 				"config": "autociv.session.setHealersInitialStanceAggressive"

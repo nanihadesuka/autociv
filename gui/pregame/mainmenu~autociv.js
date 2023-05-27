@@ -10,7 +10,7 @@ var config = {
     get: function (key) { return Engine.ConfigDB_GetValue("user", key) },
     save: function ()
     {
-        if (this.needsToSave) Engine.ConfigDB_WriteFile("user", "config/user.cfg")
+        if (this.needsToSave) Engine.ConfigDB_SaveChanges("user")
         if (this.needsToReloadHotkeys) Engine.ReloadHotkeys()
     }
 }
@@ -26,7 +26,7 @@ function autociv_initCheck()
 
     // Check settings
     {
-        let settings = Engine.ReadJSONFile("autociv_data/default_config.json");
+        let settings = Engine.ReadJSONFile("moddata/autociv_default_config.json");
         // Reset all autociv settings to default. Custom autociv settings added won't be affected.
         if (config.get("autociv.settings.reset.all") === "true")
         {

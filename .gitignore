@@ -1,2 +1,3 @@
-autociv_data/0ad_keys.txt
-autociv_data/0ad_default.cfg
+moddata/autociv_0ad_keys.txt
+moddata/autociv_0ad_default.cfg
+/release.json
