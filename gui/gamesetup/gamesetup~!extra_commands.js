@@ -705,6 +705,12 @@ function setTeams(text) {
   teams = text.match(/(\d+)/g);
   if (teams == null) return selfMessage("Invalid input.");
 
+  if (text.indexOf("v") > 0 && !teams[1]) {
+    teams[1] = teams[0]; // if is a 'v' inside and second empty use the first number also. if you want dont have a second team dont write v
+    // selfMessage(`teams0= ${teams[0]}`);
+    // selfMessage(`teams1= ${teams[1]}`);
+  }
+
   // Transform string to number discarding 0 size teams
   teams = teams.map((v) => +v).filter((v) => v != 0);
 
