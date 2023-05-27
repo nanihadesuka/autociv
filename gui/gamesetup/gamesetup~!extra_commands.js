@@ -1,3 +1,7 @@
+// info's that never should've been forgot (some new user don't know eventually:)
+// error(
+//   "Just for Info: Auto-assign civilization with chat (only works if host has the mod)"
+// );
 var g_linkLong = null; // init should be available during the game and not changed
 var game = {
   // stuff that needs to be updated after the gui updates it (as it removes it before it)
