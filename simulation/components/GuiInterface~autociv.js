@@ -9,7 +9,7 @@ autociv_patchApplyN(GuiInterface.prototype, "Init", function (target, that, args
             "entities": new Set(),
             "max": Infinity
         },
-        setHealersInitialStanceAggressive: true,
+        initialStanceByClassExpression: [], // [[stance,classExpressionFunction]]
     };
     return target.apply(that, args);
 })
@@ -147,9 +147,9 @@ GuiInterface.prototype.autociv_getExpressionEvaluator = function (expression)
 
 /**
  * @param {Object} data
- * @param {String} settings.classesExpression
- * @param {Number[]} [settings.list] Initial list of entities to search from
- */
+ * @param {String} data.classesExpression
+ * @param {Number[]} [data.list] Initial list of entities to search from
+ *  */
 GuiInterface.prototype.autociv_FindEntitiesWithClassesExpression = function (player, data)
 {
     const evalExpression = this.autociv_getExpressionEvaluator(data.classesExpression);
@@ -227,9 +227,16 @@ GuiInterface.prototype.autociv_GetStatsOverlay = function ()
     return ret;
 };
 
-GuiInterface.prototype.autociv_setHealersInitialStanceAggressive = function (player, active)
+GuiInterface.prototype.autociv_setUnitsInitialStance = function (player, entries)
 {
-    this.autociv.setHealersInitialStanceAggressive = active
+    this.autociv.initialStanceByClassExpression = []
+    for (const [stance, expression] of Object.entries(entries)) {
+        const evalExpression = this.autociv_getExpressionEvaluator(expression)
+        if (!!evalExpression) {
+            this.autociv.initialStanceByClassExpression.push([stance, evalExpression])
+        }
+    }
+    warn(JSON.stringify(this.autociv.initialStanceByClassExpression, null, 2))
 }
 
 // Original variable declaration is prefixed with let instead of var so we can't
@@ -241,7 +248,7 @@ var autociv_exposedFunctions = {
     "autociv_FindEntitiesWithClassesExpression": 1,
     "autociv_SetCorpsesMax": 1,
     "autociv_GetStatsOverlay": 1,
-    "autociv_setHealersInitialStanceAggressive": 1
+    "autociv_setUnitsInitialStance": 1
 };
 
 autociv_patchApplyN(GuiInterface.prototype, "ScriptCall", function (target, that, args)

@@ -24,6 +24,14 @@ function autociv_initCheck()
         "showSuggestDefaultChanges": false
     };
 
+    const initialEmptySettings = new Set([
+        "autociv.session.units_initial_stance.violent.by_class",
+        "autociv.session.units_initial_stance.aggressive.by_class",
+        "autociv.session.units_initial_stance.defensive.by_class",
+        "autociv.session.units_initial_stance.passive.by_class",
+        "autociv.session.units_initial_stance.standground.by_class",
+    ])
+
     // Check settings
     {
         let settings = Engine.ReadJSONFile("autociv_data/default_config.json");
@@ -50,7 +58,7 @@ function autociv_initCheck()
                     state.reasons.add("New AutoCiv hotkey(s) added.");
                 }
             }
-            else if (config.get(key) == "")
+            else if (config.get(key) == "" && !initialEmptySettings.has(key))
             {
                 config.set(key, settings[key]);
                 state.reasons.add("New AutoCiv setting(s) added.");

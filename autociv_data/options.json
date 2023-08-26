@@ -103,10 +103,34 @@
 				"dependencies": ["autociv.session.chatText.font.change"]
 			},
 			{
-				"type": "boolean",
-				"label": "[color=\"220 185 70\"]Game:[/color] Default stance healers",
-				"tooltip": "Default stance healers have when they spawn",
-				"config": "autociv.session.setHealersInitialStanceAggressive"
+				"type": "string",
+				"label": "[color=\"220 185 70\"]Game:[/color] Units initial stance -> violent",
+				"tooltip": "Units class boolean expression that will make matching units start with this stance. Leave empty to disable. \n\nExample: (Soldier|Siege|Dog)&!Ship  \n\n(MAKE SURE IT DOESN'T CONFLICT WITH OTHER STANCES)",
+				"config": "autociv.session.units_initial_stance.violent.by_class"
+			},
+			{
+				"type": "string",
+				"label": "[color=\"220 185 70\"]Game:[/color] Units initial stance -> aggressive",
+				"tooltip": "Units class boolean expression that will make matching units start with this stance. Leave empty to disable. \n\nExample: (Soldier|Siege|Dog)&!Ship  \n\n(MAKE SURE IT DOESN'T CONFLICT WITH OTHER STANCES)",
+				"config": "autociv.session.units_initial_stance.aggressive.by_class"
+			},
+			{
+				"type": "string",
+				"label": "[color=\"220 185 70\"]Game:[/color] Units initial stance -> defensive",
+				"tooltip": "Units class boolean expression that will make matching units start with this stance. Leave empty to disable. \n\nExample: (Soldier|Siege|Dog)&!Ship  \n\n(MAKE SURE IT DOESN'T CONFLICT WITH OTHER STANCES)",
+				"config": "autociv.session.units_initial_stance.defensive.by_class"
+			},
+			{
+				"type": "string",
+				"label": "[color=\"220 185 70\"]Game:[/color] Units initial stance -> passive",
+				"tooltip": "Units class boolean expression that will make matching units start with this stance. Leave empty to disable. \n\nExample: (Soldier|Siege|Dog)&!Ship  \n\n(MAKE SURE IT DOESN'T CONFLICT WITH OTHER STANCES)",
+				"config": "autociv.session.units_initial_stance.passive.by_class"
+			},
+			{
+				"type": "string",
+				"label": "[color=\"220 185 70\"]Game:[/color] Units initial stance -> standground",
+				"tooltip": "Units class boolean expression that will make matching units start with this stance. Leave empty to disable. \n\nExample: (Soldier|Siege|Dog)&!Ship  \n\n(MAKE SURE IT DOESN'T CONFLICT WITH OTHER STANCES)",
+				"config": "autociv.session.units_initial_stance.standground.by_class"
 			},
 			{
 				"type": "boolean",
