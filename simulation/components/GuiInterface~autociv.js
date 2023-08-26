@@ -236,7 +236,6 @@ GuiInterface.prototype.autociv_setUnitsInitialStance = function (player, entries
             this.autociv.initialStanceByClassExpression.push([stance, evalExpression])
         }
     }
-    warn(JSON.stringify(this.autociv.initialStanceByClassExpression, null, 2))
 }
 
 // Original variable declaration is prefixed with let instead of var so we can't

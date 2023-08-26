@@ -42,8 +42,6 @@ class InitialStanceSettingHandler {
         if (player != Engine.GetPlayerID())
             return;
 
-        warn(">>>" + JSON.stringify(msg, null, 2))
-
         for (const [stanceType, entities] of msg.entities) {
             autociv_stance.set(stanceType, entities)
         }
