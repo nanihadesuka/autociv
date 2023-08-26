@@ -3,7 +3,7 @@
 But will be updated for the following cases:
 - Bug fixes
 - Compatibility with new 0 A.D. versions
-- Any reasonable pull request somebody might want to make 
+- Any reasonable pull request somebody might want to make
 
 Thanks to all the 0 A.D. players who found it useful. Nani :)
 
@@ -55,6 +55,7 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 	- Pause game overlay now shows only in the top area
 - Settings
 	- Max corpses visible
+	- Default initial unit stance
 
 ## Download
 There are three ways:
