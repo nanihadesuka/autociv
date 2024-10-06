@@ -2,13 +2,16 @@ ChatCommandHandler.prototype.ChatCommands["pingall"] = {
     "description": translate("Ping all 'Online' and 'Observer' players."),
     "ignoredUsers": new Set(),
     "ignoreListConfigKey": "autociv.lobby.pingPlayers.ignoreList",
-    "handler": function (args)
-    {
+    "botsListIgnore": [
+        "ModerationBot",
+        "RatingsBot",
+    ],
+    "handler": function (args) {
         // the caller changes function call context, must grab original one
         const that = this.ChatCommands["pingall"]
         that.init()
         const selfNick = Engine.LobbyGetNick();
-        const ignore = new Set([selfNick]);
+        const ignore = new Set([selfNick].concat(thisbotsListIgnore));
         const candidatesToAnnoy = new Set();
 
         const gameList = g_LobbyHandler.lobbyPage.lobbyPage.panels.gameList.gameList;
@@ -59,8 +62,7 @@ ChatCommandHandler.prototype.ChatCommands["pingall"] = {
 
 ChatCommandHandler.prototype.ChatCommands["pingall"]["playing"] = {
     "description": translate("Set your state to 'Playing'."),
-    "handler": function ()
-    {
+    "handler": function () {
         Engine.LobbySetPlayerPresence("playing");
         return true;
     }
