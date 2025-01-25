@@ -4,7 +4,7 @@
 	"autociv.mainmenu.suggestDefaultChanges": "true",
 	"autociv.lobby.chat.subject.hide": "false",
 	"autociv.lobby.gamelist.showHostName": "false",
-	"autociv.lobby.pingPlayers.ignoreList": "Ratings, WFGBot, WFGbot, Triumvir, user1, Dunedan, Rollo, stanleysweet, vladislavbelov, Stan, Stan`, ~Defc0n, ModerationBot, RatingsBot",
+	"autociv.lobby.pingPlayers.ignoreList": "Ratings, WFGBot, WFGbot, Triumvir, user1, Dunedan, Rollo, stanleysweet, vladislavbelov, Stan, Stan`, ~Defc0n, ModerationBot, RatingsBot, Ginnungagap, marcaurel",
 	"autociv.gamesetup.countdown.enabled": "false",
 	"autociv.gamesetup.countdown.time": 5,
 	"autociv.gamesetup.play.enabled": "false",
