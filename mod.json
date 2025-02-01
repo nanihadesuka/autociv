@@ -4,7 +4,7 @@
   "label": "Autociv mod 0 A.D. enhancer. Author: nani",
   "description": "Features: chat civ picker, building placement hotkeys, building selection hotkeys, local mute, chat link opener, etc. Compatible with vanilla.",
   "ignoreInCompatibilityChecks": true,
-  "dependencies": ["0ad=0.0.27"],
+  "dependencies": ["0ad=0.27.0"],
   "url": "https://wildfiregames.com/forum/topic/28753-autociv-mod-0ad-enhancer/",
   "author_name": "nani",
   "author_profile": "https://wildfiregames.com/forum/index.php?/profile/27866-nani/",
