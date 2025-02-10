@@ -3,7 +3,7 @@
 But will be updated for the following cases:
 - Bug fixes
 - Compatibility with new 0 A.D. versions
-- Any reasonable pull request somebody might want to make 
+- Any reasonable pull request somebody might want to make
 
 Thanks to all the 0 A.D. players who found it useful. Nani :)
 
@@ -81,7 +81,7 @@ There are three ways:
 
 ## Mod compatibility(s)
 The mod is compatible with:
-- 0 A.D 0.0.26
+- 0 A.D 0.27.0
 - Probable to work with the following mods
 	- boonGUI mod
 	- star mod
