@@ -18,7 +18,7 @@ var g_autociv_hotkeys = {
 	"autociv.lobby.focus.gameList": autociv_focus.gameList,
 	"autociv.lobby.gameList.selected.join": () => g_LobbyHandler.lobbyPage.lobbyPage.buttons.joinButton.onPress(),
 	"autociv.open.autociv_readme": ev => Engine.PushGuiPage("page_autociv_readme.xml"),
-	"autociv.lobby.host": ev => g_LobbyHandler.lobbyPage.lobbyPage.buttons.hostButton.onPress(),
+	"autociv.lobby.host": ev => g_LobbyHandler.lobbyPage.lobbyPage.buttons.hostButton.onPress(false),
 	"summary": ev => autociv_showLastGameSummary(),
 	/**
 	 * Can't unfocus chat input without mouse, use cancel hotkey to unfocus from it
