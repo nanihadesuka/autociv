@@ -188,7 +188,9 @@ GuiInterface.prototype.autociv_GetStatsOverlay = function ()
     {
         const playerEnt = cmpPlayerManager.GetPlayerByID(player);
         const cmpPlayer = Engine.QueryInterface(playerEnt, IID_Player);
-   		const cmpIdentity = Engine.QueryInterface(playerEnt, IID_Identity);
+        const comDiplomacy = QueryPlayerIDInterface(player, IID_Diplomacy);
+        const cmpIdentity = Engine.QueryInterface(playerEnt, IID_Identity);
+
 
         // Work out which phase we are in.
         let phase = 0;
@@ -210,9 +212,9 @@ GuiInterface.prototype.autociv_GetStatsOverlay = function ()
             "name": cmpIdentity.GetName(),
             "popCount": cmpPlayer.GetPopulationCount(),
             "resourceCounts": cmpPlayer.GetResourceCounts(),
-            "state": cmpPlayer.GetState(),
-            "team": cmpPlayer.GetTeam(),
-            "hasSharedLos": cmpPlayer.HasSharedLos(),
+            "state": cmpPlayer?.GetState() ?? "",
+            "team": comDiplomacy.GetTeam(),
+            "hasSharedLos": comDiplomacy.HasSharedLos(),
             "phase": phase,
             "researchedTechsCount": cmpTechnologyManager?.GetResearchedTechs().size ?? 0,
             "classCounts_Support": classCounts?.Support ?? 0,
