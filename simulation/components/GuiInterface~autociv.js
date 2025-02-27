@@ -222,7 +222,7 @@ GuiInterface.prototype.autociv_GetStatsOverlay = function ()
             "classCounts_Cavalry": classCounts?.Cavalry ?? 0,
             "classCounts_Siege": (classCounts?.Siege ?? 0),
             "classCounts_Champion": (classCounts?.Champion ?? 0),
-            "enemyUnitsKilledTotal": cmpPlayerStatisticsTracker?.enemyUnitsKilled.total ?? 0
+            "enemyUnitsKilledTotal": cmpPlayerStatisticsTracker?.enemyUnitsKilled.Unit ?? 0
         });
     }
 
