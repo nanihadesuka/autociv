@@ -1,9 +1,16 @@
 
 AutocivControls.StatsOverlay = class
 {
-    autociv_statsOverlay = Engine.GetGUIObjectByName("autociv_statsOverlay")
+    autociv_statsOverlay = Engine.GetGUIObjectByName("autociv_statsOverlay");
+    showResources = Engine.ConfigDB_GetValue("user", "autociv.stats.resources") == "true";
+    showAllies = Engine.ConfigDB_GetValue("user", "autociv.stats.alliesview") == "true";
+    showMilitary = Engine.ConfigDB_GetValue("user", "autociv.stats.militarycomposition") == "true";
+    showKD = Engine.ConfigDB_GetValue("user", "autociv.stats.kdratio") == "true";
+
+
+
     preStatsDefault = {
-        "Player      ": state => this.stateName(state), // Player name
+        " Player   ": state => this.stateName(state), // Player name
         "■ ": state => this.stateStrength(state), // Player color
         "# ": state => `${state.playerNumber}`, // Player number
     }
@@ -11,19 +18,30 @@ AutocivControls.StatsOverlay = class
         "T ": state => state.team != -1 ? `${state.team + 1}` : "", // Team number
     }
     stats = {
-        "P": state => state.phase,
-        " Pop": state => state.popCount,
+        " P": state => state.phase,
+        " Pop": state => state.classCounts_Support + state.classCounts_Infantry + state.classCounts_Cavalry,
         " Sup": state => state.classCounts_Support,
         " Inf": state => state.classCounts_Infantry,
         " Cav": state => state.classCounts_Cavalry,
         " Sig": state => state.classCounts_Siege,
         " Chp": state => state.classCounts_Champion,
+        " Mel": state => state.classCounts_Melee,
+        " Ran": state => state.classCounts_Ranged,
         "   Food": state => Math.round(state.resourceCounts["food"]),
         "   Wood": state => Math.round(state.resourceCounts["wood"]),
         "  Stone": state => Math.round(state.resourceCounts["stone"]),
         "  Metal": state => Math.round(state.resourceCounts["metal"]),
         " Tec": state => state.researchedTechsCount,
-        " Kil": state => state.enemyUnitsKilledTotal ?? 0,
+        " Kill": state => state.enemyUnitsKilledTotal ?? 0,
+        " Loss": state => state.unitsLost ?? 0,
+        "  KDr": state => state.enemyUnitsKilledTotal/ state.unitsLost ?? 0
+
+    }
+
+    kdstats = {
+        " Kill": state => state.enemyUnitsKilledTotal ?? 0,
+        " Loss": state => state.unitsLost ?? 0,
+        "  KDr": state => state.enemyUnitsKilledTotal/ state.unitsLost ?? 0
     }
 
     listTeamRepresentatives = {}
@@ -31,7 +49,7 @@ AutocivControls.StatsOverlay = class
     preStatsSeenBefore = {}
     stateStrengthsCached = {}
     widths = {} // Will be filled on the constructor
-    tickPeriod = 10
+    tickPeriod  = Engine.ConfigDB_GetValue("user", "autociv.stats.pollingrate") ?? 10
     textFont = "mono-stroke-10"
     configKey_visible = "autociv.session.statsOverlay.visible"
     configKey_brightnessThreshold = "autociv.session.statsOverlay.brightnessThreshold"
@@ -43,7 +61,9 @@ AutocivControls.StatsOverlay = class
         this.autociv_brightnessThreshold = Engine.ConfigDB_GetValue("user", this.configKey_brightnessThreshold)
         this.autociv_symbolizeRating = Engine.ConfigDB_GetValue("user", this.configKey_symbolizeRating) == "true"
 
-        for (let name in { ...this.preStatsDefault, ...this.preStatsTeam, ...this.stats })
+        let contentlist = { ...this.preStatsDefault, ...this.preStatsTeam, ...this.stats};
+
+        for (let name in contentlist)
             this.widths[name] = name.length
 
         this.autociv_statsOverlay.onTick = this.onTick.bind(this)
@@ -51,6 +71,10 @@ AutocivControls.StatsOverlay = class
         registerPlayersFinishedHandler(this.updatePlayerLists.bind(this));
         this.update()
         registerConfigChangeHandler(this.onConfigChanges.bind(this))
+        print(this.showResources);
+        print(this.showAllies);
+        print(this.showKD);
+        print(this.tickPeriod);
     }
 
     onConfigChanges(changes)
@@ -201,7 +225,7 @@ AutocivControls.StatsOverlay = class
 
     calcWidth(rowLength)
     {
-        return Engine.GetTextWidth(this.textFont, " ") * rowLength + this.autociv_statsOverlay.buffer_zone * 2
+        return Engine.GetTextWidth(this.textFont, " ")* 1.01* rowLength + this.autociv_statsOverlay.buffer_zone * 2
     }
 
     calcHeight(rowQuantity)
@@ -234,10 +258,10 @@ AutocivControls.StatsOverlay = class
             return
 
         let header = Object.keys(this.widths).
-            map(row => this.leftPadTrunc(row, this.widths[row])).
-            join("")
+        map(row => this.leftPadTrunc(row, this.widths[row])).
+        join("")
         const rowLength = header.length
-        header = setStringTags(header, { "color": "210 210 210" })
+        header = setStringTags(header, { "color": "250 250 250" })
         header += "\n"
 
         const values = {}
@@ -250,7 +274,6 @@ AutocivControls.StatsOverlay = class
                 "max": this.maxIndex(list),
             }
         }
-
         const entries = playerStates.map((state, index) =>
         {
             const preStatsDefault = Object.keys(this.preStatsDefault).
@@ -264,13 +287,26 @@ AutocivControls.StatsOverlay = class
             const stats = Object.keys(values).map(stat =>
             {
                 let text = this.leftPadTrunc(values[stat].list[index].toString(), this.widths[stat])
-                switch (index)
-                {
-                    case values[stat].max: return setStringTags(text, { "color": "230 230 0" })
-                    case values[stat].min: return setStringTags(text, { "color": "255 100 100" })
-                    default: return text
-                }
+                return text
+                // switch (index)
+                // {
+                //     case values[stat].max: return setStringTags(text, { "color": "230 230 0" })
+                //     case values[stat].min: return setStringTags(text, { "color": "255 100 100" })
+                //     default: return text
+                // }
             }).join("")
+
+            // const kdstats = Object.keys(this.kdstats).map(stat =>
+            // {
+            //     let text = this.leftPadTrunc(values[stat].list[index].toString(), this.widths[stat])
+            //     return text
+            //     // switch (index)
+            //     // {
+            //     //     case values[stat].max: return setStringTags(text, { "color": "230 230 0" })
+            //     //     case values[stat].min: return setStringTags(text, { "color": "255 100 100" })
+            //     //     default: return text
+            //     // }
+            // }).join("")
 
             if (state.state == "defeated")
                 return setStringTags(preStatsDefault + preStatsTeam + stats, { "color": "255 255 255 128" })
