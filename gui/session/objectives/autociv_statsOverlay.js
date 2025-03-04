@@ -19,12 +19,14 @@ AutocivControls.StatsOverlay = class
     }
     stats = {
         " P": state => state.phase,
-        " Pop": state => state.popCount,
+        " Pop": state => state.classCounts_Support + state.classCounts_Infantry + state.classCounts_Cavalry,
         " Sup": state => state.classCounts_Support,
         " Inf": state => state.classCounts_Infantry,
         " Cav": state => state.classCounts_Cavalry,
         " Sig": state => state.classCounts_Siege,
         " Chp": state => state.classCounts_Champion,
+        " Mel": state => state.classCounts_Melee,
+        " Ran": state => state.classCounts_Ranged,
         "   Food": state => Math.round(state.resourceCounts["food"]),
         "   Wood": state => Math.round(state.resourceCounts["wood"]),
         "  Stone": state => Math.round(state.resourceCounts["stone"]),
@@ -59,9 +61,7 @@ AutocivControls.StatsOverlay = class
         this.autociv_brightnessThreshold = Engine.ConfigDB_GetValue("user", this.configKey_brightnessThreshold)
         this.autociv_symbolizeRating = Engine.ConfigDB_GetValue("user", this.configKey_symbolizeRating) == "true"
 
-        let headers_to_show = ["P", " Pop"];
-
-        let contentlist = { ...this.preStatsDefault, ...this.preStatsTeam, ...headers_to_show};
+        let contentlist = { ...this.preStatsDefault, ...this.preStatsTeam, ...this.stats};
 
         for (let name in contentlist)
             this.widths[name] = name.length
@@ -225,7 +225,7 @@ AutocivControls.StatsOverlay = class
 
     calcWidth(rowLength)
     {
-        return Engine.GetTextWidth(this.textFont, " ")*1.2* rowLength + this.autociv_statsOverlay.buffer_zone * 2
+        return Engine.GetTextWidth(this.textFont, " ")* 1.01* rowLength + this.autociv_statsOverlay.buffer_zone * 2
     }
 
     calcHeight(rowQuantity)
@@ -257,24 +257,15 @@ AutocivControls.StatsOverlay = class
         if (!playerStates)
             return
 
-        let headers_to_show = [" P", " Pop"];
-
         let header = Object.keys(this.widths).
-            map(row => this.leftPadTrunc(row, this.widths[row])).
-            join(" ")
+        map(row => this.leftPadTrunc(row, this.widths[row])).
+        join("")
         const rowLength = header.length
-        header = setStringTags(header, { "color": "210 210 210" })
+        header = setStringTags(header, { "color": "250 250 250" })
         header += "\n"
 
         const values = {}
-
-        // //here we add selection statements to decide which values to show
-        // let headers_to_show = Object.keys(this.stats) //by default, everything in stats should be shown to make the panel meaningful
-        //
-        // let kdheaders = Object.keys(this.kdstats) //option to show kd
-
-
-        for (let stat of headers_to_show)
+        for (let stat of Object.keys(this.stats))
         {
             let list = playerStates.map(this.stats[stat])
             values[stat] = {
@@ -283,7 +274,6 @@ AutocivControls.StatsOverlay = class
                 "max": this.maxIndex(list),
             }
         }
-
         const entries = playerStates.map((state, index) =>
         {
             const preStatsDefault = Object.keys(this.preStatsDefault).
@@ -317,12 +307,6 @@ AutocivControls.StatsOverlay = class
             //     //     default: return text
             //     // }
             // }).join("")
-
-            print("\n");
-            print(stats);
-            print(" | ");
-            //print(kdstats);
-            print("\n");
 
             if (state.state == "defeated")
                 return setStringTags(preStatsDefault + preStatsTeam + stats, { "color": "255 255 255 128" })
