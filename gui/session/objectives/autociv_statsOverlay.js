@@ -235,7 +235,8 @@ AutocivControls.StatsOverlay = class
 
     computeSize(rowQuantity, rowLength)
     {
-        return `100%-${this.calcWidth(rowLength)} 100%-228-${this.calcHeight(rowQuantity)} 100% 100%-228`
+        return `100%-${this.calcWidth(rowLength)} 100%-220-${this.calcHeight(rowQuantity)} 100% 100%-220`
+        //return `100%-${this.calcWidth(rowLength)} 100%-228-${this.calcHeight(rowQuantity)} 100% 100%-228`
     }
 
     update()
