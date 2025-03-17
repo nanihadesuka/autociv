@@ -17,7 +17,7 @@ AutocivControls.StatsOverlay = class
     preStatsTeam = {
         "T ": state => state.team != -1 ? `${state.team + 1}` : "", // Team number
     }
-    stats = {
+    stats = Engine.ConfigDB_GetValue("user", "autociv.stats.resources") == "true" ? {
         " P": state => state.phase,
         " Pop": state => state.classCounts_Support + state.classCounts_Infantry + state.classCounts_Cavalry,
         " Sup": state => state.classCounts_Support,
@@ -35,8 +35,16 @@ AutocivControls.StatsOverlay = class
         " Kill": state => state.enemyUnitsKilledTotal ?? 0,
         " Loss": state => state.unitsLost ?? 0,
         "  KDr": state => state.enemyUnitsKilledTotal/ state.unitsLost ?? 0
+    } : {
+        " P": state => state.phase,
+        " Pop": state => state.classCounts_Support + state.classCounts_Infantry + state.classCounts_Cavalry,
+        " Fem": state => state.classCounts_Support,
+        " Inf": state => state.classCounts_Infantry,
+        " Cav": state => state.classCounts_Cavalry,
+        " Kill": state => state.enemyUnitsKilledTotal ?? 0,
+        "  KDr": state => state.enemyUnitsKilledTotal/ state.unitsLost ?? 0
 
-    }
+    };
 
     kdstats = {
         " Kill": state => state.enemyUnitsKilledTotal ?? 0,
@@ -49,7 +57,7 @@ AutocivControls.StatsOverlay = class
     preStatsSeenBefore = {}
     stateStrengthsCached = {}
     widths = {} // Will be filled on the constructor
-    tickPeriod  = Engine.ConfigDB_GetValue("user", "autociv.stats.pollingrate") ?? 10
+    tickPeriod  = 0
     textFont = "mono-stroke-10"
     configKey_visible = "autociv.session.statsOverlay.visible"
     configKey_brightnessThreshold = "autociv.session.statsOverlay.brightnessThreshold"
@@ -71,10 +79,9 @@ AutocivControls.StatsOverlay = class
         registerPlayersFinishedHandler(this.updatePlayerLists.bind(this));
         this.update()
         registerConfigChangeHandler(this.onConfigChanges.bind(this))
-        print(this.showResources);
-        print(this.showAllies);
-        print(this.showKD);
-        print(this.tickPeriod);
+
+        print("Autociv update frequency: ");
+        print(this.tickPeriod.toString());
     }
 
     onConfigChanges(changes)
@@ -248,10 +255,23 @@ AutocivControls.StatsOverlay = class
                 return false
 
             state.playerNumber = index
-            if (g_IsObserver || !g_Players[g_ViewedPlayer] || index == g_ViewedPlayer)
+
+            if (index == g_ViewedPlayer) {
                 return true
-            if (!playerStates[g_ViewedPlayer].hasSharedLos || !g_Players[g_ViewedPlayer].isMutualAlly[index])
+            }
+
+            if (this.showAllies) {
+
+                if (g_IsObserver || !g_Players[g_ViewedPlayer] || index == g_ViewedPlayer)
+                    return true
+                if (!playerStates[g_ViewedPlayer].hasSharedLos || !g_Players[g_ViewedPlayer].isMutualAlly[index])
+                    return false
+
+            }
+            else {
                 return false
+            }
+
             return true
         })
 
