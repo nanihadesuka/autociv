@@ -34,7 +34,7 @@ AutocivControls.StatsOverlay = class
         " Tec": state => state.researchedTechsCount,
         " Kill": state => state.enemyUnitsKilledTotal ?? 0,
         " Loss": state => state.unitsLost ?? 0,
-        "  KDr": state => state.enemyUnitsKilledTotal/ state.unitsLost ?? 0
+        "   KDr": state => Math.round(state.enemyUnitsKilledTotal * 100/ state.unitsLost) /100 ?? 0
     } : {
         " P": state => state.phase,
         " Pop": state => state.classCounts_Support + state.classCounts_Infantry + state.classCounts_Cavalry,
@@ -42,7 +42,7 @@ AutocivControls.StatsOverlay = class
         " Inf": state => state.classCounts_Infantry,
         " Cav": state => state.classCounts_Cavalry,
         " Kill": state => state.enemyUnitsKilledTotal ?? 0,
-        "  KDr": state => state.enemyUnitsKilledTotal/ state.unitsLost ?? 0
+        "   KDr": state => Math.round(state.enemyUnitsKilledTotal*100/ state.unitsLost) / 100 ?? 0
 
     };
 
