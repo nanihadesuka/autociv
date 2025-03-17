@@ -786,43 +786,6 @@
 		]
 	},
 	{
-		"label": "Autociv Stats Panel",
-		"tooltip": "Content to show on the stats panel of autociv",
-		"options":
-		[
-			{
-				"type": "boolean",
-				"label": "Resources counts",
-				"tooltip": "Show the total number of resources of each type?",
-				"config": "autociv.stats.resources"
-			},
-			{
-				"type": "boolean",
-				"label": "Show allies stats",
-				"tooltip": "Show the counters for all of your allies?",
-				"config": "autociv.stats.alliesview"
-			},
-			{
-				"type": "boolean",
-				"label": "Military unit compositions",
-				"tooltip": "Show the number of melee, ranged and cavalry units that you have?",
-				"config": "autociv.stats.militarycomposition"
-			},
-			{
-				"type": "boolean",
-				"label": "Kill-Death performance",
-				"tooltip": "Show your kill count, loss and kill death ratio?",
-				"config": "autociv.stats.kdratio"
-			},
-			{
-				"type": "number",
-				"label": "Counter update frequency",
-				"tooltip": "The update frequency of the autociv stats panel. Higher values mean faster update but more CPU consumption. ",
-				"config": "autociv.stats.pollingrate"
-			}
-		]
-	},
-	{
 		"label": "Gameplay",
 		"tooltip": "Change options affecting the gameplay.",
 		"options":

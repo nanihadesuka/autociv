@@ -36,6 +36,12 @@
 			},
 			{
 				"type": "boolean",
+				"label": "[color=\"220 185 70\"]Graphics:[/color] Enable eyecandy",
+				"tooltip": "This option allows you to enable and disable eyecandy features on the map that are not actively taking part in the game. For example, there are purely decorational bushes and flowers that you cannot gather resources from. By setting this option to false, you can hide these decorational bushes to avoid confusion and de-clutter the map. Disabling this option also offers a slight performance improvement",
+				"config": "renderactors"
+			},
+			{
+				"type": "boolean",
 				"label": "[color=\"220 185 70\"]Game setup:[/color] countdown enable",
 				"tooltip": "Automatically enable countdown when hosting",
 				"config": "autociv.gamesetup.countdown.enabled"
@@ -56,14 +62,29 @@
 			},
 			{
 				"type": "boolean",
-				"label": "[color=\"220 185 70\"]Game:[/color] Symbolize the rating",
+				"label": "[color=\"220 185 70\"]StatsOverlay:[/color] Symbolize the rating",
 				"tooltip": "Transform the user rating or the AI difficulty level into an icon to indicate their strength.\n\n[color=\"220 185 70\"]\u25B2[/color]  Top\n[color=\"220 185 70\"]\u25C6[/color]  Good\n[color=\"220 185 70\"]\u25A0[/color]  Decent\n[color=\"220 185 70\"]\u25AC[/color]  Beginner\n[color=\"220 185 70\"]\u25A1[/color]  Noob\n",
 				"config": "autociv.session.statsOverlay.symbolizeRating",
 				"dependencies": ["autociv.session.statsOverlay.visible"]
 			},
 			{
+				"type": "boolean",
+				"label": "[color=\"220 185 70\"]StatsOverlay:[/color] Detailed Stats",
+				"tooltip": "Show the detailed statistics for you? Includes more unit types, techs to evaluate your current strength.",
+				"config": "autociv.stats.resources",
+				"dependencies": ["autociv.session.statsOverlay.visible"]
+			},
+			{
+				"type": "boolean",
+				"label": "[color=\"220 185 70\"]StatsOverlay:[/color] Show allies stats",
+				"tooltip": "Show the counters for all of your allies?",
+				"config": "autociv.stats.alliesview",
+				"dependencies": ["autociv.session.statsOverlay.visible"]
+			},
+
+			{
 				"type": "slider",
-				"label": "[color=\"220 185 70\"]Game:[/color] Brightness of player names",
+				"label": "[color=\"220 185 70\"]StatsOverlay:[/color] Brightness of player names",
 				"tooltip": "Adjust the brightness intensity for the player names.",
 				"config": "autociv.session.statsOverlay.brightnessThreshold",
 				"dependencies": ["autociv.session.statsOverlay.visible"],
