@@ -11,7 +11,7 @@ ChatCommandHandler.prototype.ChatCommands["pingall"] = {
         const that = this.ChatCommands["pingall"]
         that.init()
         const selfNick = Engine.LobbyGetNick();
-        const ignore = new Set([selfNick].concat(thisbotsListIgnore));
+        const ignore = new Set([selfNick].concat(that.botsListIgnore));
         const candidatesToAnnoy = new Set();
 
         const gameList = g_LobbyHandler.lobbyPage.lobbyPage.panels.gameList.gameList;
