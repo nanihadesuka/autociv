@@ -149,6 +149,55 @@
 				"min": "1",
 				"max": "200"
 			},
+
+			{
+				"type": "number",
+				"label": "Scroll Speed ",
+				"tooltip": "How fast your camera walks on the map when you press WASD. Measured in m/s; Kate's recommended value is between 400 to 600, although the default value is 120. NEEDS RESTART TO APPLY",
+				"config": "view.scroll.speed",
+				"min": 100,
+				"max": 1000
+			},
+			{
+				"type": "number",
+				"label": "Minimum Zoom",
+				"tooltip": "Smaller value allows you to zoom out further, meaning viewing the map from a higher altitude too see a greater area but the actors will appear smaller. The default value is 50 but Kate recommends between 5 to 10. NEEDS RESTART TO APPLY",
+				"config": "view.zoom.min",
+				"min": 0,
+				"max": 50
+			},
+			{
+				"type": "number",
+				"label": "FOV",
+				"tooltip": "Field of view, controlling the horizontal distortion of the camera. higher values allows you to see a greater area of the map but distorts the vision. By default it's 45, but Kate thinks anything between 40-55 is reasonable. NEEDS RESTART TO APPLY",
+				"config": "view.fov",
+				"min": 30,
+				"max": 70
+			},
+			{
+				"type": "number",
+				"label": "Maximum camera angle of elevation",
+				"tooltip": "The angle between your line of sight and the map's horizontal plane. Set this value to 90 to look directly vertically at the map from the above. NEEDS RESTART TO APPLY",
+				"config": "view.rotate.x.max",
+				"min": 60,
+				"max": 90
+			},
+			{
+				"type": "number",
+				"label": "Minimum camera angle of elevation",
+				"tooltip": "The angle between your line of sight and the map's horizontal plane. Set this value to 0 to look horizontally across the map like an unit. NEEDS RESTART TO APPLY",
+				"config": "view.rotate.x.min",
+				"min": 0,
+				"max": 40
+			},
+			{
+				"type": "number",
+				"label": "Default zoom",
+				"tooltip": "Default value for the zoom when your game is loaded. Set this to a value that you find comfortable. NEEDS RESTART TO APPLY",
+				"config": "view.zoom.default",
+				"min": 10,
+				"max": 150
+			},
 			{
 				"type": "boolean",
 				"label": "Mouse pan inverted",
