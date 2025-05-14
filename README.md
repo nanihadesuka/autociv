@@ -1,12 +1,3 @@
-## This project is in maintenance mode
-
-But will be updated for the following cases:
-- Bug fixes
-- Compatibility with new 0 A.D. versions
-- Any reasonable pull request somebody might want to make
-
-Thanks to all the 0 A.D. players who found it useful. Nani :)
-
 # AutoCiv
 This mod is an aggregation of features meant to enhance the 0 A.D. game experience. I usually implement these extra features as they come up with no general plan in mind.
 
@@ -25,6 +16,7 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 	- Better performance when reloading lobby
 	- Shortcuts to create host, navigate gamelist
 	- Write s?search_text_here at the chat input to search lobby chat
+ 	- Button to access options page, allowing players to adjust settings even when logged into the lobby. 
 - Game setup
 	- Auto-assign civilization with chat (only works if host has the mod)
 	- Custom population limit
@@ -55,6 +47,8 @@ This mod is an aggregation of features meant to enhance the 0 A.D. game experien
 	- Pause game overlay now shows only in the top area
 - Settings
 	- Max corpses visible
+ 	- Enable / Disable eyecandy
+ 	- Additional camera settings	  
 
 ## Download
 There are three ways:
@@ -95,6 +89,17 @@ The mod is compatible with:
 ## More stuff & goodies
 For more info just read the whole thread where I post new features.
 https://wildfiregames.com/forum/topic/28753-autociv-mod-0ad-enhancer/
+You can post on this thread for bug reports and feature requests! 
 
 ## Questions & feedback
 You don't understand how it works? Feeling confused? Just wanna comment? Ask and post.
+Maintainer: Seleucids (on the forum), aka Ricci-Curvature (in the lobby)
+
+## This project is in maintenance mode
+
+But will be updated for the following cases:
+- Bug fixes
+- Compatibility with new 0 A.D. versions
+- Any reasonable pull request somebody might want to make
+
+Thanks to all the 0 A.D. players who found it useful. Nani :)
