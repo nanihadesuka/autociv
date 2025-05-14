@@ -1,7 +1,7 @@
 {
   "name": "autociv",
-  "version": "27.0.4",
-  "label": "Autociv mod 0 A.D. enhancer. Author: nani",
+  "version": "27.0.5",
+  "label": "Autociv mod 0 A.D. enhancer. Author: nani.",
   "description": "Features: chat civ picker, building placement hotkeys, building selection hotkeys, local mute, chat link opener, etc. Compatible with vanilla.",
   "ignoreInCompatibilityChecks": true,
   "dependencies": ["0ad=0.27.0"],
