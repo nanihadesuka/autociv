@@ -4,7 +4,7 @@ AutocivControls.PlayersOverlay = class
     textFont = "mono-stroke-10"
     configKey_visible = "autociv.session.playersOverlay.visible"
     visible = Engine.ConfigDB_GetValue("user", this.configKey_visible) == "true"
-    playerOfflineColor = "250 60 30 250"
+    playerOfflineColor = "250 0 0 250"
 
     constructor()
     {
@@ -31,10 +31,6 @@ AutocivControls.PlayersOverlay = class
             this.update()
     }
 
-    computeSize(textLength)
-    {
-        return `100%-200 100%-10-100 100% 100%-10`
-    }
 
     update()
     {
@@ -50,14 +46,36 @@ AutocivControls.PlayersOverlay = class
 
         const list = [...playersOffline, ...observers]
 
-        const caption = list.map(([name, isPlayer]) =>
+        let onlinespecs = "";
+        let offlineplayers = "";
+
+        list.map(([name, isPlayer]) =>
         {
-            return isPlayer ? setStringTags(name, { "color": this.playerOfflineColor, }) : name
-        }).join(", ")
+            //print(isPlayer)
+            if (isPlayer){
+                offlineplayers = offlineplayers + setStringTags(name, { "color": this.playerOfflineColor }) + "\n";
+            }
+            else {
+                onlinespecs = onlinespecs + name + "\n";
+            }
+            return ""
+        })
+
+        let caption = "";
+
+        if (offlineplayers != "") {
+            caption = caption + "Offline players: \n" + offlineplayers
+        }
+
+        if (onlinespecs != ""){
+            caption = caption + "Spectators: \n" + onlinespecs;
+        }
+
+        //find the maximum width required for the panel, which is equal to the longest name
 
         this.autociv_playersOverlay.hidden = !caption
         this.autociv_playersOverlay.caption = ""
-        this.autociv_playersOverlay.size = this.computeSize(caption.length)
+        this.autociv_playersOverlay.size = `100%-190 100%-200 100% 100%` // this.computeSize(caption.length, list.length)
         this.autociv_playersOverlay.caption = setStringTags(caption, {
             "color": "250 250 250 250",
             "font": this.textFont

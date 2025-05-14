@@ -110,8 +110,17 @@ AutocivControls.StatsOverlay = class
             return "\u25A0"; // ◼ black square
         if (!this.stateStrengthsCached[state.playerNumber])
         {
-            const aiDiff = g_InitAttributes.settings.PlayerData[state.playerNumber].AIDiff
-            const userRating = splitRatingFromNick(state.name).rating
+            let aiDiff = 1;
+            let userRating = 1200;
+
+            try{
+                aiDiff = g_InitAttributes.settings.PlayerData[state.playerNumber].AIDiff
+                userRating = splitRatingFromNick(state.name).rating
+            }
+            catch(err) {
+                print(err.toString());
+
+            }
 
             // 5 strength levels shown as unicode characters
             // https://www.unicode.org/charts/PDF/U25A0.pdf
@@ -308,13 +317,13 @@ AutocivControls.StatsOverlay = class
             const stats = Object.keys(values).map(stat =>
             {
                 let text = this.leftPadTrunc(values[stat].list[index].toString(), this.widths[stat])
-                return text
-                // switch (index)
-                // {
-                //     case values[stat].max: return setStringTags(text, { "color": "230 230 0" })
-                //     case values[stat].min: return setStringTags(text, { "color": "255 100 100" })
-                //     default: return text
-                // }
+                //return text
+                switch (index)
+                {
+                    case values[stat].max: return setStringTags(text, { "color": "230 230 0" })
+                    case values[stat].min: return setStringTags(text, { "color": "255 100 100" })
+                    default: return text
+                }
             }).join("")
 
             // const kdstats = Object.keys(this.kdstats).map(stat =>
