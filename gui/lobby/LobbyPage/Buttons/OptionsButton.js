@@ -1,13 +1,13 @@
 /**
  * This class deals with the button that opens the leaderboard page.
  */
-class OptionsButton
+class OptionsButtonAutociv
 {
 	constructor()
 	{
-		this.optionsButton = Engine.GetGUIObjectByName("optionsButton");
-		this.optionsButton.caption = translate("Options");
-		this.optionsButton.onPress = this.onPress; //Engine.PushGuiPage("page_manual.xml");
+		this.optionsButtonAutociv = Engine.GetGUIObjectByName("optionsButtonAutociv");
+		this.optionsButtonAutociv.caption = translate("Options");
+		this.optionsButtonAutociv.onPress = this.onPress; //Engine.PushGuiPage("page_manual.xml");
 	}
 
 	async onPress()

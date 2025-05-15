@@ -30,8 +30,21 @@ AutocivControls.PlayersOverlay = class
         if (this.visible)
             this.update()
     }
-
-
+    truncateName(name)
+    {
+        if (name.length > 30){
+            name = name.slice(0, 30)
+            return name
+        }
+        else{
+            let filler = "";
+            for (let i = 0; i < 30-name.length; i++){
+                filler = filler + " "
+            }
+            name = filler + name;
+            return name
+        }
+    }
     update()
     {
         Engine.ProfileStart("AutocivControls.PlayersOverlay:update")
@@ -53,10 +66,10 @@ AutocivControls.PlayersOverlay = class
         {
             //print(isPlayer)
             if (isPlayer){
-                offlineplayers = offlineplayers + setStringTags(name, { "color": this.playerOfflineColor }) + "\n";
+                offlineplayers = offlineplayers + setStringTags(this.truncateName(name), { "color": this.playerOfflineColor }) + "\n";
             }
             else {
-                onlinespecs = onlinespecs + name + "\n";
+                onlinespecs = onlinespecs + this.truncateName(name) + "\n";
             }
             return ""
         })
@@ -64,11 +77,11 @@ AutocivControls.PlayersOverlay = class
         let caption = "";
 
         if (offlineplayers != "") {
-            caption = caption + "Offline players: \n" + offlineplayers
+            caption = caption + "             Offline players: \n" + offlineplayers
         }
 
         if (onlinespecs != ""){
-            caption = caption + "Spectators: \n" + onlinespecs;
+            caption = caption + "                  Spectators: \n" + onlinespecs;
         }
 
         //find the maximum width required for the panel, which is equal to the longest name
@@ -83,4 +96,6 @@ AutocivControls.PlayersOverlay = class
 
         Engine.ProfileStop()
     }
+
+
 }

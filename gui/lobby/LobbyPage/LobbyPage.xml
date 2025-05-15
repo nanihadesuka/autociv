@@ -30,7 +30,7 @@
 
 					<object name="leaderboardButton" type="button" style="ModernButtonRed" size="0 54 100% 79"/>
 					<object name="profileButton" type="button" style="ModernButtonRed" size="0 81 100% 106"/>
-					<object name="optionsButton" type="button" style="ModernButtonRed" size="0 108 100% 133"/>
+					<object name="optionsButtonAutociv" type="button" style="ModernButtonRed" size="0 108 100% 133"/>
 
 				</object>
 			</object>

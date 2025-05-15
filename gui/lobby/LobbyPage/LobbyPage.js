@@ -26,7 +26,7 @@ class LobbyPage
 				"leaderboardButton": new LeaderboardButton(xmppMessages, leaderboardPage),
 				"profileButton": new ProfileButton(xmppMessages, profilePage),
 				"quitButton": new QuitButton(dialog, leaderboardPage, profilePage),
-				"optionsButton": new OptionsButton()
+				"optionsButtonAutociv": new OptionsButtonAutociv()
 			},
 			"panels": {
 				"chatPanel": new ChatPanel(xmppMessages),
