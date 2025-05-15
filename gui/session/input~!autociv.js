@@ -242,7 +242,7 @@ var g_autociv_hotkeys = {
 	},
 	"autociv.open.autociv_readme": function (ev)
 	{
-		Engine.PushGuiPage("page_autociv_readme.xml");
+		Engine.SwitchGuiPage("page_autociv_readme.xml");
 	},
 	"autociv.session.production.queue.clear": function (ev)
 	{

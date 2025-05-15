@@ -6,13 +6,13 @@
 	<script directory="gui/autociv_readme/"/>
 
 	<object hotkey="cancel">
-		<action on="Press">	Engine.PopGuiPage() </action>
+		<action on="Press">Engine.SwitchGuiPage("page_pregame.xml")</action>
 	</object>
 
 	<!-- Add a translucent black background -->
 	<object type="button"
 		sprite="color: 0 0 0 0">
-		<action on="MouseLeftPress"> Engine.PopGuiPage() </action>
+		<action on="MouseLeftPress">Engine.SwitchGuiPage("page_pregame.xml")</action>
 	</object>
 
 	<object type="image"
@@ -44,7 +44,7 @@
 				type="button"
 				style="ModernButtonRed"
 				size="50%+20 0% 50%+130+20 100%">
-				<action on="Press">	Engine.PopGuiPage() </action>
+				<action on="Press">Engine.SwitchGuiPage("page_pregame.xml") </action>
 			</object>
 		</object>
 	</object>

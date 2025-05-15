@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<objects>
+
+	<script directory="gui/common/"/>
+	<script directory="gui/options/"/>
+
+	<!-- Add a translucent black background to fade out the menu page -->
+	<object type="image" sprite="ModernFade"/>
+
+	<!-- Settings Window -->
+	<object name="options" type="image" style="ModernDialog" size="50%-400 50%-374 50%+400 50%+374">
+
+		<object style="ModernLabelText" type="text" size="50%-128 -16 50%+128 16">
+			<translatableAttribute id="caption">Game Options</translatableAttribute>
+		</object>
+
+		<!-- Category Tabs -->
+		<object size="15 16 230 100%-52">
+			<include file="gui/common/tab_buttons.xml"/>
+		</object>
+
+		<!-- Option Controls -->
+		<object name="option_controls" type="image" sprite="ModernDarkBoxGold" size="240 16 785 100%-52">
+			<repeat count="25">
+				<object name="option_control[n]" size="0 0 100% 0">
+					<object name="option_label[n]" size="0 0 65%-10 100%" type="text" style="ModernLeftLabelText"/>
+					<object name="option_control_boolean[n]" size="95% 2 100% 100%+2" type="checkbox" style="ModernTickBox"/>
+					<object name="option_control_string[n]" size="65% 0 100%-8 100%" type="input" style="ModernInput"/>
+					<object name="option_control_color[n]" size="65%+40 0 100%-8 100%" type="input" style="ModernInput">
+						<object type="image" size="-42 4 -25 100%-4" sprite="color:gold"/>
+						<object type="image" size="-41 5 -27 100%-5"/>
+						<object type="button" size="-22 3 -2 100%-3" style="ModernButtonRed"/>
+					</object>
+					<object name="option_control_number[n]" size="65% 0 100%-8 100%" type="input" style="ModernInput"/>
+					<object name="option_control_dropdown[n]" size="65% 0 100%-8 100%" type="dropdown" style="ModernDropDown" tooltip_style="tooltipInstant"/>
+					<object name="option_control_dropdownNumber[n]" size="65% 0 100%-8 100%" type="dropdown" style="ModernDropDown" tooltip_style="tooltipInstant"/>
+					<object name="option_control_slider[n]" size="65% 0 100%-8 100%" type="slider" style="ModernSlider"/>
+				</object>
+			</repeat>
+		</object>
+
+		<object type="button" style="ModernButtonRed" size="50%-339 100%-44 50%-177 100%-16">
+			<translatableAttribute id="caption">Reset</translatableAttribute>
+			<translatableAttribute id="tooltip">Resets user settings to their game default</translatableAttribute>
+			<action on="Press">setDefaults();</action>
+		</object>
+
+		<object name="revertChanges" type="button" style="ModernButtonRed" size="50%-167 100%-44 50%-5 100%-16">
+			<translatableAttribute id="caption">Revert</translatableAttribute>
+			<translatableAttribute id="tooltip">Reverts to previous saved settings</translatableAttribute>
+			<action on="Press">revertChanges();</action>
+		</object>
+
+		<object name="saveChanges" type="button" style="ModernButtonRed" size="50%+5 100%-44 50%+167 100%-16">
+			<translatableAttribute id="caption">Save</translatableAttribute>
+			<translatableAttribute id="tooltip">Saves changes</translatableAttribute>
+			<action on="Press">saveChanges();</action>
+		</object>
+
+		<object name="closeButton" type="button" style="ModernButtonRed" size="50%+177 100%-44 50%+339 100%-16" hotkey="cancel">
+			<translatableAttribute id="caption">Close</translatableAttribute>
+			<translatableAttribute id="tooltip">Unsaved changes affect this session only</translatableAttribute>
+		</object>
+
+	</object>
+</objects>
