@@ -49,6 +49,7 @@ AutocivControls.PlayersOverlay = class
     {
         Engine.ProfileStart("AutocivControls.PlayersOverlay:update")
 
+        //construct players list
         const playersOffline = g_Players.
             filter(player => player.offline).
             map(player => [player.name, true])
@@ -59,29 +60,45 @@ AutocivControls.PlayersOverlay = class
 
         const list = [...playersOffline, ...observers]
 
+        //define these lists as long strings to be displayed
         let onlinespecs = "";
         let offlineplayers = "";
+
+        //counter for the number of people in each category
+        let Nonlinespecs = 0;
+        let Nofflineplayers = 0;
+
+        //format the player names to coloured string and append them to the strings defined above
 
         list.map(([name, isPlayer]) =>
         {
             //print(isPlayer)
             if (isPlayer){
                 offlineplayers = offlineplayers + setStringTags(this.truncateName(name), { "color": this.playerOfflineColor }) + "\n";
+                Nofflineplayers = Nofflineplayers + 1;
             }
             else {
                 onlinespecs = onlinespecs + this.truncateName(name) + "\n";
+                Nonlinespecs = Nonlinespecs + 1;
             }
             return ""
         })
-
+        //this caption will be the final displayed content. Append names to this
         let caption = "";
 
         if (offlineplayers != "") {
-            caption = caption + "             Offline players: \n" + offlineplayers
+            //add spacing to align to the right hand side
+            caption = caption + " ".repeat(11-Nofflineplayers.toString().length)
+            //count the number of players in this category
+            caption = caption + "Offline players (" + Nofflineplayers.toString() + "):\n"
+            //finally, add the list of formatted names
+            caption = caption + offlineplayers
         }
 
         if (onlinespecs != ""){
-            caption = caption + "                  Spectators: \n" + onlinespecs;
+            caption = caption + " ".repeat(16-Nonlinespecs.toString().length)
+            caption = caption + "Spectators (" + Nonlinespecs.toString() +"):\n"
+            caption = caption + onlinespecs;
         }
 
         //find the maximum width required for the panel, which is equal to the longest name
@@ -93,9 +110,6 @@ AutocivControls.PlayersOverlay = class
             "color": "250 250 250 250",
             "font": this.textFont
         })
-
         Engine.ProfileStop()
     }
-
-
 }
